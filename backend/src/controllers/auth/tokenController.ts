@@ -3,9 +3,8 @@ import { serialize } from "cookie";
 import * as tokenService from "@/services/auth/tokenService.js";
 
 export const refreshToken = async (req: Request, res: Response) => {
-  const { newAccessToken, newRefreshToken } = await tokenService.refreshToken(
-    req.cookies.refreshToken,
-  );
+  const { user, newAccessToken, newRefreshToken } =
+    await tokenService.refreshToken(req.cookies.refreshToken);
 
   // Set the new refresh token in the cookie
   res.setHeader(
@@ -19,5 +18,13 @@ export const refreshToken = async (req: Request, res: Response) => {
     }),
   );
 
-  return res.status(200).json({ accessToken: newAccessToken });
+  return res.status(200).json({
+    user: {
+      userId: user?.id,
+      firstName: user?.firstName,
+      lastName: user?.lastName,
+      email: user?.email,
+    },
+    accessToken: newAccessToken,
+  });
 };

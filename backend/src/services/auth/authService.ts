@@ -95,6 +95,8 @@ export const loginUser = async (credentials: LoginUserDTO) => {
       select: {
         id: true,
         email: true,
+        firstName: true,
+        lastName: true,
         refreshTokens: true,
       },
     });

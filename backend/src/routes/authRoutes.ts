@@ -34,7 +34,7 @@ router.post(
 );
 router.post("/v1/user/login", asyncHandler(userLogin));
 
-router.post("/v1/user/refresh-token", authLimiter, asyncHandler(refreshToken));
+router.get("/v1/user/refresh-token", authLimiter, asyncHandler(refreshToken));
 
 // -- Password Routes --
 router.put(

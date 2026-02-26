@@ -77,5 +77,5 @@ export const refreshToken = async (token: string) => {
     }),
   ]);
 
-  return { newAccessToken, newRefreshToken };
+  return { user, newAccessToken, newRefreshToken };
 };

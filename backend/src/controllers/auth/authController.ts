@@ -16,8 +16,7 @@ export const userLogin = async (req: Request, res: Response) => {
     req.body,
   );
 
-  res.setHeader(
-    "Set-Cookie",
+  res.setHeader("Set-Cookie", [
     serialize("refreshToken", refreshToken, {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
@@ -25,10 +24,22 @@ export const userLogin = async (req: Request, res: Response) => {
       maxAge: 7 * 24 * 60 * 60,
       path: "/",
     }),
-  );
+    serialize("is_logged_in", "true", {
+      httpOnly: false,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "strict",
+      maxAge: 7 * 24 * 60 * 60,
+      path: "/",
+    }),
+  ]);
 
   return res.status(200).json({
     accessToken,
-    userId: user?.id,
+    user: {
+      userId: user?.id,
+      firstName: user?.firstName,
+      lastName: user?.lastName,
+      email: user?.email,
+    },
   });
 };
