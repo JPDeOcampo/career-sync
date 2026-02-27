@@ -7,17 +7,14 @@ interface DecodedToken {
   exp: number;
 }
 
-export const protect = (
-  req: Request,
-  res: Response,
-  next: NextFunction,
-) => {
+export const protect = (req: Request, res: Response, next: NextFunction) => {
   const authHeader = req.headers.authorization;
   let token: string | undefined;
 
   if (authHeader && authHeader.startsWith("Bearer ")) {
     token = authHeader.split(" ")[1];
   }
+
   // Fallback to cookie if no Bearer token in header
   else if (req.cookies?.accessToken) {
     token = req.cookies.accessToken;

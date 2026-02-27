@@ -10,10 +10,11 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "./shared/DropdownMenu";
-import { Moon, Sun, Plus, User, LogOut } from "lucide-react";
-import { STORAGE_KEYS, storage } from "@/utils/storage";
+import { Plus, User, LogOut } from "lucide-react";
 import { useAppDispatch, useAppSelector } from "@/hooks/useRedux";
 import { logout } from "@/store/slices/authSlice";
+import DarkModeButton from "./shared/DarkModeButton";
+import { useSingleLogoutMutation } from "@/store/api/authApi";
 
 const Header = () => {
   const router = useRouter();
@@ -21,10 +22,16 @@ const Header = () => {
   const auth = useAppSelector((state) => state.auth);
   const user = auth.user;
 
-  const [darkMode, setDarkMode] = useState(() => {
-    const saved = storage.get<boolean>(STORAGE_KEYS.THEME);
-    return saved ?? false;
-  });
+  const [singleLogout, { isLoading }] = useSingleLogoutMutation();
+
+  const handleLogout = async () => {
+    try {
+      await singleLogout().unwrap();
+      router.push("/login");
+    } catch (err) {
+      console.error(err);
+    }
+  };
 
   const getAvatarColor = (name?: string) => {
     const colors = [
@@ -50,20 +57,6 @@ const Header = () => {
     return colors[index];
   };
 
-  const handleLogout = () => {
-    dispatch(logout());
-    router.push("/login");
-  };
-
-  useEffect(() => {
-    if (darkMode) {
-      document.documentElement.classList.add("dark");
-    } else {
-      document.documentElement.classList.remove("dark");
-    }
-    storage.set(STORAGE_KEYS.THEME, darkMode);
-  }, [darkMode]);
-
   return (
     <div className="sticky top-0 z-30 bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 shadow-sm">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -72,7 +65,7 @@ const Header = () => {
             <Logo className="h-12 w-12 mb-0" />
             <div>
               <h1 className="text-xl font-bold text-gray-900 dark:text-white">
-                Job Tracker
+                CareerSync
               </h1>
               <p className="text-xs text-gray-500 dark:text-gray-400">
                 Manage your job applications
@@ -86,17 +79,8 @@ const Header = () => {
               <span className="hidden sm:inline">Add Job</span>
             </button>
 
-            <button
-              onClick={() => setDarkMode(!darkMode)}
-              className="p-2 rounded-lg bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors"
-              aria-label="Toggle dark mode"
-            >
-              {darkMode ? (
-                <Sun className="w-5 h-5 text-yellow-500" />
-              ) : (
-                <Moon className="w-5 h-5 text-gray-700" />
-              )}
-            </button>
+            {/* Handle dark mode */}
+            <DarkModeButton />
 
             <DropdownMenu>
               <DropdownMenuTrigger>

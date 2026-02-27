@@ -1,8 +1,6 @@
 import { configureStore } from "@reduxjs/toolkit";
 import { authApi } from "./api/authApi";
 import authReducer from "./slices/authSlice";
-import { hasLoginHint } from "@/utils/cookies";
-import { logout } from "./slices/authSlice";
 
 export const store = configureStore({
   reducer: {
@@ -19,7 +17,7 @@ if (typeof window !== "undefined") {
   const hasCookie = document.cookie.includes("is_logged_in=true");
 
   if (hasCookie) {
-    store.dispatch(authApi.endpoints.getMe.initiate());
+    store.dispatch(authApi.endpoints.refreshToken.initiate());
   }
 }
 

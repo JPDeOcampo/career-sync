@@ -9,7 +9,7 @@ import Input from "@/components/shared/Input";
 import Label from "@/components/shared/Label";
 import { Eye, EyeOff } from "lucide-react";
 import { toast } from "sonner";
-import userLogin from "@/services/auth/login";
+import { useUserLoginMutation } from "@/store/api/authApi";
 
 const Login = () => {
   const router = useRouter();
@@ -17,8 +17,8 @@ const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
 
+  const [userLogin, { isLoading }] = useUserLoginMutation();
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
@@ -29,19 +29,14 @@ const Login = () => {
 
     if (isLoading) return;
 
-    setIsLoading(true);
-
     try {
-      const response = await userLogin({ email, password });
+      const response = await userLogin({ email, password }).unwrap();
       dispatch(login(response));
       router.push("/dashboard");
       toast.success(`Welcome back, ${response.user.firstName}!`);
     } catch (error) {
       toast.error("Login failed");
-      setIsLoading(false);
       return;
-    } finally {
-      setIsLoading(false);
     }
   };
 
@@ -77,6 +72,7 @@ const Login = () => {
           <div className="flex items-center justify-between">
             <Label htmlFor="password">Password</Label>
             <button
+              type="button"
               onClick={() => router.push("/forgot-password")}
               className="text-sm text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300 transition-colors"
             >

@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, use } from "react";
 import { useRouter } from "next/router";
 import { motion } from "motion/react";
 import { useDispatch, useSelector } from "react-redux";
@@ -10,23 +10,52 @@ import {
   InputOTPGroup,
   InputOTPSlot,
 } from "@/components/shared/InputOTP";
-import { ArrowLeft, Shield } from "lucide-react";
+import { ArrowLeft } from "lucide-react";
+import LogoShield from "@/components/shared/LogoShield";
 import { toast } from "sonner";
+import {
+  useUserVerifyResetPasswordMutation,
+  useUserRefreshResetPasswordMutation,
+} from "@/store/api/authApi";
+import { useAppSelector } from "@/hooks/useRedux";
+import { selectAuth } from "@/store/selectors";
+import { a } from "motion/react-client";
 
 const VerifyCode = () => {
   const router = useRouter();
   const dispatch = useDispatch();
   const resetEmail = useSelector((state: RootState) => state.auth.resetEmail);
   const [code, setCode] = useState("");
-  const [isLoading, setIsLoading] = useState(false);
   const [resendCooldown, setResendCooldown] = useState(0);
+  const user = useAppSelector(selectAuth).user;
+  console.log(user);
 
+  const [userRefreshResetPassword, { isLoading: isLoadingRefresh }] =
+    useUserRefreshResetPasswordMutation();
+
+  useEffect(() => {
+    if (user?.userId) return;
+
+    const refresh = async () => {
+      try {
+        await userRefreshResetPassword().unwrap();
+      } catch (error) {
+        console.log("Caught error:", error);
+        router.push("/login");
+        toast.error("Session expired");
+      }
+    };
+
+    refresh();
+  }, []);
   //   useEffect(() => {
   //     // Redirect if no reset email is set
   //     if (!resetEmail) {
   //       router.push("/forgot-password");
   //     }
   //   }, [resetEmail, router]);
+  const [userVerifyResetPassword, { isLoading }] =
+    useUserVerifyResetPasswordMutation();
 
   useEffect(() => {
     if (resendCooldown > 0) {
@@ -48,20 +77,24 @@ const VerifyCode = () => {
     }
   };
 
-  const handleVerifyWithCode = async (codeToVerify: string = code) => {
-    if (codeToVerify.length !== 6) {
+  const handleVerifyWithCode = async (verificationCode: string = code) => {
+    if (verificationCode.length !== 6) {
       toast.error("Please enter the complete 6-digit code");
       return;
     }
 
-    setIsLoading(true);
-
-    setTimeout(() => {
-      dispatch(resetPassword());
+    try {
+      await userVerifyResetPassword({
+        userId: user?.userId,
+        verificationCode,
+      }).unwrap();
       toast.success("Password reset successful!");
       router.push("/login");
-      setIsLoading(false);
-    }, 1000);
+      dispatch(resetPassword());
+    } catch (error) {
+      toast.error("Verification code is invalid or has expired.");
+      return;
+    }
   };
 
   const handleVerify = () => handleVerifyWithCode();
@@ -84,19 +117,12 @@ const VerifyCode = () => {
       </button>
 
       <div className="text-center mb-8">
-        <motion.div
-          initial={{ scale: 0.8, opacity: 0 }}
-          animate={{ scale: 1, opacity: 1 }}
-          transition={{ duration: 0.3 }}
-          className="inline-flex items-center justify-center w-16 h-16 bg-blue-500 rounded-2xl mb-4"
-        >
-          <Shield className="w-8 h-8 text-white" />
-        </motion.div>
+        <LogoShield />
         <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">
           Verify Code
         </h1>
         <p className="text-gray-600 dark:text-gray-400">
-          We sent a code to{" "}
+          We sent a code to <span className="font-bold">{user?.email}</span>
           <span className="font-medium text-gray-900 dark:text-white">
             {resetEmail}
           </span>

@@ -1,6 +1,7 @@
 import { prisma } from "@/lib/prisma.js";
 import { hashPassword, verifyPassword } from "@/utils/authUtils.js";
 import { AppError } from "@/utils/errors/appError.js";
+import { maskEmail } from "@/utils/maskEmail.js";
 import type {
   UpdatePasswordDTO,
   VerifyResetPWVerificationCodeDTO,
@@ -11,7 +12,23 @@ import { sendResetPassword } from "@/utils/mailer/sendResetPassword.js";
 import { generate6DigitCode } from "@/utils/globalUtils.js";
 import bcrypt from "bcrypt";
 import { generateSignToken } from "@/utils/generateSignToken.js";
-import jwt from "jsonwebtoken";
+import { verifyJwt } from "@/lib/verifyJWT.js";
+
+const checkResetToken = (token?: string) => {
+  if (!token) {
+    throw new AppError("Reset token is missing or expired", 400);
+  }
+  let payload: RefreshResetPasswordCodeDTO;
+  try {
+    payload = verifyJwt<RefreshResetPasswordCodeDTO>(
+      token,
+      process.env.JWT_ACCESS_SECRET!,
+    );
+  } catch (error) {
+    throw new AppError("Reset token is invalid or expired", 400);
+  }
+  return payload;
+};
 
 // --- Update Password Logic ---
 export const updatePassword = async (data: UpdatePasswordDTO) => {
@@ -81,7 +98,7 @@ export const forgotPassword = async (email: string) => {
     throw new AppError("Failed to send reset email", 500);
   }
 
-  return await prisma.user.update({
+  await prisma.user.update({
     where: {
       email: email,
     },
@@ -90,20 +107,29 @@ export const forgotPassword = async (email: string) => {
       verificationCodeExpires,
     },
   });
+
+  // Generate short-lived reset token (2 minutes)
+  const resetToken = await generateSignToken({
+    id: existingUser.id,
+    purpose: "password-reset",
+    expiresIn: "2m",
+  });
+
+  return { resetToken, userId: existingUser.id, email: maskEmail(email) };
 };
 
 // --- Verify Reset Password Verification Code Logic ---
 export const verifyResetPWVerificationCode = async (
   data: VerifyResetPWVerificationCodeDTO,
 ) => {
-  const { email, verificationCode } = data;
+  const { userId, verificationCode } = data;
 
-  if (!email || !verificationCode) {
+  if (!userId || !verificationCode) {
     throw new AppError("Email and verification code are required", 400);
   }
 
   const user = await prisma.user.findUnique({
-    where: { email },
+    where: { id: userId as unknown as string },
     select: {
       id: true,
       verificationCode: true,
@@ -131,28 +157,17 @@ export const verifyResetPWVerificationCode = async (
     throw new AppError("Verification code has expired", 400);
   }
 
-  // Generate short-lived reset token (2 minutes)
-  const resetToken = await generateSignToken({
-    id: user.id,
-    purpose: "password-reset",
-    expiresIn: "2m",
-  });
-
-  return resetToken;
+  return;
 };
 
 // --- Reset Password Logic ---
 export const resetPassword = async (data: ResetPasswordDTO) => {
-  const { emailParam, newPassword } = data;
-  if (typeof emailParam !== "string") {
-    throw new AppError("Invalid email parameter", 400);
-  }
-
-  const email = emailParam.toLowerCase();
+  const { resetToken, userId, newPassword } = data;
+  checkResetToken(resetToken);
 
   // Find the user by email
   const user = await prisma.user.findUnique({
-    where: { email },
+    where: { id: userId as unknown as string },
   });
 
   if (
@@ -177,32 +192,25 @@ export const resetPassword = async (data: ResetPasswordDTO) => {
 
 // --- Refresh Reset Password Logic ---
 export const refreshResetPassword = async (refreshToken: string) => {
-  if (!refreshToken) {
-    throw new AppError("Reset token is missing or expired", 400);
-  }
+  const resetToken = checkResetToken(refreshToken);
+  const user = await prisma.user.findUnique({
+    where: { id: resetToken.id },
+    select: {
+      id: true,
+      email: true,
+    },
+  });
 
-  let payload: RefreshResetPasswordCodeDTO;
-
-  try {
-    payload = jwt.verify(
-      refreshToken,
-      process.env.JWT_ACCESS_SECRET!,
-    ) as RefreshResetPasswordCodeDTO;
-
-    if (payload.purpose !== "password-reset") {
-      throw new AppError("Invalid reset token", 400);
-    }
-  } catch (error) {
-    throw new AppError("Reset token is invalid or expired", 400);
-  }
-
-  return payload;
+  return {
+    userId: user?.id,
+    email: maskEmail(user?.email),
+  };
 };
 
 // --- Resend Reset Verification Code Logic ---
-export const resendResetVerificationCode = async (email: string) => {
+export const resendResetVerificationCode = async (userId: string) => {
   const existingUser = await prisma.user.findUnique({
-    where: { email },
+    where: { id: userId as unknown as string },
   });
 
   if (!existingUser) {

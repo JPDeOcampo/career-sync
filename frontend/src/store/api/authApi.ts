@@ -1,33 +1,139 @@
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 import { UserType } from "@/@types/userTypes";
-import { login, logout } from "../slices/authSlice";
+import { login, logout, setUserId } from "../slices/authSlice";
 import apiPath from "@/utils/apiPath";
+import type { RootState } from "../store";
+import userRegister from "@/services/auth/register";
+import { use } from "react";
+const BASE_URL = `${process.env.NEXT_PUBLIC_API_URL}/api/career-sync/`;
 
-interface ResponseType {
+interface UserResponseType {
   user: UserType;
   accessToken: string;
 }
 export const authApi = createApi({
   reducerPath: "authApi",
   baseQuery: fetchBaseQuery({
-    baseUrl: apiPath.USER_REFRESH_TOKEN.endpoint,
+    baseUrl: BASE_URL,
     credentials: "include",
+    prepareHeaders: (headers, { getState }) => {
+      const token = (getState() as RootState).auth?.accessToken;
+
+      if (token) {
+        headers.set("Authorization", `Bearer ${token}`);
+      }
+
+      headers.set("Content-Type", "application/json");
+
+      return headers;
+    },
   }),
   endpoints: (builder) => ({
-    getMe: builder.query<ResponseType, void>({
-      query: () => "",
+    userLogin: builder.mutation<
+      UserResponseType,
+      { email: string; password: string }
+    >({
+      query: (credentials) => ({
+        url: "/v1/user/login",
+        method: "POST",
+        body: credentials,
+      }),
+    }),
+    userRegister: builder.mutation<
+      void,
+      {
+        firstName: string;
+        lastName: string;
+        email: string;
+        password: string;
+        reEnterPassword: string;
+      }
+    >({
+      query: (credentials) => ({
+        url: "/v1/user/register",
+        method: "POST",
+        body: credentials,
+      }),
+    }),
+    userForgotPassword: builder.mutation<
+      { userId: UserType["userId"]; email: UserType["email"] },
+      { email: string }
+    >({
+      query: (credentials) => ({
+        url: "/v1/user/forgot-password",
+        method: "POST",
+        body: credentials,
+      }),
       async onQueryStarted(_, { dispatch, queryFulfilled }) {
-        console.log("test................");
         try {
           const { data } = await queryFulfilled;
-          console.log(data, "test");
+          dispatch(setUserId({ userId: data.userId, email: data.email }));
+        } catch (err) {
+          console.log("Refresh token failed", err);
+          dispatch(logout());
+        }
+      },
+    }),
+    userRefreshResetPassword: builder.mutation<
+      { userId: UserType["userId"]; email: UserType["email"] },
+      void
+    >({
+      query: (credentials) => ({
+        url: "/v1/user/reset/refresh-reset-password",
+        method: "GET",
+        body: credentials,
+      }),
+      async onQueryStarted(_, { dispatch, queryFulfilled }) {
+        try {
+          const { data } = await queryFulfilled;
+          dispatch(setUserId({ userId: data.userId, email: data.email }));
+        } catch (err) {
+          console.log("Refresh token failed", err);
+        }
+      },
+    }),
+    userVerifyResetPassword: builder.mutation<
+      void,
+      { userId?: UserType["userId"]; verificationCode: string }
+    >({
+      query: ({ userId, verificationCode }) => ({
+        url: `/v1/user/reset/verify-reset-password/${userId}`,
+        method: "POST",
+        body: { verificationCode },
+      }),
+    }),
+    refreshToken: builder.query<UserResponseType, void>({
+      query: () => "/v1/user/refresh-token",
+      async onQueryStarted(_, { dispatch, queryFulfilled }) {
+        try {
+          const { data } = await queryFulfilled;
           dispatch(login(data));
         } catch (err) {
+          console.log("Refresh token failed", err);
           dispatch(logout());
+        }
+      },
+    }),
+    singleLogout: builder.mutation<void, void>({
+      query: () => "/v1/user/single-logout",
+      async onQueryStarted(_, { dispatch, queryFulfilled }) {
+        try {
+          await queryFulfilled;
+          dispatch(logout());
+        } catch (err) {
+          console.log("Logout failed", err);
         }
       },
     }),
   }),
 });
 
-export const { useGetMeQuery } = authApi;
+export const {
+  useUserLoginMutation,
+  useUserRegisterMutation,
+  useUserForgotPasswordMutation,
+  useUserVerifyResetPasswordMutation,
+  useUserRefreshResetPasswordMutation,
+  useRefreshTokenQuery,
+  useSingleLogoutMutation,
+} = authApi;

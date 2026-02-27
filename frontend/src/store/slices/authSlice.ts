@@ -22,12 +22,21 @@ const authSlice = createSlice({
     login: (state, action: PayloadAction<AuthState>) => {
       state.user = action.payload.user;
       state.isAuthenticated = action.payload.accessToken !== null;
+      state.accessToken = action.payload.accessToken;
       state.resetEmail = null;
     },
     logout: (state) => {
       state.user = null;
       state.isAuthenticated = false;
+      state.accessToken = null;
       state.resetEmail = null;
+    },
+    setUserId: (state, action: PayloadAction<UserType>) => {
+      state.user = {
+        ...state.user,
+        userId: action.payload.userId,
+        email: action.payload.email,
+      };
     },
     setResetEmail: (state, action: PayloadAction<string>) => {
       state.resetEmail = action.payload;
@@ -38,6 +47,6 @@ const authSlice = createSlice({
   },
 });
 
-export const { login, logout, setResetEmail, resetPassword } =
+export const { login, logout, setUserId, setResetEmail, resetPassword } =
   authSlice.actions;
 export default authSlice.reducer;

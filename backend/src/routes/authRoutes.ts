@@ -18,8 +18,11 @@ import {
   forgotPassword,
   verifyResetPWVerificationCode,
   resendResetVerificationCode,
+  refreshResetPassword,
   resetPassword,
 } from "@/controllers/auth/passwordController.js";
+
+import { userSingleLogout } from "@/controllers/auth/logoutController.js";
 
 import { refreshToken } from "@/controllers/auth/tokenController.js";
 
@@ -53,13 +56,22 @@ router.post(
   asyncHandler(forgotPassword),
 );
 router.post(
-  "/v1/user/reset/verify-reset-password",
+  "/v1/user/reset/verify-reset-password/:id",
   asyncHandler(verifyResetPWVerificationCode),
 );
 router.get(
-  "/v1/user/reset/resend-reset-verification-code",
+  "/v1/user/reset/resend-reset-verification-code/:id",
   asyncHandler(resendResetVerificationCode),
 );
-router.post("/v1/user/reset/reset-password", asyncHandler(resetPassword));
+
+router.get(
+  "/v1/user/reset/refresh-reset-password",
+  asyncHandler(refreshResetPassword),
+);
+
+router.post("/v1/user/reset/reset-password/:id", asyncHandler(resetPassword));
+
+// Logout
+router.get("/v1/user/single-logout", protect, asyncHandler(userSingleLogout));
 
 export default router;

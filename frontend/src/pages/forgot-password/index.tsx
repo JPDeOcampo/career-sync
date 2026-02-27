@@ -9,13 +9,14 @@ import Input from "@/components/shared/Input";
 import Label from "@/components/shared/Label";
 import { ArrowLeft } from "lucide-react";
 import { toast } from "sonner";
+import { useUserForgotPasswordMutation } from "@/store/api/authApi";
 
 const ForgotPassword = () => {
   const router = useRouter();
   const dispatch = useDispatch();
   const [email, setEmail] = useState("");
-  const [isLoading, setIsLoading] = useState(false);
 
+  const [userForgotPassword, { isLoading }] = useUserForgotPasswordMutation();
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
@@ -30,14 +31,14 @@ const ForgotPassword = () => {
       return;
     }
 
-    setIsLoading(true);
-
-    setTimeout(() => {
-      dispatch(setResetEmail(email));
+    try {
+      const response = await userForgotPassword({ email }).unwrap();
       toast.success("Verification code sent to your email!");
-      router.push("/verify-code");
-      setIsLoading(false);
-    }, 1000);
+      router.push(`/verify-code`);
+    } catch (error) {
+      toast.error("Password reset failed");
+      return;
+    }
   };
 
   return (

@@ -9,6 +9,7 @@ export const proxy = (request: NextRequest) => {
     "/register",
     "/forgot-password",
     "/verify-code",
+    "/reset-password",
   ];
   const isPublic = publicPaths.some((path) => pathname.startsWith(path));
 
