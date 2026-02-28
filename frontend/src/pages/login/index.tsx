@@ -10,20 +10,38 @@ import Label from "@/components/shared/Label";
 import { Eye, EyeOff } from "lucide-react";
 import { toast } from "sonner";
 import { useUserLoginMutation } from "@/store/api/authApi";
+import { useAppSelector } from "@/hooks/useRedux";
+import useGlobalHooks from "@/hooks/useGlobal";
 
 const Login = () => {
   const router = useRouter();
   const dispatch = useAppDispatch();
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
-
+  const { textFieldRequired } = useAppSelector((state) => state.global);
   const [userLogin, { isLoading }] = useUserLoginMutation();
-  const handleSubmit = async (e: React.FormEvent) => {
+  const { validateField } = useGlobalHooks();
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { id, value } = e.target;
+    validateField(id, value);
+  };
+
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
-    if (!email || !password) {
-      toast.error("Please fill in all fields");
+    const formData = new FormData(e.currentTarget);
+
+    const data = {
+      email: formData.get("email") as string,
+      password: formData.get("password") as string,
+    };
+
+    const { email, password } = data;
+    console.log(email, password);
+    if (
+      !validateField("email", email) ||
+      !validateField("password", password)
+    ) {
       return;
     }
 
@@ -57,15 +75,18 @@ const Login = () => {
           <Label htmlFor="email">Email</Label>
           <Input
             id="email"
+            name="email"
             type="email"
             placeholder="john@example.com"
-            value={email}
-            onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-              setEmail(e.target.value)
-            }
-            className="h-11"
+            onChange={handleChange}
+            className={`h-11 ${
+              textFieldRequired.email ? "border border-red-500" : ""
+            }`}
             autoFocus
           />
+          {textFieldRequired.email && (
+            <p className="text-red-500 text-sm">{textFieldRequired.email}</p>
+          )}
         </div>
 
         <div className="space-y-2">
@@ -82,14 +103,19 @@ const Login = () => {
           <div className="relative">
             <Input
               id="password"
+              name="password"
               type={showPassword ? "text" : "password"}
               placeholder="••••••••"
-              value={password}
-              onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-                setPassword(e.target.value)
-              }
-              className="h-11 pr-10"
+              onChange={handleChange}
+              className={`h-11 pr-10 ${
+                textFieldRequired.password ? "border border-red-500" : ""
+              }`}
             />
+            {textFieldRequired.password && (
+              <p className="text-red-500 text-sm">
+                {textFieldRequired.password}
+              </p>
+            )}
             <button
               type="button"
               onClick={() => setShowPassword(!showPassword)}

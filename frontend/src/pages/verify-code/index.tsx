@@ -1,4 +1,4 @@
-import { useState, useEffect, use } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/router";
 import { motion } from "motion/react";
 import { useDispatch, useSelector } from "react-redux";
@@ -15,11 +15,9 @@ import LogoShield from "@/components/shared/LogoShield";
 import { toast } from "sonner";
 import {
   useUserVerifyResetPasswordMutation,
-  useUserRefreshResetPasswordMutation,
+  useUserResendResetVerificationCodeMutation,
 } from "@/store/api/authApi";
-import { useAppSelector } from "@/hooks/useRedux";
-import { selectAuth } from "@/store/selectors";
-import { a } from "motion/react-client";
+import useAuthHooks from "@/hooks/useAuth";
 
 const VerifyCode = () => {
   const router = useRouter();
@@ -27,33 +25,16 @@ const VerifyCode = () => {
   const resetEmail = useSelector((state: RootState) => state.auth.resetEmail);
   const [code, setCode] = useState("");
   const [resendCooldown, setResendCooldown] = useState(0);
-  const user = useAppSelector(selectAuth).user;
-  console.log(user);
+  const { user, refreshResetPassword } = useAuthHooks();
 
-  const [userRefreshResetPassword, { isLoading: isLoadingRefresh }] =
-    useUserRefreshResetPasswordMutation();
+  const [userResendResetVerificationCode] =
+    useUserResendResetVerificationCodeMutation();
 
   useEffect(() => {
     if (user?.userId) return;
-
-    const refresh = async () => {
-      try {
-        await userRefreshResetPassword().unwrap();
-      } catch (error) {
-        console.log("Caught error:", error);
-        router.push("/login");
-        toast.error("Session expired");
-      }
-    };
-
-    refresh();
+    refreshResetPassword();
   }, []);
-  //   useEffect(() => {
-  //     // Redirect if no reset email is set
-  //     if (!resetEmail) {
-  //       router.push("/forgot-password");
-  //     }
-  //   }, [resetEmail, router]);
+
   const [userVerifyResetPassword, { isLoading }] =
     useUserVerifyResetPasswordMutation();
 
@@ -88,8 +69,8 @@ const VerifyCode = () => {
         userId: user?.userId,
         verificationCode,
       }).unwrap();
-      toast.success("Password reset successful!");
-      router.push("/login");
+      toast.success("Verification successful!");
+      router.replace("/reset-password");
       dispatch(resetPassword());
     } catch (error) {
       toast.error("Verification code is invalid or has expired.");
@@ -99,11 +80,17 @@ const VerifyCode = () => {
 
   const handleVerify = () => handleVerifyWithCode();
 
-  const handleResend = () => {
+  const handleResend = async () => {
     if (resendCooldown > 0) return;
-    toast.success("New verification code sent!");
-    setResendCooldown(60); // 60 second cooldown
-    setCode("");
+    try {
+      await userResendResetVerificationCode({ userId: user?.userId }).unwrap();
+      toast.success("New verification code sent!");
+      setResendCooldown(60); // 60 second cooldown
+      setCode("");
+    } catch (error) {
+      toast.error("Failed to resend verification code.");
+      return;
+    }
   };
 
   return (
@@ -173,6 +160,7 @@ const VerifyCode = () => {
           <p className="text-sm text-gray-600 dark:text-gray-400">
             Didn't receive the code?{" "}
             <button
+              type="button"
               onClick={handleResend}
               disabled={resendCooldown > 0}
               className="text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300 font-medium disabled:opacity-50 disabled:cursor-not-allowed transition-colors"

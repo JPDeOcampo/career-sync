@@ -46,7 +46,7 @@ export const authApi = createApi({
         lastName: string;
         email: string;
         password: string;
-        reEnterPassword: string;
+        confirmPassword: string;
       }
     >({
       query: (credentials) => ({
@@ -74,6 +74,8 @@ export const authApi = createApi({
         }
       },
     }),
+
+    // --- Refresh Reset Password ---
     userRefreshResetPassword: builder.mutation<
       { userId: UserType["userId"]; email: UserType["email"] },
       void
@@ -92,6 +94,7 @@ export const authApi = createApi({
         }
       },
     }),
+    // --- Verify Reset Password ---
     userVerifyResetPassword: builder.mutation<
       void,
       { userId?: UserType["userId"]; verificationCode: string }
@@ -102,8 +105,35 @@ export const authApi = createApi({
         body: { verificationCode },
       }),
     }),
-    refreshToken: builder.query<UserResponseType, void>({
-      query: () => "/v1/user/refresh-token",
+    userResendResetVerificationCode: builder.mutation<
+      void,
+      { userId?: UserType["userId"] }
+    >({
+      query: (userId) => ({
+        url: `/v1/user/reset/resend-reset-verification-code/${userId}`,
+        method: "POST",
+      }),
+    }),
+    // --- Reset Password ---
+    userResetPassword: builder.mutation<
+      void,
+      {
+        userId?: UserType["userId"];
+        newPassword: string;
+        confirmPassword: string;
+      }
+    >({
+      query: ({ userId, newPassword, confirmPassword }) => ({
+        url: `/v1/user/reset/verify-reset-password/${userId}`,
+        method: "POST",
+        body: { newPassword, confirmPassword },
+      }),
+    }),
+    refreshToken: builder.mutation<UserResponseType, void>({
+      query: () => ({
+        url: "/v1/user/refresh-token",
+        method: "POST",
+      }),
       async onQueryStarted(_, { dispatch, queryFulfilled }) {
         try {
           const { data } = await queryFulfilled;
@@ -115,7 +145,10 @@ export const authApi = createApi({
       },
     }),
     singleLogout: builder.mutation<void, void>({
-      query: () => "/v1/user/single-logout",
+      query: () => ({
+        url: "/v1/user/single-logout",
+        method: "POST",
+      }),
       async onQueryStarted(_, { dispatch, queryFulfilled }) {
         try {
           await queryFulfilled;
@@ -133,7 +166,9 @@ export const {
   useUserRegisterMutation,
   useUserForgotPasswordMutation,
   useUserVerifyResetPasswordMutation,
+  useUserResendResetVerificationCodeMutation,
   useUserRefreshResetPasswordMutation,
-  useRefreshTokenQuery,
+  useUserResetPasswordMutation,
+  useRefreshTokenMutation,
   useSingleLogoutMutation,
 } = authApi;

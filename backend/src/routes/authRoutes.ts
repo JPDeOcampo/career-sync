@@ -6,6 +6,7 @@ import {
   registerSchema,
   emailSchema,
   updatePasswordSchema,
+  resetPasswordSchema,
 } from "@/validators/userValidator.js";
 import { asyncHandler } from "@/utils/asyncHandler.js";
 
@@ -37,7 +38,7 @@ router.post(
 );
 router.post("/v1/user/login", asyncHandler(userLogin));
 
-router.get("/v1/user/refresh-token", authLimiter, asyncHandler(refreshToken));
+router.post("/v1/user/refresh-token", authLimiter, asyncHandler(refreshToken));
 
 // -- Password Routes --
 router.put(
@@ -59,7 +60,7 @@ router.post(
   "/v1/user/reset/verify-reset-password/:id",
   asyncHandler(verifyResetPWVerificationCode),
 );
-router.get(
+router.post(
   "/v1/user/reset/resend-reset-verification-code/:id",
   asyncHandler(resendResetVerificationCode),
 );
@@ -69,9 +70,13 @@ router.get(
   asyncHandler(refreshResetPassword),
 );
 
-router.post("/v1/user/reset/reset-password/:id", asyncHandler(resetPassword));
+router.post(
+  "/v1/user/reset/reset-password/:id",
+  validate(resetPasswordSchema),
+  asyncHandler(resetPassword),
+);
 
 // Logout
-router.get("/v1/user/single-logout", protect, asyncHandler(userSingleLogout));
+router.post("/v1/user/single-logout", protect, asyncHandler(userSingleLogout));
 
 export default router;

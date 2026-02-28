@@ -7,12 +7,13 @@ import type {
   VerifyResetPWVerificationCodeDTO,
   ResetPasswordDTO,
   RefreshResetPasswordCodeDTO,
+  ResendResetVerificationCodeDTO,
 } from "@/@types/password.types.js";
 import { sendResetPassword } from "@/utils/mailer/sendResetPassword.js";
 import { generate6DigitCode } from "@/utils/globalUtils.js";
 import bcrypt from "bcrypt";
 import { generateSignToken } from "@/utils/generateSignToken.js";
-import { verifyJwt } from "@/lib/verifyJWT.js";
+import { verifyJwt } from "@/lib/verifyJwt.js";
 
 const checkResetToken = (token?: string) => {
   if (!token) {
@@ -108,22 +109,26 @@ export const forgotPassword = async (email: string) => {
     },
   });
 
-  // Generate short-lived reset token (2 minutes)
-  const resetToken = await generateSignToken({
+  // Generate short-lived reset token (5 minutes)
+  const verificationCodeToken = await generateSignToken({
     id: existingUser.id,
     purpose: "password-reset",
     expiresIn: "2m",
   });
 
-  return { resetToken, userId: existingUser.id, email: maskEmail(email) };
+  return {
+    verificationCodeToken,
+    userId: existingUser.id,
+    email: maskEmail(email),
+  };
 };
 
 // --- Verify Reset Password Verification Code Logic ---
 export const verifyResetPWVerificationCode = async (
   data: VerifyResetPWVerificationCodeDTO,
 ) => {
-  const { userId, verificationCode } = data;
-
+  const { verificationCodeToken, userId, verificationCode } = data;
+  checkResetToken(verificationCodeToken);
   if (!userId || !verificationCode) {
     throw new AppError("Email and verification code are required", 400);
   }
@@ -157,7 +162,14 @@ export const verifyResetPWVerificationCode = async (
     throw new AppError("Verification code has expired", 400);
   }
 
-  return;
+  // Generate short-lived reset token (2 minutes)
+  const resetToken = await generateSignToken({
+    id: user.id,
+    purpose: "password-reset",
+    expiresIn: "2m",
+  });
+
+  return resetToken;
 };
 
 // --- Reset Password Logic ---
@@ -208,7 +220,12 @@ export const refreshResetPassword = async (refreshToken: string) => {
 };
 
 // --- Resend Reset Verification Code Logic ---
-export const resendResetVerificationCode = async (userId: string) => {
+export const resendResetVerificationCode = async ({
+  userId,
+  resetToken,
+}: ResendResetVerificationCodeDTO) => {
+  checkResetToken(resetToken);
+
   const existingUser = await prisma.user.findUnique({
     where: { id: userId as unknown as string },
   });

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/router";
 import { motion } from "motion/react";
 import Button from "@/components/shared/Button";
@@ -6,22 +6,20 @@ import Input from "@/components/shared/Input";
 import Label from "@/components/shared/Label";
 import { Eye, EyeOff } from "lucide-react";
 import { toast } from "sonner";
-import { useUserRegisterMutation } from "@/store/api/authApi";
 import LogoShield from "@/components/shared/LogoShield";
+import { useUserResetPasswordMutation } from "@/store/api/authApi";
+import useAuthHooks from "@/hooks/useAuth";
 
 const ResetPassword = () => {
   const router = useRouter();
   const [formData, setFormData] = useState({
-    firstName: "",
-    lastName: "",
-    email: "",
     password: "",
     confirmPassword: "",
   });
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-
-  const [userRegister, { isLoading }] = useUserRegisterMutation();
+  const [userResetPassword, { isLoading }] = useUserResetPasswordMutation();
+  const { user, refreshResetPassword } = useAuthHooks();
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData({
@@ -33,16 +31,6 @@ const ResetPassword = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (
-      !formData.firstName ||
-      !formData.lastName ||
-      !formData.email ||
-      !formData.password
-    ) {
-      toast.error("Please fill in all fields");
-      return;
-    }
-
     if (formData.password !== formData.confirmPassword) {
       toast.error("Passwords do not match");
       return;
@@ -53,28 +41,26 @@ const ResetPassword = () => {
       return;
     }
 
-    // if (!agreedToTerms) {
-    //   toast.error("Please agree to the terms and conditions");
-    //   return;
-    // }
-
     if (isLoading) return;
 
     try {
-      await userRegister({
-        firstName: formData.firstName,
-        lastName: formData.lastName,
-        email: formData.email,
-        password: formData.password,
-        reEnterPassword: formData.confirmPassword,
+      await userResetPassword({
+        userId: user?.userId,
+        newPassword: formData.password,
+        confirmPassword: formData.confirmPassword,
       });
-      toast.success("Account created successfully!");
+      toast.success("Password reset successfully!");
       router.push("/");
     } catch (error) {
-      toast.error("Registration failed");
+      toast.error("Password reset failed");
       return;
     }
   };
+
+  useEffect(() => {
+    if (user?.userId) return;
+    refreshResetPassword();
+  }, []);
 
   return (
     <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-8 w-full max-w-md">

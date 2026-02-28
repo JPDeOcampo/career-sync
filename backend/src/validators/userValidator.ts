@@ -6,14 +6,20 @@ export const registerSchema = z
       .string()
       .nonempty("First name is required")
       .min(2, "First name is too short"),
-    lastName: z.string().nonempty("Last name is required").min(2, "Last name is too short"),
+    lastName: z
+      .string()
+      .nonempty("Last name is required")
+      .min(2, "Last name is too short"),
     email: z.email("Invalid email format"),
-    password: z.string().nonempty("Password is required").min(8, "Password must be at least 8 characters"),
-    reEnterPassword: z.string().nonempty("Re-enter password is required"),
+    password: z
+      .string()
+      .nonempty("Password is required")
+      .min(8, "Password must be at least 8 characters"),
+    confirmPassword: z.string().nonempty("Re-enter password is required"),
   })
-  .refine((data) => data.password === data.reEnterPassword, {
+  .refine((data) => data.password === data.confirmPassword, {
     message: "Passwords do not match",
-    path: ["reEnterPassword"],
+    path: ["confirmPassword"],
   });
 
 export const emailSchema = z.object({
@@ -32,9 +38,26 @@ export const updatePasswordSchema = z
       .regex(/[0-9]/, "Must contain at least one number")
       .regex(/[@$!%*?&]/, "Must contain at least one special character"),
 
-    reEnterPassword: z.string(),
+    confirmPassword: z.string(),
   })
-  .refine((data) => data.newPassword === data.reEnterPassword, {
+  .refine((data) => data.newPassword === data.confirmPassword, {
     message: "Passwords do not match",
-    path: ["reEnterPassword"],
+    path: ["confirmPassword"],
+  });
+
+export const resetPasswordSchema = z
+  .object({
+    newPassword: z
+      .string()
+      .min(8, "Password must be at least 8 characters")
+      .regex(/[a-z]/, "Must contain at least one lowercase letter")
+      .regex(/[A-Z]/, "Must contain at least one uppercase letter")
+      .regex(/[0-9]/, "Must contain at least one number")
+      .regex(/[@$!%*?&]/, "Must contain at least one special character"),
+
+    confirmPassword: z.string(),
+  })
+  .refine((data) => data.newPassword === data.confirmPassword, {
+    message: "Passwords do not match",
+    path: ["confirmPassword"],
   });

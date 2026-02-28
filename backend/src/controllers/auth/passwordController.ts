@@ -1,4 +1,5 @@
 import type { Request, Response } from "express";
+import { serialize } from "cookie";
 import * as passwordService from "@/services/auth/passwordService.js";
 
 // --- User Update Password ---
@@ -14,15 +15,18 @@ export const updatePassword = async (
 
 // --- Forgot Password ---
 export const forgotPassword = async (req: Request, res: Response) => {
-  const { resetToken, userId, email } = (await passwordService.forgotPassword(
-    req.body.email,
-  )) as { resetToken: string; userId: string; email: string };
+  const { verificationCodeToken, userId, email } =
+    (await passwordService.forgotPassword(req.body.email)) as {
+      verificationCodeToken: string;
+      userId: string;
+      email: string;
+    };
 
-  res.cookie("resetToken", resetToken, {
+  res.cookie("verificationCodeToken", verificationCodeToken, {
     httpOnly: true,
     secure: process.env.NODE_ENV === "production",
     sameSite: "strict",
-    maxAge: 2 * 60 * 1000, // 2 minutes
+    maxAge: 5 * 60 * 1000, // 5 minutes
     path: "/",
   });
 
@@ -38,13 +42,32 @@ export const verifyResetPWVerificationCode = async (
   req: Request,
   res: Response,
 ): Promise<Response> => {
+  const verificationCodeToken = req.cookies.verificationCodeToken;
   const userId = req.params.id;
   const { verificationCode } = req.body;
 
-  await passwordService.verifyResetPWVerificationCode({
+  const resetToken = await passwordService.verifyResetPWVerificationCode({
+    verificationCodeToken,
     userId,
     verificationCode,
   });
+
+  res.setHeader("Set-Cookie", [
+    serialize("verificationCodeToken", "", {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "strict",
+      expires: new Date(0),
+      path: "/",
+    }),
+    serialize("resetToken", resetToken, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "strict",
+      maxAge: 5 * 60 * 1000, // 5 minutes
+      path: "/",
+    }),
+  ]);
 
   return res.status(200).json({
     userId,
@@ -74,7 +97,7 @@ export const resetPassword = async (req: Request, res: Response) => {
 // --- Refresh Reset Password Code ---
 export const refreshResetPassword = async (req: Request, res: Response) => {
   const { userId, email } = await passwordService.refreshResetPassword(
-    req.cookies.resetToken,
+    req.cookies.verificationCodeToken || req.cookies.resetToken,
   );
 
   return res.status(200).json({
@@ -89,7 +112,10 @@ export const resendResetVerificationCode = async (
   req: Request,
   res: Response,
 ) => {
-  await passwordService.resendResetVerificationCode(req.params.id as string);
+  const resetToken =
+    req.cookies.verificationCodeToken || req.cookies.resetToken;
+  const userId = req.params.id;
+  await passwordService.resendResetVerificationCode({ userId, resetToken });
 
   return res.status(200).json({ message: "Reset code is sent to your email" });
 };

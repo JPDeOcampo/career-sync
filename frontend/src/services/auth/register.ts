@@ -6,13 +6,13 @@ export const userRegister = async ({
   lastName,
   email,
   password,
-  reEnterPassword,
+  confirmPassword,
 }: {
   firstName: string;
   lastName: string;
   email: string;
   password: string;
-  reEnterPassword: string;
+  confirmPassword: string;
 }) => {
   try {
     const { endpoint, method } = apiPath.USER_REGISTER;
@@ -25,7 +25,7 @@ export const userRegister = async ({
         lastName,
         email,
         password,
-        reEnterPassword,
+        confirmPassword,
       },
     });
 

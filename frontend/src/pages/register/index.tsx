@@ -69,7 +69,7 @@ const Register = () => {
         lastName: formData.lastName,
         email: formData.email,
         password: formData.password,
-        reEnterPassword: formData.confirmPassword,
+        confirmPassword: formData.confirmPassword,
       });
       toast.success("Account created successfully!");
       router.push("/");
