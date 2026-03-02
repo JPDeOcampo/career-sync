@@ -1,43 +1,53 @@
 import { useState } from "react";
 import { useRouter } from "next/router";
 import { motion } from "motion/react";
-import { useDispatch } from "react-redux";
-import { setResetEmail } from "@/store/slices/authSlice";
 import Logo from "@/components/shared/Logo";
 import Button from "@/components/shared/Button";
-import Input from "@/components/shared/Input";
-import Label from "@/components/shared/Label";
 import { ArrowLeft } from "lucide-react";
 import { toast } from "sonner";
 import { useUserForgotPasswordMutation } from "@/store/api/authApi";
+import { InputEmail } from "@/components/shared/CustomInput";
+import { emailSchema } from "@career-sync/shared";
+import { useForm } from "react-hook-form";
+import { z } from "zod";
+import { zodResolver } from "@hookform/resolvers/zod";
+import type { FetchBaseQueryError } from "@reduxjs/toolkit/query";
+
+type EmailFormData = z.infer<typeof emailSchema>;
 
 const ForgotPassword = () => {
   const router = useRouter();
-  const dispatch = useDispatch();
-  const [email, setEmail] = useState("");
-
   const [userForgotPassword, { isLoading }] = useUserForgotPasswordMutation();
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
 
-    if (!email) {
-      toast.error("Please enter your email address");
-      return;
-    }
+  const {
+    register,
+    handleSubmit,
+    formState: { errors, isSubmitting },
+  } = useForm<EmailFormData>({
+    resolver: zodResolver(emailSchema),
+    reValidateMode: "onChange",
+  });
 
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(email)) {
-      toast.error("Please enter a valid email address");
-      return;
-    }
+  const onSubmit = async (data: EmailFormData) => {
+    const email = data.email;
 
     try {
-      const response = await userForgotPassword({ email }).unwrap();
+      await userForgotPassword({ email }).unwrap();
       toast.success("Verification code sent to your email!");
       router.push(`/verify-code`);
     } catch (error) {
-      toast.error("Password reset failed");
-      return;
+      const err = error as FetchBaseQueryError;
+      if ("status" in err) {
+        if (err.status === 500) {
+          toast.error("Server error. Please try again later.");
+        } else {
+          toast.error(
+            "Failed to send verification code. Please try again later.",
+          );
+        }
+      } else {
+        toast.error("Unexpected error. Please try again later.");
+      }
     }
   };
 
@@ -61,24 +71,19 @@ const ForgotPassword = () => {
         </p>
       </div>
 
-      <form onSubmit={handleSubmit} className="space-y-6">
-        <div className="space-y-2">
-          <Label htmlFor="email">Email Address</Label>
-          <Input
-            id="email"
-            type="email"
-            placeholder="john@example.com"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            className="h-11"
-            autoFocus
-          />
-          <p className="text-sm text-gray-500 dark:text-gray-400">
-            Enter the email associated with your account
-          </p>
-        </div>
+      <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+        <InputEmail
+          label="Email Address"
+          {...register("email")}
+          error={errors.email?.message}
+          subtext="Enter the email associated with your account"
+        />
 
-        <Button type="submit" className="w-full h-11" disabled={isLoading}>
+        <Button
+          type="submit"
+          className="w-full h-11"
+          disabled={isSubmitting || isLoading}
+        >
           {isLoading ? (
             <motion.div
               animate={{ rotate: 360 }}

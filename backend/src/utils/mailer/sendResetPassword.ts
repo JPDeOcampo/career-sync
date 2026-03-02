@@ -28,7 +28,7 @@ export const sendResetPassword = async ({
           .header { text-align: center; margin-bottom: 20px; }
           .header h2 { color: #003366; }
           .content { font-size: 16px; line-height: 1.6; margin-bottom: 20px; }
-          .otp-code { font-size: 24px; font-weight: bold; color: #003366; background-color: #f0f0f0; padding: 10px; border-radius: 5px; text-align: center; width: 100%; display: inline-block; margin: 20px 0; }
+          .otp-code { font-size: 24px; font-weight: bold; color: #003366; background-color: #f0f0f0; padding: 10px; border-radius: 5px; text-align: center; width: 100%; display: inline-block; margin: 20px 0; letter-spacing:18px; }
           .footer { text-align: center; font-size: 14px; color: #888; margin-top: 20px; }
         </style>
       </head>
@@ -44,7 +44,7 @@ export const sendResetPassword = async ({
             <p>This code will expire in 1 hour. If you didn't request a password reset, please ignore this email.</p>
           </div>
           <div class="footer">
-            <p>&copy; ${new Date().getFullYear()} MyChat. All rights reserved.</p>
+            <p>&copy; ${new Date().getFullYear()} CareerSync. All rights reserved.</p>
           </div>
         </div>
       </body>

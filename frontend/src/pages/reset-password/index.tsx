@@ -1,59 +1,58 @@
 import { useState, useEffect } from "react";
-import { useRouter } from "next/router";
 import { motion } from "motion/react";
 import Button from "@/components/shared/Button";
-import Input from "@/components/shared/Input";
-import Label from "@/components/shared/Label";
-import { Eye, EyeOff } from "lucide-react";
 import { toast } from "sonner";
 import LogoShield from "@/components/shared/LogoShield";
 import { useUserResetPasswordMutation } from "@/store/api/authApi";
+import useGlobalHooks from "@/hooks/useGlobal";
 import useAuthHooks from "@/hooks/useAuth";
+import { InputPassword } from "@/components/shared/CustomInput";
+import { resetPasswordSchema } from "@career-sync/shared";
+import { useForm } from "react-hook-form";
+import { z } from "zod";
+import { zodResolver } from "@hookform/resolvers/zod";
+import type { FetchBaseQueryError } from "@reduxjs/toolkit/query";
+
+type ResetPasswordFormData = z.infer<typeof resetPasswordSchema>;
 
 const ResetPassword = () => {
-  const router = useRouter();
-  const [formData, setFormData] = useState({
-    password: "",
-    confirmPassword: "",
-  });
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [userResetPassword, { isLoading }] = useUserResetPasswordMutation();
   const { user, refreshResetPassword } = useAuthHooks();
+  const { navigate } = useGlobalHooks();
+  const {
+    register,
+    handleSubmit,
+    formState: { errors, isSubmitting },
+  } = useForm<ResetPasswordFormData>({
+    resolver: zodResolver(resetPasswordSchema),
+    reValidateMode: "onChange",
+  });
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setFormData({
-      ...formData,
-      [e.target.name]: e.target.value,
-    });
-  };
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-
-    if (formData.password !== formData.confirmPassword) {
-      toast.error("Passwords do not match");
-      return;
-    }
-
-    if (formData.password.length < 8) {
-      toast.error("Password must be at least 8 characters");
-      return;
-    }
-
+  const onSubmit = async (data: ResetPasswordFormData) => {
+    const { newPassword, confirmPassword } = data;
     if (isLoading) return;
 
     try {
       await userResetPassword({
         userId: user?.userId,
-        newPassword: formData.password,
-        confirmPassword: formData.confirmPassword,
-      });
+        newPassword: newPassword,
+        confirmPassword: confirmPassword,
+      }).unwrap();
       toast.success("Password reset successfully!");
-      router.push("/");
+      navigate("/");
     } catch (error) {
-      toast.error("Password reset failed");
-      return;
+      const err = error as FetchBaseQueryError;
+      if ("status" in err) {
+        if (err.status === 500) {
+          toast.error("Server error. Please try again later.");
+        } else {
+          toast.error("Password reset failed. Please try again later.");
+        }
+      } else {
+        toast.error("Unexpected error. Please try again later.");
+      }
     }
   };
 
@@ -71,63 +70,27 @@ const ResetPassword = () => {
         </h1>
       </div>
 
-      <form onSubmit={handleSubmit} className="space-y-5">
-        <div className="space-y-2">
-          <Label htmlFor="password">New Password</Label>
-          <div className="relative">
-            <Input
-              id="password"
-              name="password"
-              type={showPassword ? "text" : "password"}
-              placeholder="••••••••"
-              value={formData.password}
-              onChange={handleChange}
-              className="h-11 pr-10"
-            />
-            <button
-              type="button"
-              onClick={() => setShowPassword(!showPassword)}
-              className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300"
-            >
-              {showPassword ? (
-                <EyeOff className="w-5 h-5" />
-              ) : (
-                <Eye className="w-5 h-5" />
-              )}
-            </button>
-          </div>
-          <p className="text-xs text-gray-500 dark:text-gray-400">
-            Must be at least 8 characters
-          </p>
-        </div>
+      <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
+        <InputPassword
+          showPassword={showPassword}
+          setShowPassword={() => setShowPassword(!showPassword)}
+          {...register("newPassword")}
+          error={errors.newPassword?.message}
+        />
 
-        <div className="space-y-2">
-          <Label htmlFor="confirmPassword">Confirm Password</Label>
-          <div className="relative">
-            <Input
-              id="confirmPassword"
-              name="confirmPassword"
-              type={showConfirmPassword ? "text" : "password"}
-              placeholder="••••••••"
-              value={formData.confirmPassword}
-              onChange={handleChange}
-              className="h-11 pr-10"
-            />
-            <button
-              type="button"
-              onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-              className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300"
-            >
-              {showConfirmPassword ? (
-                <EyeOff className="w-5 h-5" />
-              ) : (
-                <Eye className="w-5 h-5" />
-              )}
-            </button>
-          </div>
-        </div>
+        <InputPassword
+          {...register("confirmPassword")}
+          label="Confirm Password"
+          showPassword={showConfirmPassword}
+          setShowPassword={() => setShowConfirmPassword(!showConfirmPassword)}
+          error={errors.confirmPassword?.message}
+        />
 
-        <Button type="submit" className="w-full h-11" disabled={isLoading}>
+        <Button
+          type="submit"
+          className="w-full h-11"
+          disabled={isSubmitting || isLoading}
+        >
           {isLoading ? (
             <motion.div
               animate={{ rotate: 360 }}

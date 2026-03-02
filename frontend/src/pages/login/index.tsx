@@ -1,60 +1,60 @@
 import { useState } from "react";
-import { useRouter } from "next/router";
 import { motion } from "motion/react";
 import { useAppDispatch } from "@/hooks/useRedux";
 import { login } from "@/store/slices/authSlice";
 import Logo from "@/components/shared/Logo";
 import Button from "@/components/shared/Button";
-import Input from "@/components/shared/Input";
-import Label from "@/components/shared/Label";
-import { Eye, EyeOff } from "lucide-react";
 import { toast } from "sonner";
 import { useUserLoginMutation } from "@/store/api/authApi";
-import { useAppSelector } from "@/hooks/useRedux";
 import useGlobalHooks from "@/hooks/useGlobal";
+import { InputEmail, InputPassword } from "@/components/shared/CustomInput";
+import type { FetchBaseQueryError } from "@reduxjs/toolkit/query";
+import { useForm } from "react-hook-form";
+import { z } from "zod";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { loginSchema } from "@career-sync/shared";
+
+type LoginFormData = z.infer<typeof loginSchema>;
 
 const Login = () => {
-  const router = useRouter();
   const dispatch = useAppDispatch();
   const [showPassword, setShowPassword] = useState(false);
-  const { textFieldRequired } = useAppSelector((state) => state.global);
   const [userLogin, { isLoading }] = useUserLoginMutation();
-  const { validateField } = useGlobalHooks();
+  const { navigate } = useGlobalHooks();
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { id, value } = e.target;
-    validateField(id, value);
-  };
+  const {
+    register,
+    handleSubmit,
+    formState: { errors, isSubmitting },
+  } = useForm<LoginFormData>({
+    resolver: zodResolver(loginSchema),
+    // mode: "onBlur",
+    reValidateMode: "onChange",
+  });
 
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-
-    const formData = new FormData(e.currentTarget);
-
-    const data = {
-      email: formData.get("email") as string,
-      password: formData.get("password") as string,
-    };
-
+  const onSubmit = async (data: LoginFormData) => {
     const { email, password } = data;
-    console.log(email, password);
-    if (
-      !validateField("email", email) ||
-      !validateField("password", password)
-    ) {
-      return;
-    }
-
     if (isLoading) return;
 
     try {
       const response = await userLogin({ email, password }).unwrap();
       dispatch(login(response));
-      router.push("/dashboard");
+      navigate("/dashboard");
       toast.success(`Welcome back, ${response.user.firstName}!`);
     } catch (error) {
-      toast.error("Login failed");
-      return;
+      const err = error as FetchBaseQueryError;
+
+      if ("status" in err) {
+        if (err.status === 401) {
+          toast.error("Invalid email or password");
+        } else if (err.status === 500) {
+          toast.error("Server error");
+        } else {
+          toast.error("Login failed");
+        }
+      } else {
+        toast.error("Unexpected error");
+      }
     }
   };
 
@@ -70,67 +70,26 @@ const Login = () => {
         </p>
       </div>
 
-      <form onSubmit={handleSubmit} className="space-y-6">
-        <div className="space-y-2">
-          <Label htmlFor="email">Email</Label>
-          <Input
-            id="email"
-            name="email"
-            type="email"
-            placeholder="john@example.com"
-            onChange={handleChange}
-            className={`h-11 ${
-              textFieldRequired.email ? "border border-red-500" : ""
-            }`}
-            autoFocus
-          />
-          {textFieldRequired.email && (
-            <p className="text-red-500 text-sm">{textFieldRequired.email}</p>
-          )}
-        </div>
+      <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+        <InputEmail
+          {...register("email")}
+          error={errors.email?.message}
+          autofocus
+        />
 
-        <div className="space-y-2">
-          <div className="flex items-center justify-between">
-            <Label htmlFor="password">Password</Label>
-            <button
-              type="button"
-              onClick={() => router.push("/forgot-password")}
-              className="text-sm text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300 transition-colors"
-            >
-              Forgot password?
-            </button>
-          </div>
-          <div className="relative">
-            <Input
-              id="password"
-              name="password"
-              type={showPassword ? "text" : "password"}
-              placeholder="••••••••"
-              onChange={handleChange}
-              className={`h-11 pr-10 ${
-                textFieldRequired.password ? "border border-red-500" : ""
-              }`}
-            />
-            {textFieldRequired.password && (
-              <p className="text-red-500 text-sm">
-                {textFieldRequired.password}
-              </p>
-            )}
-            <button
-              type="button"
-              onClick={() => setShowPassword(!showPassword)}
-              className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300"
-            >
-              {showPassword ? (
-                <EyeOff className="w-5 h-5" />
-              ) : (
-                <Eye className="w-5 h-5" />
-              )}
-            </button>
-          </div>
-        </div>
+        <InputPassword
+          withForgotPassword
+          showPassword={showPassword}
+          setShowPassword={() => setShowPassword(!showPassword)}
+          {...register("password")}
+          error={errors.password?.message}
+        />
 
-        <Button type="submit" className="w-full h-11" disabled={isLoading}>
+        <Button
+          type="submit"
+          className="w-full h-11"
+          disabled={isSubmitting || isLoading}
+        >
           {isLoading ? (
             <motion.div
               animate={{ rotate: 360 }}
@@ -147,7 +106,7 @@ const Login = () => {
         <p className="text-gray-600 dark:text-gray-400">
           Don't have an account?{" "}
           <button
-            onClick={() => router.push("/register")}
+            onClick={() => navigate("/register")}
             className="text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300 font-medium transition-colors"
           >
             Sign up

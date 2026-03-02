@@ -1,60 +1,42 @@
 import { useState } from "react";
-import { useRouter } from "next/router";
 import { motion } from "motion/react";
-import { useDispatch } from "react-redux";
 import Logo from "@/components/shared/Logo";
 import Button from "@/components/shared/Button";
-import Input from "@/components/shared/Input";
-import Label from "@/components/shared/Label";
+import {
+  InputName,
+  InputEmail,
+  InputPassword,
+} from "@/components/shared/CustomInput";
 import { Checkbox } from "@/components/shared/Checkbox";
-import { Eye, EyeOff } from "lucide-react";
 import { toast } from "sonner";
 import { useUserRegisterMutation } from "@/store/api/authApi";
+import useGlobalHooks from "@/hooks/useGlobal";
+import { registerSchema } from "@career-sync/shared";
+import { useForm } from "react-hook-form";
+import { z } from "zod";
+import { zodResolver } from "@hookform/resolvers/zod";
+import type { FetchBaseQueryError } from "@reduxjs/toolkit/query";
+
+type RegisterFormData = z.infer<typeof registerSchema>;
 
 const Register = () => {
-  const router = useRouter();
-  const [formData, setFormData] = useState({
-    firstName: "",
-    lastName: "",
-    email: "",
-    password: "",
-    confirmPassword: "",
-  });
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [agreedToTerms, setAgreedToTerms] = useState(false);
-
   const [userRegister, { isLoading }] = useUserRegisterMutation();
+  const { navigate } = useGlobalHooks();
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setFormData({
-      ...formData,
-      [e.target.name]: e.target.value,
-    });
-  };
+  const {
+    register,
+    handleSubmit,
+    formState: { errors, isSubmitting },
+  } = useForm<RegisterFormData>({
+    resolver: zodResolver(registerSchema),
+    reValidateMode: "onChange",
+  });
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-
-    if (
-      !formData.firstName ||
-      !formData.lastName ||
-      !formData.email ||
-      !formData.password
-    ) {
-      toast.error("Please fill in all fields");
-      return;
-    }
-
-    if (formData.password !== formData.confirmPassword) {
-      toast.error("Passwords do not match");
-      return;
-    }
-
-    if (formData.password.length < 8) {
-      toast.error("Password must be at least 8 characters");
-      return;
-    }
+  const onSubmit = async (data: RegisterFormData) => {
+    const { firstName, lastName, email, password, confirmPassword } = data;
 
     // if (!agreedToTerms) {
     //   toast.error("Please agree to the terms and conditions");
@@ -65,17 +47,25 @@ const Register = () => {
 
     try {
       await userRegister({
-        firstName: formData.firstName,
-        lastName: formData.lastName,
-        email: formData.email,
-        password: formData.password,
-        confirmPassword: formData.confirmPassword,
+        firstName: firstName,
+        lastName: lastName,
+        email: email,
+        password: password,
+        confirmPassword: confirmPassword,
       });
       toast.success("Account created successfully!");
-      router.push("/");
+      navigate("/");
     } catch (error) {
-      toast.error("Registration failed");
-      return;
+      const err = error as FetchBaseQueryError;
+      if ("status" in err) {
+        if (err.status === 500) {
+          toast.error("Server error. Please try again later.");
+        } else {
+          toast.error("Registration failed. Please try again later.");
+        }
+      } else {
+        toast.error("Unexpected error. Please try again later.");
+      }
     }
   };
 
@@ -91,103 +81,39 @@ const Register = () => {
         </p>
       </div>
 
-      <form onSubmit={handleSubmit} className="space-y-5">
+      <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
         <div className="grid grid-cols-2 gap-4">
-          <div className="space-y-2">
-            <Label htmlFor="firstName">First Name</Label>
-            <Input
-              id="firstName"
-              name="firstName"
-              type="text"
-              placeholder="John"
-              value={formData.firstName}
-              onChange={handleChange}
-              className="h-11"
-              autoFocus
-            />
-          </div>
+          <InputName
+            {...register("firstName")}
+            label="First Name"
+            placeholder="John"
+            autofocus
+            error={errors.firstName?.message}
+          />
 
-          <div className="space-y-2">
-            <Label htmlFor="lastName">Last Name</Label>
-            <Input
-              id="lastName"
-              name="lastName"
-              type="text"
-              placeholder="Doe"
-              value={formData.lastName}
-              onChange={handleChange}
-              className="h-11"
-            />
-          </div>
-        </div>
-
-        <div className="space-y-2">
-          <Label htmlFor="email">Email</Label>
-          <Input
-            id="email"
-            name="email"
-            type="email"
-            placeholder="john@example.com"
-            value={formData.email}
-            onChange={handleChange}
-            className="h-11"
+          <InputName
+            {...register("lastName")}
+            label="Last Name"
+            placeholder="Doe"
+            error={errors.lastName?.message}
           />
         </div>
+        <InputEmail {...register("email")} error={errors.email?.message} />
 
-        <div className="space-y-2">
-          <Label htmlFor="password">Password</Label>
-          <div className="relative">
-            <Input
-              id="password"
-              name="password"
-              type={showPassword ? "text" : "password"}
-              placeholder="••••••••"
-              value={formData.password}
-              onChange={handleChange}
-              className="h-11 pr-10"
-            />
-            <button
-              type="button"
-              onClick={() => setShowPassword(!showPassword)}
-              className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300"
-            >
-              {showPassword ? (
-                <EyeOff className="w-5 h-5" />
-              ) : (
-                <Eye className="w-5 h-5" />
-              )}
-            </button>
-          </div>
-          <p className="text-xs text-gray-500 dark:text-gray-400">
-            Must be at least 8 characters
-          </p>
-        </div>
+        <InputPassword
+          showPassword={showPassword}
+          setShowPassword={() => setShowPassword(!showPassword)}
+          {...register("password")}
+          error={errors.password?.message}
+        />
 
-        <div className="space-y-2">
-          <Label htmlFor="confirmPassword">Confirm Password</Label>
-          <div className="relative">
-            <Input
-              id="confirmPassword"
-              name="confirmPassword"
-              type={showConfirmPassword ? "text" : "password"}
-              placeholder="••••••••"
-              value={formData.confirmPassword}
-              onChange={handleChange}
-              className="h-11 pr-10"
-            />
-            <button
-              type="button"
-              onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-              className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300"
-            >
-              {showConfirmPassword ? (
-                <EyeOff className="w-5 h-5" />
-              ) : (
-                <Eye className="w-5 h-5" />
-              )}
-            </button>
-          </div>
-        </div>
+        <InputPassword
+          {...register("confirmPassword")}
+          label="Confirm Password"
+          showPassword={showConfirmPassword}
+          setShowPassword={() => setShowConfirmPassword(!showConfirmPassword)}
+          error={errors.confirmPassword?.message}
+        />
 
         {/* <div className="flex items-center space-x-2">
           <Checkbox
@@ -206,7 +132,11 @@ const Register = () => {
           </label>
         </div> */}
 
-        <Button type="submit" className="w-full h-11" disabled={isLoading}>
+        <Button
+          type="submit"
+          className="w-full h-11"
+          disabled={isSubmitting || isLoading}
+        >
           {isLoading ? (
             <motion.div
               animate={{ rotate: 360 }}
@@ -223,7 +153,7 @@ const Register = () => {
         <p className="text-gray-600 dark:text-gray-400">
           Already have an account?{" "}
           <button
-            onClick={() => router.push("/login")}
+            onClick={() => navigate("/login")}
             className="text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300 font-medium transition-colors"
           >
             Sign in

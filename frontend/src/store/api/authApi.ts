@@ -124,7 +124,7 @@ export const authApi = createApi({
       }
     >({
       query: ({ userId, newPassword, confirmPassword }) => ({
-        url: `/v1/user/reset/verify-reset-password/${userId}`,
+        url: `/v1/user/reset/reset-password/${userId}`,
         method: "POST",
         body: { newPassword, confirmPassword },
       }),

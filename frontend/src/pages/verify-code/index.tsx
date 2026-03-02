@@ -18,6 +18,7 @@ import {
   useUserResendResetVerificationCodeMutation,
 } from "@/store/api/authApi";
 import useAuthHooks from "@/hooks/useAuth";
+import type { FetchBaseQueryError } from "@reduxjs/toolkit/query";
 
 const VerifyCode = () => {
   const router = useRouter();
@@ -25,27 +26,12 @@ const VerifyCode = () => {
   const resetEmail = useSelector((state: RootState) => state.auth.resetEmail);
   const [code, setCode] = useState("");
   const [resendCooldown, setResendCooldown] = useState(0);
-  const { user, refreshResetPassword } = useAuthHooks();
-
   const [userResendResetVerificationCode] =
     useUserResendResetVerificationCodeMutation();
-
-  useEffect(() => {
-    if (user?.userId) return;
-    refreshResetPassword();
-  }, []);
-
   const [userVerifyResetPassword, { isLoading }] =
     useUserVerifyResetPasswordMutation();
 
-  useEffect(() => {
-    if (resendCooldown > 0) {
-      const timer = setTimeout(() => {
-        setResendCooldown(resendCooldown - 1);
-      }, 1000);
-      return () => clearTimeout(timer);
-    }
-  }, [resendCooldown]);
+  const { user, refreshResetPassword } = useAuthHooks();
 
   const handleCodeChange = (value: string) => {
     setCode(value);
@@ -73,8 +59,16 @@ const VerifyCode = () => {
       router.replace("/reset-password");
       dispatch(resetPassword());
     } catch (error) {
-      toast.error("Verification code is invalid or has expired.");
-      return;
+      const err = error as FetchBaseQueryError;
+      if ("status" in err) {
+        if (err.status === 500) {
+          toast.error("Server error. Please try again later.");
+        } else {
+          toast.error("Verification code is invalid or expired.");
+        }
+      } else {
+        toast.error("Unexpected error. Please try again later.");
+      }
     }
   };
 
@@ -92,6 +86,20 @@ const VerifyCode = () => {
       return;
     }
   };
+
+  useEffect(() => {
+    if (user?.userId) return;
+    refreshResetPassword();
+  }, []);
+
+  useEffect(() => {
+    if (resendCooldown > 0) {
+      const timer = setTimeout(() => {
+        setResendCooldown(resendCooldown - 1);
+      }, 1000);
+      return () => clearTimeout(timer);
+    }
+  }, [resendCooldown]);
 
   return (
     <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-8 w-full max-w-md">
