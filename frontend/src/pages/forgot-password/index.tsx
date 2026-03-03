@@ -1,4 +1,4 @@
-import { useState } from "react";
+"use client";
 import { useRouter } from "next/router";
 import { motion } from "motion/react";
 import Logo from "@/components/shared/Logo";

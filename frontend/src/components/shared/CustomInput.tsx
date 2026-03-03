@@ -23,6 +23,7 @@ const InputName = ({
     <div className="space-y-2">
       <Label htmlFor={registerProps.name}>{label}</Label>
       <Input
+        id={registerProps.name}
         type="text"
         placeholder={placeholder}
         className={`h-11 ${error ? "border border-red-500" : ""}`}
@@ -47,6 +48,7 @@ const InputEmail = ({
       <Label htmlFor={registerProps.name}>{label}</Label>
 
       <Input
+        id={registerProps.name}
         type="email"
         placeholder={placeholder}
         className={`h-11 ${error ? "border border-red-500" : ""}`}
@@ -94,6 +96,7 @@ const InputPassword = ({
       </div>
       <div className="relative">
         <Input
+          id={registerProps.name}
           type={showPassword ? "text" : "password"}
           placeholder={placeholder}
           className={`h-11 pr-10 ${error ? "border border-red-500" : ""}`}
