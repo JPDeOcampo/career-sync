@@ -10,7 +10,8 @@
     "start": "node dist/server.js",
     "preview": "npm run build && npm run start",
     "typecheck": "tsc --noEmit",
-    "lint": "eslint . --ext .ts"
+    "lint": "eslint . --ext .ts",
+    "postinstall": "prisma generate"
   },
   "dependencies": {
     "@career-sync/shared": "workspace:*",
