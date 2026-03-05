@@ -17,8 +17,8 @@ import type * as Prisma from "./prismaNamespace.js"
 
 const config: runtime.GetPrismaClientConfig = {
   "previewFeatures": [],
-  "clientVersion": "7.4.1",
-  "engineVersion": "55ae170b1ced7fc6ed07a15f110549408c501bb3",
+  "clientVersion": "7.4.2",
+  "engineVersion": "94a226be1cf2967af2541cca5529f0f7ba866919",
   "activeProvider": "postgresql",
   "inlineSchema": "generator client {\n  provider = \"prisma-client\"\n  output   = \"../src/generated/prisma\"\n}\n\ndatasource db {\n  provider = \"postgresql\"\n}\n\nmodel User {\n  id                      String         @id @default(uuid()) @db.Uuid\n  firstName               String\n  lastName                String\n  email                   String         @unique\n  password                String\n  socialAccount           Boolean        @default(false)\n  refreshTokens           RefreshToken[]\n  verificationCode        String?\n  verificationCodeExpires DateTime?\n\n  createdAt DateTime @default(now())\n  updatedAt DateTime @updatedAt\n}\n\nmodel RefreshToken {\n  id        String   @id @default(uuid()) @db.Uuid\n  userId    String   @db.Uuid\n  token     String   @unique\n  createdAt DateTime @default(now())\n  expiresAt DateTime\n\n  user User @relation(fields: [userId], references: [id], onDelete: Cascade)\n\n  @@index([userId])\n  @@index([token])\n}\n",
   "runtimeDataModel": {
@@ -67,7 +67,9 @@ export interface PrismaClientConstructor {
    * Type-safe database client for TypeScript
    * @example
    * ```
-   * const prisma = new PrismaClient()
+   * const prisma = new PrismaClient({
+   *   adapter: new PrismaPg({ connectionString: process.env.DATABASE_URL })
+   * })
    * // Fetch zero or more Users
    * const users = await prisma.user.findMany()
    * ```
@@ -89,7 +91,9 @@ export interface PrismaClientConstructor {
  * Type-safe database client for TypeScript
  * @example
  * ```
- * const prisma = new PrismaClient()
+ * const prisma = new PrismaClient({
+ *   adapter: new PrismaPg({ connectionString: process.env.DATABASE_URL })
+ * })
  * // Fetch zero or more Users
  * const users = await prisma.user.findMany()
  * ```

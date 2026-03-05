@@ -11,7 +11,7 @@ export const refreshToken = async (token: string) => {
   let decoded: JwtPayload;
   try {
     decoded = jwt.verify(token, process.env.JWT_REFRESH_SECRET!) as JwtPayload;
-  } catch (err) {
+  } catch {
     throw new AppError("Invalid or expired refresh token", 401);
   }
 

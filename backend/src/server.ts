@@ -18,7 +18,7 @@ app.use(cookieParser());
 app.use(express.json());
 
 // Routes
-app.use("/api/career-sync", authRoutes);
+app.use("/api", authRoutes);
 
 // Global error handler
 app.use(errorHandler);

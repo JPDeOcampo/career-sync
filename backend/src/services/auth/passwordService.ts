@@ -25,7 +25,7 @@ const checkResetToken = (token?: string) => {
       token,
       process.env.JWT_ACCESS_SECRET!,
     );
-  } catch (error) {
+  } catch {
     throw new AppError("Reset token is invalid or expired", 400);
   }
   return payload;

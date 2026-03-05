@@ -1,5 +1,6 @@
 import type { Request, Response, NextFunction } from "express";
 import jwt from "jsonwebtoken";
+import { AppError } from "../utils/errors/appError.js";
 
 interface DecodedToken {
   id: string;
@@ -33,7 +34,7 @@ export const protect = (req: Request, res: Response, next: NextFunction) => {
     req.user = { id: decoded.id };
 
     next();
-  } catch (error) {
-    return res.status(401).json({ message: "Token invalid or expired" });
+  } catch {
+    throw new AppError("Token invalid or expired", 401);
   }
 };
