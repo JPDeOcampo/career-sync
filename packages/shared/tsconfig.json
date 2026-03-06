@@ -3,6 +3,7 @@
     "outDir": "dist",
     "rootDir": "src",
     "declaration": true,
+    "emitDeclarationOnly": false,
     "target": "ES2022",
     "module": "ESNext",
     "moduleResolution": "Bundler",
