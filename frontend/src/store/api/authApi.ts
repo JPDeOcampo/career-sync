@@ -1,10 +1,7 @@
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 import { UserType } from "@/@types/userTypes";
 import { login, logout, setUserId } from "../slices/authSlice";
-import apiPath from "@/utils/apiPath";
 import type { RootState } from "../store";
-import userRegister from "@/services/auth/register";
-import { use } from "react";
 const BASE_URL = `${process.env.NEXT_PUBLIC_API_URL}/api/career-sync/`;
 
 interface UserResponseType {

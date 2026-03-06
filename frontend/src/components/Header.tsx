@@ -1,5 +1,4 @@
 "use client";
-import { useEffect, useState } from "react";
 import { useRouter } from "next/router";
 import Logo from "./shared/Logo";
 import {
@@ -11,18 +10,16 @@ import {
   DropdownMenuTrigger,
 } from "./shared/DropdownMenu";
 import { Plus, User, LogOut } from "lucide-react";
-import { useAppDispatch, useAppSelector } from "@/hooks/useRedux";
-import { logout } from "@/store/slices/authSlice";
+import { useAppSelector } from "@/hooks/useRedux";
 import DarkModeButton from "./shared/DarkModeButton";
 import { useSingleLogoutMutation } from "@/store/api/authApi";
 
 const Header = () => {
   const router = useRouter();
-  const dispatch = useAppDispatch();
   const auth = useAppSelector((state) => state.auth);
   const user = auth.user;
 
-  const [singleLogout, { isLoading }] = useSingleLogoutMutation();
+  const [singleLogout] = useSingleLogoutMutation();
 
   const handleLogout = async () => {
     try {
@@ -33,29 +30,29 @@ const Header = () => {
     }
   };
 
-  const getAvatarColor = (name?: string) => {
-    const colors = [
-      "bg-red-400",
-      "bg-pink-400",
-      "bg-purple-400",
-      "bg-indigo-400",
-      "bg-blue-400",
-      "bg-cyan-400",
-      "bg-teal-400",
-      "bg-emerald-400",
-      "bg-orange-400",
-      "bg-amber-400",
-    ];
+  // const getAvatarColor = (name?: string) => {
+  //   const colors = [
+  //     "bg-red-400",
+  //     "bg-pink-400",
+  //     "bg-purple-400",
+  //     "bg-indigo-400",
+  //     "bg-blue-400",
+  //     "bg-cyan-400",
+  //     "bg-teal-400",
+  //     "bg-emerald-400",
+  //     "bg-orange-400",
+  //     "bg-amber-400",
+  //   ];
 
-    if (!name) return "bg-gray-400";
+  //   if (!name) return "bg-gray-400";
 
-    let hash = 0;
-    for (let i = 0; i < name.length; i++) {
-      hash = name.charCodeAt(i) + ((hash << 5) - hash);
-    }
-    const index = Math.abs(hash) % colors.length;
-    return colors[index];
-  };
+  //   let hash = 0;
+  //   for (let i = 0; i < name.length; i++) {
+  //     hash = name.charCodeAt(i) + ((hash << 5) - hash);
+  //   }
+  //   const index = Math.abs(hash) % colors.length;
+  //   return colors[index];
+  // };
 
   return (
     <div className="sticky top-0 z-30 bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 shadow-sm">

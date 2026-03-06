@@ -81,7 +81,7 @@ const VerifyCode = () => {
       toast.success("New verification code sent!");
       setResendCooldown(60); // 60 second cooldown
       setCode("");
-    } catch (error) {
+    } catch {
       toast.error("Failed to resend verification code.");
       return;
     }

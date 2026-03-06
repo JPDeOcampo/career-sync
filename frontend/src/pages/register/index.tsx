@@ -8,7 +8,7 @@ import {
   InputEmail,
   InputPassword,
 } from "@/components/shared/CustomInput";
-import { Checkbox } from "@/components/shared/Checkbox";
+// import { Checkbox } from "@/components/shared/Checkbox";
 import { toast } from "sonner";
 import { useUserRegisterMutation } from "@/store/api/authApi";
 import useGlobalHooks from "@/hooks/useGlobal";
@@ -23,7 +23,7 @@ type RegisterFormData = z.infer<typeof registerSchema>;
 const Register = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-  const [agreedToTerms, setAgreedToTerms] = useState(false);
+  // const [agreedToTerms, setAgreedToTerms] = useState(false);
   const [userRegister, { isLoading }] = useUserRegisterMutation();
   const { navigate } = useGlobalHooks();
 
