@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import { useState, useEffect } from "react";
 import { useRouter } from "next/router";
 import { motion } from "motion/react";
@@ -166,7 +167,7 @@ const VerifyCode = () => {
 
         <div className="text-center">
           <p className="text-sm text-gray-600 dark:text-gray-400">
-            Didn't receive the code?{" "}
+            Didn&apos;t receive the code?{" "}
             <button
               type="button"
               onClick={handleResend}

@@ -67,7 +67,7 @@ const ForgotPassword = () => {
           Forgot Password?
         </h1>
         <p className="text-gray-600 dark:text-gray-400">
-          No worries, we'll send you reset verification code
+          No worries, we&apos;ll send you reset verification code
         </p>
       </div>
 
