@@ -1,59 +1,21 @@
 {
-  "$schema": "https://json.schemastore.org/tsconfig",
   "compilerOptions": {
-    // File Layout
-    // "rootDir": "./src",
+    "rootDir": "./src",
     "outDir": "./dist",
 
-    // Environment / Modules
-    "module": "nodenext",
-    "moduleResolution": "nodenext",
-    "target": "esnext",
-    "lib": ["esnext"],
-    // "module": "ESNext",
-    // "moduleResolution": "bundler",
-    // "target": "ES2023",
-    // "strict": true,
-    // "esModuleInterop": true,
+    "module": "NodeNext",
+    "moduleResolution": "NodeNext",
+    "target": "ES2022",
 
-    // Types
-    "types": [],                    
-    // "types": ["node"],           
-
-    // Path aliases
     "baseUrl": ".",
     "paths": {
-      "@/*": ["./src/*"]
+      "@/*": ["src/*"]
     },
 
-    // Outputs / Debugging
-    "sourceMap": true,
-    "declaration": true,
-    "declarationMap": true,
+    "types": ["node"],
 
-    // Strictness
     "strict": true,
-    "noUncheckedIndexedAccess": true,
-    "exactOptionalPropertyTypes": true,
-
-    // More modern strictness
-    // "noImplicitReturns": true,
-    // "noImplicitOverride": true,
-    // "noUnusedLocals": true,
-    // "noUnusedParameters": true,
-    // "noFallthroughCasesInSwitch": true,
-    // "noPropertyAccessFromIndexSignature": true,
-
-    // Performance & correctness
-    "incremental": true,
-    "tsBuildInfoFile": ".tsbuildinfo",
-    "verbatimModuleSyntax": true,
-    "isolatedModules": true,
-    "noUncheckedSideEffectImports": true,
-    "skipLibCheck": true,
-    "moduleDetection": "force",
+    "skipLibCheck": true
   },
-
-  "include": ["src/**/*", "prisma.config.ts"],
-  "exclude": ["node_modules", "dist"]
+  "include": ["src"]
 }
