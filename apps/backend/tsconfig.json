@@ -5,6 +5,7 @@
 
     "module": "ESNext",
     "moduleResolution": "Bundler",
+    "preserveSymlinks": false,
     "target": "ES2022",
 
     "baseUrl": ".",
