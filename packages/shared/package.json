@@ -7,10 +7,10 @@
   "exports": {
     ".": "./dist/index.js"
   },
-  "dependencies": {
-    "zod": "^4.3.6"
-  },
   "scripts": {
     "build": "tsc"
+  },
+  "dependencies": {
+    "zod": "^4.3.6"
   }
 }
