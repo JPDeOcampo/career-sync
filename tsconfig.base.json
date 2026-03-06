@@ -1,0 +1,8 @@
+{
+  "compilerOptions": {
+    "baseUrl": ".",
+    "paths": {
+      "@career-sync/shared": ["packages/shared/src"]
+    }
+  }
+}
