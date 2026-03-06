@@ -11,9 +11,12 @@
     }
   },
   "scripts": {
-    "build": "tsc"
+    "build": "tsc && tsc-alias"
   },
   "dependencies": {
     "zod": "^4.3.6"
+  },
+  "devDependencies": {
+    "tsc-alias": "^1.8.16"
   }
 }
