@@ -7,7 +7,7 @@ import {
   emailSchema,
   updatePasswordSchema,
   resetPasswordSchema,
-} from "@/validators/userValidator.js";
+} from "@career-sync/shared";
 import { asyncHandler } from "@/utils/asyncHandler.js";
 
 // -- Auth Controllers --
