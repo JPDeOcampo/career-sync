@@ -19,7 +19,8 @@
       }
     ],
     "paths": {
-      "@/*": ["./src/*"]
+      "@/*": ["./src/*"],
+      "@career-sync/shared": ["../../packages/shared/src"]
     },
      "types": ["jest", "@testing-library/jest-dom"],
   },
