@@ -1,4 +1,10 @@
 packages:
-  - "frontend"
-  - "backend"
-  - "shared"
+  - backend
+  - frontend
+  - shared
+
+onlyBuiltDependencies:
+  - prisma
+  - "@prisma/client"
+  - "@prisma/engines"
+  - bcrypt

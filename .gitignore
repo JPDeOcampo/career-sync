@@ -30,7 +30,9 @@ dist-ssr
 # Ignore environment files for both backend and frontend
 /.env
 /frontend/.env
+/frontend/.env.prod
 /backend/.env
+/backend/.env.prod
 
 # Ignore build/compiled files for frontend (Vite, React, etc.)
 /frontend/.next
