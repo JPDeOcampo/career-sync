@@ -1,5 +1,6 @@
 {
   "version": 2,
+  "buildCommand": "pnpm --filter @career-sync/shared build && pnpm --filter backend build",
   "builds": [
     {
       "src": "dist/server.js",
