@@ -1,5 +1,6 @@
 {
   "compilerOptions": {
+    "rootDir": "./src",
     "outDir": "./dist",
 
     "module": "ESNext",
@@ -21,5 +22,8 @@
     "resolveFullPaths": true,
     "verbose": false
   },
-  "include": ["src", "prisma.config.ts"]
+  "include": ["src"],
+  "references": [
+    { "path": "../../packages/shared" }
+  ]
 }
