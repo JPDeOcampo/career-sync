@@ -18,5 +18,9 @@
     "strict": true,
     "skipLibCheck": true
   },
+  "tsc-alias": {
+    "resolveFullPaths": true,
+    "verbose": false
+  },
   "include": ["src", "prisma.config.ts"]
 }
