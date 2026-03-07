@@ -11,12 +11,14 @@
     }
   },
   "scripts": {
-    "build": "tsup src/index.ts --format esm --dts --clean"
+    "build": "tsup src/index.ts",
+    "postbuild": "node fix-imports.ts"
   },
   "dependencies": {
     "zod": "^4.3.6"
   },
   "devDependencies": {
+    "replace-in-file": "^8.4.0",
     "tsup": "^8.5.1"
   }
 }
