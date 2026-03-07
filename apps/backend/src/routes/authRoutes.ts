@@ -49,7 +49,7 @@ router.put(
   asyncHandler(updatePassword),
 );
 
-// Password reset flow
+// -- Password reset flow --
 router.post(
   "/v1/user/forgot-password",
   authLimiter,
@@ -76,7 +76,7 @@ router.post(
   asyncHandler(resetPassword),
 );
 
-// Logout
+// -- Logout --
 router.post("/v1/user/single-logout", protect, asyncHandler(userSingleLogout));
 
 export default router;
