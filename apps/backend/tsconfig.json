@@ -1,6 +1,6 @@
 {
   "compilerOptions": {
-    "rootDir": "./src",
+    // "rootDir": "./src",
     "outDir": "./dist",
 
     "module": "ESNext",
@@ -17,5 +17,5 @@
     "strict": true,
     "skipLibCheck": true
   },
-  "include": ["src"]
+  "include": ["src", "prisma.config.ts"]
 }
