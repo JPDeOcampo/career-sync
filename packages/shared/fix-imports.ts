@@ -2,10 +2,11 @@ import { replaceInFileSync } from "replace-in-file";
 
 const options = {
   files: "dist/**/*.js",
-  // This regex looks for internal imports/exports (starting with ./)
-  // and ensures they end with .js if they don't already.
-  from: /from\s+['"](\.\.?\/[^'"]+)(?<!\.js)['"]/g,
-  to: "from '$1.js'",
+  from: /from\s+['"](\.\.?\/[^'"]+)['"]/g,
+  to: (match: string, p1: string) => {
+    if (p1.endsWith(".js")) return match;
+    return `from '${p1}.js'`;
+  },
 };
 
 try {
