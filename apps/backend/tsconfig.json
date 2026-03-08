@@ -1,0 +1,29 @@
+{
+  "compilerOptions": {
+    "rootDir": "./src",
+    "outDir": "./dist",
+
+    "module": "ESNext",
+    "moduleResolution": "Bundler",
+    "target": "ES2022",
+
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["src/*"],
+      "@career-sync/shared": ["../../packages/shared/src"]
+    },
+
+    "types": ["node"],
+
+    "strict": true,
+    "skipLibCheck": true
+  },
+  "tsc-alias": {
+    "resolveFullPaths": true,
+    "verbose": false
+  },
+  "include": ["src"],
+  "references": [
+    { "path": "../../packages/shared" }
+  ]
+}
