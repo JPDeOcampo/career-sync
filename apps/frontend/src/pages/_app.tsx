@@ -1,4 +1,4 @@
-"use client";
+import { useRouter } from "next/router";
 import type { AppProps } from "next/app";
 import { Poppins } from "next/font/google";
 import "../styles/globals.css";
@@ -7,6 +7,7 @@ import { Provider } from "react-redux";
 import { store } from "@/store/store";
 import { Toaster } from "sonner";
 import Header from "@/components/Header";
+import { publicRoutes } from "@/constant/routesPath";
 
 const poppins = Poppins({
   subsets: ["latin"],
@@ -16,11 +17,17 @@ const poppins = Poppins({
 });
 
 const AppContent = ({ Component, pageProps }: AppProps) => {
+  const router = useRouter();
+  const hideHeader = publicRoutes.includes(router.pathname);
+
   return (
     <div className={`${poppins.variable} font-sans`}>
-      <header className="sticky top-0 z-30 bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 shadow-sm">
-        <Header />
-      </header>
+      {!hideHeader && (
+        <header className="sticky top-0 z-30 bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 shadow-sm">
+          <Header />
+        </header>
+      )}
+
       <main className="flex flex-col items-center justify-center min-h-screen bg-background">
         <Component {...pageProps} />
       </main>
