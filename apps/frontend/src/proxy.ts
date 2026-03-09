@@ -1,17 +1,11 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
+import { publicRoutes, protectedRoutes } from "./constant/routesPath";
 
 export const proxy = (request: NextRequest) => {
   const pathname = request.nextUrl.pathname.replace(/\/$/, "");
 
-  const publicPaths = [
-    "/login",
-    "/register",
-    "/forgot-password",
-    "/verify-code",
-    "/reset-password",
-  ];
-  const isPublic = publicPaths.some((path) => pathname.startsWith(path));
+  const isPublic = publicRoutes.some((path) => pathname.startsWith(path));
 
   const loggedIn = request.cookies.get("refreshToken")?.value;
 
@@ -20,14 +14,7 @@ export const proxy = (request: NextRequest) => {
       return NextResponse.redirect(new URL("/dashboard", request.url));
     }
 
-    const definedRoutes = [
-      "/dashboard",
-      "/jobs",
-      "/kanban",
-      "/calendar",
-      "/profile",
-    ];
-    const isDefinedRoute = definedRoutes.some((path) =>
+    const isDefinedRoute = protectedRoutes.some((path) =>
       pathname.startsWith(path),
     );
 

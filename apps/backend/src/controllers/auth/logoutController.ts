@@ -9,14 +9,14 @@ export const userSingleLogout = async (req: Request, res: Response) => {
     serialize("refreshToken", "", {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
-      sameSite: "strict",
+      sameSite: "none",
       expires: new Date(0),
       path: "/",
     }),
     serialize("is_logged_in", "", {
       httpOnly: false,
       secure: process.env.NODE_ENV === "production",
-      sameSite: "strict",
+      sameSite: "none",
       maxAge: 0,
       path: "/",
     }),
@@ -33,14 +33,14 @@ export const logoutAllDevices = async (req: Request, res: Response) => {
     serialize("refreshToken", "", {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
-      sameSite: "strict",
+      sameSite: "none",
       expires: new Date(0),
       path: "/",
     }),
     serialize("is_logged_in", "", {
       httpOnly: false,
       secure: process.env.NODE_ENV === "production",
-      sameSite: "strict",
+      sameSite: "none",
       maxAge: 0,
       path: "/",
     }),

@@ -20,14 +20,14 @@ export const userLogin = async (req: Request, res: Response) => {
     serialize("refreshToken", refreshToken, {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
-      sameSite: "strict",
+      sameSite: "none",
       maxAge: 7 * 24 * 60 * 60,
       path: "/",
     }),
     serialize("is_logged_in", "true", {
       httpOnly: false,
       secure: process.env.NODE_ENV === "production",
-      sameSite: "strict",
+      sameSite: "none",
       maxAge: 7 * 24 * 60 * 60,
       path: "/",
     }),
