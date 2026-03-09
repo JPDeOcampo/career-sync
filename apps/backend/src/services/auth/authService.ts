@@ -51,10 +51,12 @@ export const loginUser = async (credentials: LoginUserDTO) => {
   // Generate tokens
   const accessToken = await generateSignToken({
     id: user.id,
+    type: "access",
     expiresIn: "15m",
   });
   const refreshToken = await generateSignToken({
     id: user.id,
+    type: "refresh",
     expiresIn: "7d",
   });
 

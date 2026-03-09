@@ -109,9 +109,10 @@ export const forgotPassword = async (email: string) => {
     },
   });
 
-  // Generate short-lived reset token (5 minutes)
+  // Generate short-lived reset token (2 minutes)
   const verificationCodeToken = await generateSignToken({
     id: existingUser.id,
+    type: "access",
     purpose: "password-reset",
     expiresIn: "2m",
   });
@@ -165,6 +166,7 @@ export const verifyResetPWVerificationCode = async (
   // Generate short-lived reset token (2 minutes)
   const resetToken = await generateSignToken({
     id: user.id,
+    type: "access",
     purpose: "password-reset",
     expiresIn: "2m",
   });

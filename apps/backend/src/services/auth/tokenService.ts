@@ -43,10 +43,12 @@ export const refreshToken = async (token: string) => {
 
   const newAccessToken = await generateSignToken({
     id: user.id,
+    type: "access",
     expiresIn: "15m",
   });
   const newRefreshToken = await generateSignToken({
     id: user.id,
+    type: "refresh",
     expiresIn: "7d",
   });
 
