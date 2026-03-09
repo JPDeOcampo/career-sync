@@ -1,6 +1,7 @@
 import type { Request, Response } from "express";
 import { serialize } from "cookie";
 import * as passwordService from "@/services/auth/passwordService.js";
+import { clearCookieConfig, getCookieConfig } from "@/config/cookieConfig.js";
 
 // --- User Update Password ---
 export const updatePassword = async (
@@ -22,13 +23,11 @@ export const forgotPassword = async (req: Request, res: Response) => {
       email: string;
     };
 
-  res.cookie("verificationCodeToken", verificationCodeToken, {
-    httpOnly: true,
-    secure: process.env.NODE_ENV === "production",
-    sameSite: "none",
-    maxAge: 5 * 60 * 1000, // 5 minutes
-    path: "/",
-  });
+  res.cookie(
+    "verificationCodeToken",
+    verificationCodeToken,
+    getCookieConfig({ maxAge: 5 * 60 }),
+  ); // 5 minutes
 
   return res.status(200).json({
     userId,
@@ -53,20 +52,8 @@ export const verifyResetPWVerificationCode = async (
   });
 
   res.setHeader("Set-Cookie", [
-    serialize("verificationCodeToken", "", {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-      sameSite: "none",
-      expires: new Date(0),
-      path: "/",
-    }),
-    serialize("resetToken", resetToken, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-      sameSite: "none",
-      maxAge: 5 * 60 * 1000, // 5 minutes
-      path: "/",
-    }),
+    serialize("verificationCodeToken", "", clearCookieConfig({})),
+    serialize("resetToken", resetToken, getCookieConfig({ maxAge: 5 * 60 })),
   ]);
 
   return res.status(200).json({
@@ -83,13 +70,7 @@ export const resetPassword = async (req: Request, res: Response) => {
 
   await passwordService.resetPassword({ resetToken, userId, newPassword });
 
-  res.cookie("resetToken", "", {
-    httpOnly: true,
-    secure: process.env.NODE_ENV === "production",
-    sameSite: "none",
-    maxAge: 0,
-    path: "/",
-  });
+  res.cookie("resetToken", "", clearCookieConfig({}));
 
   return res.status(200).json({ message: "Password reset successfully" });
 };

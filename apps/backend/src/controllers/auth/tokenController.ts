@@ -1,6 +1,7 @@
 import type { Request, Response } from "express";
 import { serialize } from "cookie";
 import * as tokenService from "@/services/auth/tokenService.js";
+import { getCookieConfig } from "@/config/cookieConfig.js";
 
 export const refreshToken = async (req: Request, res: Response) => {
   const { user, newAccessToken, newRefreshToken } =
@@ -9,13 +10,7 @@ export const refreshToken = async (req: Request, res: Response) => {
   // Set the new refresh token in the cookie
   res.setHeader(
     "Set-Cookie",
-    serialize("refreshToken", newRefreshToken, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-      sameSite: "none",
-      maxAge: 7 * 24 * 60 * 60,
-      path: "/",
-    }),
+    serialize("refreshToken", newRefreshToken, getCookieConfig({})),
   );
 
   return res.status(200).json({

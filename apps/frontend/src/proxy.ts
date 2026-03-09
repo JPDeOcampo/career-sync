@@ -1,9 +1,9 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
-import { publicRoutes, protectedRoutes } from "./constant/routesPath";
+import { publicRoutes, protectedRoutes } from "@/constant/routesPath";
 
 export const proxy = (request: NextRequest) => {
-  const pathname = request.nextUrl.pathname.replace(/\/$/, "");
+  const pathname = request.nextUrl.pathname.replace(/\/$/, "") || "/";
 
   const isPublic = publicRoutes.some((path) => pathname.startsWith(path));
 
