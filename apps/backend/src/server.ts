@@ -7,9 +7,17 @@ import { errorHandler } from "./middleware/errorHandler.js";
 const app: Express = express();
 
 // Middleware
+const allowedOrigins = process.env.ORIGIN?.split(",");
+
 app.use(
   cors({
-    origin: process.env.ORIGIN,
+    origin: function (origin, callback) {
+      if (!origin || allowedOrigins?.includes(origin)) {
+        callback(null, true);
+      } else {
+        callback(new Error("Not allowed by CORS"));
+      }
+    },
     credentials: true,
   }),
 );
