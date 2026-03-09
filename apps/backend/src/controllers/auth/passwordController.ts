@@ -25,7 +25,7 @@ export const forgotPassword = async (req: Request, res: Response) => {
   res.cookie("verificationCodeToken", verificationCodeToken, {
     httpOnly: true,
     secure: process.env.NODE_ENV === "production",
-    sameSite: "lax",
+    sameSite: "none",
     maxAge: 5 * 60 * 1000, // 5 minutes
     path: "/",
   });
@@ -56,14 +56,14 @@ export const verifyResetPWVerificationCode = async (
     serialize("verificationCodeToken", "", {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
-      sameSite: "lax",
+      sameSite: "none",
       expires: new Date(0),
       path: "/",
     }),
     serialize("resetToken", resetToken, {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
-      sameSite: "lax",
+      sameSite: "none",
       maxAge: 5 * 60 * 1000, // 5 minutes
       path: "/",
     }),
@@ -86,7 +86,7 @@ export const resetPassword = async (req: Request, res: Response) => {
   res.cookie("resetToken", "", {
     httpOnly: true,
     secure: process.env.NODE_ENV === "production",
-    sameSite: "lax",
+    sameSite: "none",
     maxAge: 0,
     path: "/",
   });
