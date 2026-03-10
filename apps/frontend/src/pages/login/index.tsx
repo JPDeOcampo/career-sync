@@ -8,7 +8,7 @@ import Button from "@/components/shared/Button";
 import { toast } from "sonner";
 import { useUserLoginMutation } from "@/store/api/authApi";
 import useGlobalHooks from "@/hooks/useGlobal";
-import { InputEmail, InputPassword } from "@/components/shared/CustomInput";
+import { InputEmail, InputPassword } from "@/components/shared/CustomUserInput";
 import type { FetchBaseQueryError } from "@reduxjs/toolkit/query";
 import { useForm } from "react-hook-form";
 import { z } from "zod";

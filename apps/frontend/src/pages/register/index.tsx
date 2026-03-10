@@ -7,7 +7,7 @@ import {
   InputName,
   InputEmail,
   InputPassword,
-} from "@/components/shared/CustomInput";
+} from "@/components/shared/CustomUserInput";
 // import { Checkbox } from "@/components/shared/Checkbox";
 import { toast } from "sonner";
 import { useUserRegisterMutation } from "@/store/api/authApi";

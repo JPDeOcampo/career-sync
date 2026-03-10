@@ -6,7 +6,7 @@ import Button from "@/components/shared/Button";
 import { ArrowLeft } from "lucide-react";
 import { toast } from "sonner";
 import { useUserForgotPasswordMutation } from "@/store/api/authApi";
-import { InputEmail } from "@/components/shared/CustomInput";
+import { InputEmail } from "@/components/shared/CustomUserInput";
 import { emailSchema } from "@career-sync/shared";
 import { useForm } from "react-hook-form";
 import { z } from "zod";

@@ -7,7 +7,7 @@ import LogoShield from "@/components/shared/LogoShield";
 import { useUserResetPasswordMutation } from "@/store/api/authApi";
 import useGlobalHooks from "@/hooks/useGlobal";
 import useAuthHooks from "@/hooks/useAuth";
-import { InputPassword } from "@/components/shared/CustomInput";
+import { InputPassword } from "@/components/shared/CustomUserInput";
 import { resetPasswordSchema } from "@career-sync/shared";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
