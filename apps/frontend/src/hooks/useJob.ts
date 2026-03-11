@@ -1,45 +1,83 @@
-import { useState } from "react";
 import { store } from "@/store/store";
-import { addJob, updateJob } from "@/store/slices/jobSlice";
+import { addJob, selectJob, updateJob } from "@/store/slices/jobSlice";
 import { JobApplication } from "@/@types/jobTypes";
+import { useAppDispatch, useAppSelector } from "@/hooks/useRedux";
+import { setIsViewOnly, setIsModalOpen } from "@/store/slices/globalSlice";
+import { selectGlobal, selectJobs } from "@/store/selectors";
+import { getTodayString } from "@/utils/dateHelper";
 
 const useJobHooks = () => {
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [editingJob, setEditingJob] = useState<JobApplication | null>(null);
+  const dispatch = useAppDispatch();
+  const { isModalOpen } = useAppSelector(selectGlobal);
+  const { selectedJob } = useAppSelector(selectJobs);
+
+  const defaultJob: JobApplication = {
+    id: "",
+    company: "",
+    roleTitle: "",
+    jobDescription: "",
+    jobType: "Full-time",
+    salary: "",
+    workSetup: "Remote",
+    workSchedule: "",
+    location: "",
+    jobLink: "",
+    applicationMethod: "LinkedIn",
+    applicationDate: getTodayString(),
+    status: "Applied",
+    priority: "Medium",
+    cvVersion: "",
+    coverLetterSent: false,
+    contact: "",
+    interviewStage: "None",
+    interviewDate: "",
+    interviewTime: "",
+    interviewerName: "",
+    offer: false,
+    notes: "",
+  };
 
   const handleAddJob = () => {
-    setEditingJob(null);
-    setIsModalOpen(true);
+    dispatch(selectJob(defaultJob));
+    dispatch(setIsModalOpen(true));
   };
 
   const handleEditJob = (job: JobApplication) => {
-    setEditingJob(job);
-    setIsModalOpen(true);
+    dispatch(selectJob(job));
+    dispatch(setIsModalOpen(true));
   };
 
   const handleSaveJob = (job: JobApplication) => {
-    if (editingJob) {
+    if (selectedJob) {
       store.dispatch(updateJob(job));
     } else {
       store.dispatch(addJob(job));
     }
-    setIsModalOpen(false);
-    setEditingJob(null);
+    dispatch(setIsModalOpen(false));
+    dispatch(selectJob(defaultJob));
   };
 
   const handleCloseModal = () => {
-    console.log("close modal");
-    setIsModalOpen(false);
-    setEditingJob(null);
+    dispatch(setIsModalOpen(false));
+    dispatch(selectJob(defaultJob));
+    dispatch(setIsViewOnly(false));
+  };
+
+  const handleViewOnly = (job: JobApplication) => {
+    dispatch(selectJob(job));
+    dispatch(setIsModalOpen(true));
+    dispatch(setIsViewOnly(true));
   };
 
   return {
     isModalOpen,
-    editingJob,
+    selectedJob,
+    defaultJob,
     handleAddJob,
     handleEditJob,
     handleSaveJob,
     handleCloseModal,
+    handleViewOnly,
   };
 };
 

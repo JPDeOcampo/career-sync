@@ -1,14 +1,16 @@
+import { motion } from "motion/react";
 import { useAppSelector } from "@/hooks/useRedux";
 import { selectAuth, selectJobs } from "@/store/selectors";
 import StatCard from "@/components/StatCard";
 import { Briefcase, Calendar, Gift, XCircle, AlertCircle } from "lucide-react";
 import JobStatus from "@/components/shared/JobStatus";
-import { motion } from "motion/react";
+import useJobHooks from "@/hooks/useJob";
 
 const Dashboard = () => {
   const auth = useAppSelector(selectAuth);
   console.log(auth);
   const jobs = useAppSelector(selectJobs).jobs;
+  const { handleViewOnly } = useJobHooks();
 
   const stats = {
     total: jobs.length,
@@ -103,7 +105,8 @@ const Dashboard = () => {
                 initial={{ opacity: 0, x: -20 }}
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ duration: 0.3, delay: 0.6 + index * 0.1 }}
-                className="px-6 py-4 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors"
+                className="px-6 py-4 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors cursor-pointer"
+                onClick={() => handleViewOnly(job)}
               >
                 <div className="flex items-center justify-between">
                   <div className="flex-1 min-w-0">

@@ -1,6 +1,7 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import { useEffect } from "react";
-import { useAppSelector } from "@/hooks/useRedux";
+import { useAppDispatch, useAppSelector } from "@/hooks/useRedux";
+import { setIsViewOnly } from "@/store/slices/globalSlice";
 import { selectGlobal } from "@/store/selectors";
 import { motion, AnimatePresence } from "motion/react";
 import { X } from "lucide-react";
@@ -21,16 +22,18 @@ import {
   interviewStages,
 } from "@/constant/jobSelectList";
 import { v4 as uuidv4 } from "uuid";
+import useJobHooks from "@/hooks/useJob";
 
 interface JobModalProps {
   isOpen: boolean;
   onClose: () => void;
   onSave: (job: JobApplication) => void;
-  job?: JobApplication | null;
+  selectedJob?: JobApplication | null;
 }
 
-const JobModal = ({ isOpen, onClose, onSave, job }: JobModalProps) => {
-  const { viewOnly } = useAppSelector(selectGlobal);
+const JobModal = ({ isOpen, onClose, onSave, selectedJob }: JobModalProps) => {
+  const dispatch = useAppDispatch();
+  const { isViewOnly } = useAppSelector(selectGlobal);
   const jobID = uuidv4();
   const methods = useForm<JobFormData>({
     resolver: zodResolver(jobSchema),
@@ -46,42 +49,27 @@ const JobModal = ({ isOpen, onClose, onSave, job }: JobModalProps) => {
     formState: { errors },
   } = methods;
 
+  const { defaultJob } = useJobHooks();
+
+  const getModalTitle = () => {
+    if (isViewOnly) return "View Job Application";
+    if (selectedJob) return "Edit Job Application";
+    return "Add New Job Application";
+  };
+
   useEffect(() => {
-    if (job) {
-      reset(job);
+    if (selectedJob) {
+      reset(selectedJob);
     } else {
-      reset({
-        company: "sad",
-        roleTitle: "",
-        jobDescription: "",
-        jobType: "Full-time",
-        salary: "",
-        workSetup: "Remote",
-        workSchedule: "",
-        location: "",
-        jobLink: "",
-        applicationMethod: "LinkedIn",
-        applicationDate: getTodayString(),
-        status: "Applied",
-        priority: "Medium",
-        cvVersion: "",
-        coverLetterSent: false,
-        contact: "",
-        interviewStage: "None",
-        interviewDate: "",
-        interviewTime: "",
-        interviewerName: "",
-        offer: false,
-        notes: "",
-      });
+      reset(defaultJob);
     }
-  }, [job, isOpen]);
+  }, [selectedJob, isOpen]);
 
   const onSubmit = (data: JobFormData) => {
     const formData = { ...data };
 
     const jobData: JobApplication = {
-      id: job?.id || jobID,
+      id: selectedJob?.id || jobID,
       company: formData.company || "",
       roleTitle: formData.roleTitle || "",
       jobDescription: formData.jobDescription || "",
@@ -130,7 +118,7 @@ const JobModal = ({ isOpen, onClose, onSave, job }: JobModalProps) => {
             >
               <div className="sticky top-0 bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 px-6 py-4 flex items-center justify-between z-10">
                 <h2 className="text-2xl font-semibold text-gray-900 dark:text-white">
-                  {job ? "Edit Job Application" : "Add New Job Application"}
+                  {getModalTitle()}
                 </h2>
                 <button
                   onClick={onClose}
@@ -184,7 +172,7 @@ const JobModal = ({ isOpen, onClose, onSave, job }: JobModalProps) => {
                             control={control}
                             rules={{ required: true }}
                             render={({ field }) => {
-                              if (viewOnly) {
+                              if (isViewOnly) {
                                 return (
                                   <p className="text-job-value">
                                     {field.value}
@@ -219,7 +207,7 @@ const JobModal = ({ isOpen, onClose, onSave, job }: JobModalProps) => {
                             control={control}
                             rules={{ required: true }}
                             render={({ field }) => {
-                              if (viewOnly) {
+                              if (isViewOnly) {
                                 return (
                                   <p className="text-job-value">
                                     {field.value}
@@ -289,7 +277,7 @@ const JobModal = ({ isOpen, onClose, onSave, job }: JobModalProps) => {
                             control={control}
                             rules={{ required: true }}
                             render={({ field }) => {
-                              if (viewOnly) {
+                              if (isViewOnly) {
                                 return (
                                   <p className="text-job-value">
                                     {field.value}
@@ -331,7 +319,7 @@ const JobModal = ({ isOpen, onClose, onSave, job }: JobModalProps) => {
                             control={control}
                             rules={{ required: true }}
                             render={({ field }) => {
-                              if (viewOnly) {
+                              if (isViewOnly) {
                                 return (
                                   <p className="text-job-value">
                                     {field.value}
@@ -366,7 +354,7 @@ const JobModal = ({ isOpen, onClose, onSave, job }: JobModalProps) => {
                             control={control}
                             rules={{ required: true }}
                             render={({ field }) => {
-                              if (viewOnly) {
+                              if (isViewOnly) {
                                 return (
                                   <p className="text-job-value">
                                     {field.value}
@@ -429,7 +417,7 @@ const JobModal = ({ isOpen, onClose, onSave, job }: JobModalProps) => {
                             control={control}
                             rules={{ required: true }}
                             render={({ field }) => {
-                              if (viewOnly) {
+                              if (isViewOnly) {
                                 return (
                                   <p className="text-job-value">
                                     {field.value}
@@ -503,14 +491,28 @@ const JobModal = ({ isOpen, onClose, onSave, job }: JobModalProps) => {
                       onClick={onClose}
                       className="px-4 py-2 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700 rounded-lg transition-colors"
                     >
-                      Cancel
+                      {isViewOnly ? "Close" : "Cancel"}
                     </button>
-                    <button
-                      type="submit"
-                      className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium"
-                    >
-                      {job ? "Update Job" : "Add Job"}
-                    </button>
+                    {isViewOnly && (
+                      <button
+                        type="button"
+                        onClick={() => dispatch(setIsViewOnly(false))}
+                        className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium"
+                      >
+                        Edit
+                      </button>
+                    )}
+
+                    {!isViewOnly && (
+                      <>
+                        <button
+                          type="submit"
+                          className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium"
+                        >
+                          {selectedJob ? "Update Job" : "Add Job"}
+                        </button>
+                      </>
+                    )}
                   </div>
                 </form>
               </FormProvider>

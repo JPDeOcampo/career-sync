@@ -2,23 +2,29 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 
 interface globalState {
-  viewOnly: boolean;
+  isViewOnly: boolean;
+  isModalOpen: boolean;
 }
 
 const initialState: globalState = {
-  viewOnly: false,
+  isViewOnly: false,
+  isModalOpen: false,
 };
 
 const globalSlice = createSlice({
   name: "global",
   initialState,
   reducers: {
-    setViewOnly: (state, action: PayloadAction<boolean>) => {
-      state.viewOnly = action.payload;
+    setIsViewOnly: (state, action: PayloadAction<boolean>) => {
+      state.isViewOnly = action.payload;
+    },
+    setIsModalOpen: (state, action: PayloadAction<boolean>) => {
+      state.isModalOpen = action.payload;
     },
     resetGlobal: () => initialState,
   },
 });
 
-export const { setViewOnly, resetGlobal } = globalSlice.actions;
+export const { setIsViewOnly, setIsModalOpen, resetGlobal } =
+  globalSlice.actions;
 export default globalSlice.reducer;

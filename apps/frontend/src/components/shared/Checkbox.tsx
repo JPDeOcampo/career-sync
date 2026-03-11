@@ -12,17 +12,17 @@ interface CheckboxProps extends React.InputHTMLAttributes<HTMLInputElement> {
 }
 const Checkbox = React.forwardRef<HTMLInputElement, CheckboxProps>(
   ({ className, label, ...props }, ref) => {
-    const { viewOnly } = useAppSelector(selectGlobal);
+    const { isViewOnly } = useAppSelector(selectGlobal);
     const { watch } = useFormContext<JobFormData>();
     const value = watch(props.name as keyof JobFormData);
     return (
       <div className="flex items-center space-x-2">
-        {viewOnly && (
+        {isViewOnly && (
           <p className="text-gray-600 dark:text-gray-400">
             {value ? "Yes" : "No"},
           </p>
         )}
-        {!viewOnly && (
+        {!isViewOnly && (
           <div
             className={cn(
               "relative inline-flex items-center cursor-pointer",

@@ -76,6 +76,7 @@ export interface JobFilters {
 
 export interface JobState {
   jobs: JobApplication[];
+  selectedJob: JobApplication | undefined;
   filters: JobFilters;
   sortBy: "applicationDate" | "company" | "priority";
   sortOrder: "asc" | "desc";

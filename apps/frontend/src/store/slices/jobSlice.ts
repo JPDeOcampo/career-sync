@@ -8,6 +8,7 @@ import {
 } from "@/@types/jobTypes";
 import { storage, STORAGE_KEYS } from "@/utils/storage";
 import { sampleJobs } from "@/constant/sample";
+import { select } from "motion/react-client";
 
 const initialFilters: JobFilters = {
   search: "",
@@ -30,6 +31,7 @@ const loadInitialState = (): JobState => {
 
   return {
     jobs,
+    selectedJob: undefined,
     filters: initialFilters,
     sortBy: "applicationDate",
     sortOrder: "desc",
@@ -44,7 +46,11 @@ const jobSlice = createSlice({
       state.jobs.push(action.payload);
       storage.set(STORAGE_KEYS.JOBS, state.jobs);
     },
-
+    selectJob: (state, action: PayloadAction<JobApplication>) => {
+      state.selectedJob = state.jobs.find(
+        (job) => job.id === action.payload.id,
+      );
+    },
     updateJob: (state, action: PayloadAction<JobApplication>) => {
       const index = state.jobs.findIndex((job) => job.id === action.payload.id);
       if (index !== -1) {
@@ -115,6 +121,7 @@ const jobSlice = createSlice({
 
 export const {
   addJob,
+  selectJob,
   updateJob,
   deleteJob,
   updateStatus,

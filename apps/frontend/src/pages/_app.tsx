@@ -24,7 +24,7 @@ const AppContent = ({ Component, pageProps }: AppProps) => {
   const hideHeader = publicRoutes.includes(router.pathname);
   const {
     isModalOpen,
-    editingJob,
+    selectedJob,
     handleAddJob,
     handleSaveJob,
     handleCloseModal,
@@ -58,7 +58,7 @@ const AppContent = ({ Component, pageProps }: AppProps) => {
         isOpen={isModalOpen}
         onClose={handleCloseModal}
         onSave={handleSaveJob}
-        job={editingJob}
+        selectedJob={selectedJob}
       />
       <Toaster position="top-right" richColors />
     </div>
