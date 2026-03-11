@@ -2,15 +2,7 @@ import Label from "./Label";
 import Input from "./Input";
 import { Eye, EyeOff } from "lucide-react";
 import { useRouter } from "next/router";
-import { UseFormRegisterReturn } from "react-hook-form";
-
-type BaseFormFieldProps = {
-  label?: string;
-  placeholder?: string;
-  error?: string;
-  autofocus?: boolean;
-  subtext?: string;
-} & UseFormRegisterReturn;
+import { BaseFormFieldProps } from "@/@types/fieldTypes";
 
 const InputName = ({
   label = "Name",

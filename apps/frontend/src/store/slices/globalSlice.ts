@@ -1,47 +1,24 @@
 "use client";
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 
-interface TextFieldRequired {
-  firstName: string;
-  lastName: string;
-  email: string;
-  currentPassword: string;
-  password: string;
-  confirmPassword: string;
-}
-
 interface globalState {
-  textFieldRequired: TextFieldRequired;
+  viewOnly: boolean;
 }
 
 const initialState: globalState = {
-  textFieldRequired: {
-    firstName: "",
-    lastName: "",
-    email: "",
-    currentPassword: "",
-    password: "",
-    confirmPassword: "",
-  },
+  viewOnly: false,
 };
 
 const globalSlice = createSlice({
   name: "global",
   initialState,
   reducers: {
-    setTextFieldRequired: (
-      state,
-      action: PayloadAction<Partial<TextFieldRequired>>,
-    ) => {
-      state.textFieldRequired = {
-        ...state.textFieldRequired,
-        ...action.payload,
-      };
+    setViewOnly: (state, action: PayloadAction<boolean>) => {
+      state.viewOnly = action.payload;
     },
-
     resetGlobal: () => initialState,
   },
 });
 
-export const { setTextFieldRequired, resetGlobal } = globalSlice.actions;
+export const { setViewOnly, resetGlobal } = globalSlice.actions;
 export default globalSlice.reducer;

@@ -14,7 +14,11 @@ import { useAppSelector } from "@/hooks/useRedux";
 import DarkModeButton from "./shared/DarkModeButton";
 import { useSingleLogoutMutation } from "@/store/api/authApi";
 
-const Header = () => {
+interface NavbarProps {
+  onAddJob: () => void;
+}
+
+const Navbar = ({ onAddJob }: NavbarProps) => {
   const router = useRouter();
   const auth = useAppSelector((state) => state.auth);
   const user = auth.user;
@@ -56,7 +60,7 @@ const Header = () => {
 
   return (
     <div className="sticky top-0 z-30 bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 shadow-sm">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-0">
         <div className="flex items-center justify-between h-16">
           <div className="flex items-center gap-3">
             <Logo className="h-12 w-12 mb-0" />
@@ -71,7 +75,10 @@ const Header = () => {
           </div>
 
           <div className="flex items-center gap-3">
-            <button className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium">
+            <button
+              onClick={onAddJob}
+              className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium"
+            >
               <Plus className="w-4 h-4" />
               <span className="hidden sm:inline">Add Job</span>
             </button>
@@ -117,4 +124,4 @@ const Header = () => {
   );
 };
 
-export default Header;
+export default Navbar;

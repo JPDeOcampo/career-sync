@@ -2,6 +2,7 @@ import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 import { UserType } from "@/@types/userTypes";
 import { login, logout, setUserId } from "../slices/authSlice";
 import type { RootState } from "../store";
+import { toast } from "sonner";
 const BASE_URL = `${process.env.NEXT_PUBLIC_API_URL}/api`;
 
 interface UserResponseType {
@@ -36,6 +37,8 @@ export const authApi = createApi({
         body: credentials,
       }),
     }),
+
+    // --- Register User ---
     userRegister: builder.mutation<
       void,
       {
@@ -52,6 +55,8 @@ export const authApi = createApi({
         body: credentials,
       }),
     }),
+
+    // --- Forgot Password ---
     userForgotPassword: builder.mutation<
       { userId: UserType["userId"]; email: UserType["email"] },
       { email: string }
@@ -91,6 +96,7 @@ export const authApi = createApi({
         }
       },
     }),
+
     // --- Verify Reset Password ---
     userVerifyResetPassword: builder.mutation<
       void,
@@ -111,6 +117,7 @@ export const authApi = createApi({
         method: "POST",
       }),
     }),
+
     // --- Reset Password ---
     userResetPassword: builder.mutation<
       void,
@@ -126,6 +133,8 @@ export const authApi = createApi({
         body: { newPassword, confirmPassword },
       }),
     }),
+
+    // --- Refresh Token ---
     refreshToken: builder.mutation<UserResponseType, void>({
       query: () => ({
         url: "/v1/user/refresh-token",
@@ -137,6 +146,7 @@ export const authApi = createApi({
           dispatch(login(data));
         } catch (err) {
           console.log("Refresh token failed", err);
+          toast.error("Session expired");
           dispatch(logout());
         }
       },

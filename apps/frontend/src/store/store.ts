@@ -1,11 +1,13 @@
 import { configureStore } from "@reduxjs/toolkit";
 import { authApi } from "./api/authApi";
 import authReducer from "./slices/authSlice";
+import jobReducer from "./slices/jobSlice";
 import globalReducer from "./slices/globalSlice";
 
 export const store = configureStore({
   reducer: {
     auth: authReducer,
+    jobs: jobReducer,
     global: globalReducer,
     [authApi.reducerPath]: authApi.reducer,
   },
