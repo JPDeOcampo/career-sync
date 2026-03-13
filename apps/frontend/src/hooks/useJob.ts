@@ -2,13 +2,13 @@ import { store } from "@/store/store";
 import { addJob, selectJob, updateJob } from "@/store/slices/jobSlice";
 import { JobApplication } from "@/@types/jobTypes";
 import { useAppDispatch, useAppSelector } from "@/hooks/useRedux";
-import { setIsViewOnly, setIsModalOpen } from "@/store/slices/globalSlice";
+import { setIsViewOnly, setIsJobModalShow } from "@/store/slices/globalSlice";
 import { selectGlobal, selectJobs } from "@/store/selectors";
 import { getTodayString } from "@/utils/dateHelper";
 
 const useJobHooks = () => {
   const dispatch = useAppDispatch();
-  const { isModalOpen } = useAppSelector(selectGlobal);
+  const { isJobModalShow } = useAppSelector(selectGlobal);
   const { selectedJob } = useAppSelector(selectJobs);
 
   const defaultJob: JobApplication = {
@@ -29,22 +29,19 @@ const useJobHooks = () => {
     cvVersion: "",
     coverLetterSent: false,
     contact: "",
-    interviewStage: "None",
-    interviewDate: "",
-    interviewTime: "",
-    interviewerName: "",
+    interviewStages: [],
     offer: false,
     notes: "",
   };
 
   const handleAddJob = () => {
     dispatch(selectJob(defaultJob));
-    dispatch(setIsModalOpen(true));
+    dispatch(setIsJobModalShow(true));
   };
 
   const handleEditJob = (job: JobApplication) => {
     dispatch(selectJob(job));
-    dispatch(setIsModalOpen(true));
+    dispatch(setIsJobModalShow(true));
   };
 
   const handleSaveJob = (job: JobApplication) => {
@@ -53,24 +50,24 @@ const useJobHooks = () => {
     } else {
       store.dispatch(addJob(job));
     }
-    dispatch(setIsModalOpen(false));
+    dispatch(setIsJobModalShow(false));
     dispatch(selectJob(defaultJob));
   };
 
   const handleCloseModal = () => {
-    dispatch(setIsModalOpen(false));
+    dispatch(setIsJobModalShow(false));
     dispatch(selectJob(defaultJob));
     dispatch(setIsViewOnly(false));
   };
 
   const handleViewOnly = (job: JobApplication) => {
     dispatch(selectJob(job));
-    dispatch(setIsModalOpen(true));
+    dispatch(setIsJobModalShow(true));
     dispatch(setIsViewOnly(true));
   };
 
   return {
-    isModalOpen,
+    isJobModalShow,
     selectedJob,
     defaultJob,
     handleAddJob,

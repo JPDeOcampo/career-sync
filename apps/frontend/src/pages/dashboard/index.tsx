@@ -37,9 +37,7 @@ const Dashboard = () => {
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}
       >
-        <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
-          Dashboard
-        </h1>
+        <h1 className="text-3xl font-bold text-default">Dashboard</h1>
         <p className="text-gray-600 dark:text-gray-400 mt-1">
           Track your job application progress
         </p>
@@ -89,10 +87,10 @@ const Dashboard = () => {
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5, delay: 0.5 }}
-        className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 overflow-hidden"
+        className="surface rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 overflow-hidden"
       >
         <div className="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
-          <h2 className="text-xl font-semibold text-gray-900 dark:text-white">
+          <h2 className="text-xl font-semibold text-default">
             Recent Applications
           </h2>
         </div>
@@ -110,7 +108,7 @@ const Dashboard = () => {
               >
                 <div className="flex items-center justify-between">
                   <div className="flex-1 min-w-0">
-                    <h3 className="font-semibold text-gray-900 dark:text-white truncate">
+                    <h3 className="font-semibold text-default truncate">
                       {job.company}
                     </h3>
                     <p className="text-sm text-gray-600 dark:text-gray-400 truncate">

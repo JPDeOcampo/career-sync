@@ -52,7 +52,7 @@ const ForgotPassword = () => {
   };
 
   return (
-    <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-8 w-full max-w-md">
+    <div className="surface rounded-2xl shadow-xl p-8 w-full max-w-md">
       <button
         onClick={() => router.push("/login")}
         className="inline-flex items-center text-sm text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-200 mb-6 transition-colors"
@@ -63,7 +63,7 @@ const ForgotPassword = () => {
 
       <div className="text-center mb-8">
         <Logo />
-        <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">
+        <h1 className="text-3xl font-bold text-default mb-2">
           Forgot Password?
         </h1>
         <p className="text-gray-600 dark:text-gray-400">

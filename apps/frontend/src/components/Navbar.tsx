@@ -59,15 +59,13 @@ const Navbar = ({ onAddJob }: NavbarProps) => {
   // };
 
   return (
-    <div className="sticky top-0 z-30 bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 shadow-sm">
+    <div className="sticky top-0 z-30 surface border-b border-gray-200 dark:border-gray-700 shadow-sm">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-0">
         <div className="flex items-center justify-between h-16">
           <div className="flex items-center gap-3">
             <Logo className="h-12 w-12 mb-0" />
             <div>
-              <h1 className="text-xl font-bold text-gray-900 dark:text-white">
-                CareerSync
-              </h1>
+              <h1 className="text-xl font-bold text-default">CareerSync</h1>
               <p className="text-xs text-gray-500 dark:text-gray-400">
                 Manage your job applications
               </p>

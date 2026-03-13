@@ -8,7 +8,6 @@ import {
 } from "@/@types/jobTypes";
 import { storage, STORAGE_KEYS } from "@/utils/storage";
 import { sampleJobs } from "@/constant/sample";
-import { select } from "motion/react-client";
 
 const initialFilters: JobFilters = {
   search: "",

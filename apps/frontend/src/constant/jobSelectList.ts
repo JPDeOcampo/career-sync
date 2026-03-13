@@ -4,7 +4,7 @@ import {
   ApplicationMethod,
   ApplicationStatus,
   PriorityType,
-  InterviewStage,
+  InterviewTypes,
 } from "@/@types/jobTypes";
 
 export const jobTypes: JobType[] = [
@@ -35,8 +35,7 @@ export const statuses: ApplicationStatus[] = [
 
 export const priorities: PriorityType[] = ["Low", "Medium", "High"];
 
-export const interviewStages: InterviewStage[] = [
-  "None",
+export const interviewTypes: InterviewTypes[] = [
   "HR Screening",
   "Technical Interview",
   "Assessment",

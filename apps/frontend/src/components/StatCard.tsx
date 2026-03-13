@@ -45,14 +45,14 @@ const StatCard = ({
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5, delay }}
-      className="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-sm hover:shadow-md transition-shadow border border-gray-100 dark:border-gray-700"
+      className="surface rounded-xl p-6 shadow-sm hover:shadow-md transition-shadow border border-gray-100 dark:border-gray-700"
     >
       <div className="flex items-center justify-between">
         <div>
           <p className="text-sm text-gray-600 dark:text-gray-400 mb-1">
             {title}
           </p>
-          <motion.p className="text-3xl font-semibold text-gray-900 dark:text-white">
+          <motion.p className="text-3xl font-semibold text-default">
             {rounded}
           </motion.p>
         </div>

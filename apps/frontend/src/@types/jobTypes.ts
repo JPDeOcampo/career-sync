@@ -10,12 +10,14 @@ export type JobType =
   | "Internship"
   | "Freelance";
 export type WorkSetup = "On-site" | "Remote" | "Hybrid";
+
 export type ApplicationMethod =
   | "LinkedIn"
   | "Company Website"
   | "Referral"
   | "Email"
   | "Other";
+
 export type ApplicationStatus =
   | "Applied"
   | "Under Review"
@@ -23,14 +25,28 @@ export type ApplicationStatus =
   | "Offer"
   | "Rejected"
   | "Withdrawn";
+
 export type PriorityType = "Low" | "Medium" | "High";
-export type InterviewStage =
-  | "None"
+
+export type InterviewTypes =
   | "HR Screening"
   | "Technical Interview"
   | "Assessment"
   | "Final Interview"
   | "Offer Stage";
+
+export type InterviewInfo = {
+  interviewID: string;
+  interviewType: InterviewTypes;
+  interviewDate: string;
+  interviewTime: string;
+  interviewerName: string;
+  interviewComment?: string;
+};
+
+export type InterviewStages = {
+  interviewStages: InterviewInfo[];
+};
 
 export interface JobApplication {
   id: string;
@@ -56,10 +72,7 @@ export interface JobApplication {
   contact?: string;
 
   // Interview Info
-  interviewStage: InterviewStage;
-  interviewDate?: string;
-  interviewTime?: string;
-  interviewerName?: string;
+  interviewStages?: InterviewInfo[];
   offer: boolean;
 
   // Extra

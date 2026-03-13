@@ -63,12 +63,10 @@ const ResetPassword = () => {
   }, []);
 
   return (
-    <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-8 w-full max-w-md">
+    <div className="surface rounded-2xl shadow-xl p-8 w-full max-w-md">
       <div className="text-center mb-8">
         <LogoShield />
-        <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">
-          Reset Password
-        </h1>
+        <h1 className="text-3xl font-bold text-default mb-2">Reset Password</h1>
       </div>
 
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">

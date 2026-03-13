@@ -17,7 +17,7 @@ const SubNavbar = () => {
   ];
 
   return (
-    <nav className="bg-white dark:bg-gray-800 overflow-x-auto no-scrollbar">
+    <nav className="surface overflow-x-auto no-scrollbar">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-0">
         <div className="flex items-center gap-4 sm:gap-1 whitespace-nowrap">
           {navItems.map((item) => {

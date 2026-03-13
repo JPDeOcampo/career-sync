@@ -34,7 +34,7 @@ const DefaultField = ({
   const { watch } = useFormContext<JobFormData>();
   const value = watch(registerProps.name as keyof JobFormData);
 
-  const baseClass = `w-full ${as === "input" ? "h-10.5" : ""} px-3 py-2 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white`;
+  const baseClass = `w-full ${as === "input" ? "h-10.5" : ""} px-3 py-2 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-foreground`;
 
   const borderClass = error
     ? "border border-red-500"
@@ -50,10 +50,10 @@ const DefaultField = ({
         {/* Hide (Optional) and * marks in isViewOnly mode for a cleaner look */}
         {!isViewOnly &&
           (isRequired ? (
-            <span className="text-sm ml-1">*</span>
+            <span className="ml-1">*</span>
           ) : (
             label && (
-              <span className="text-gray-400 dark:text-gray-500 text-sm ml-1">
+              <span className="text-gray-400 dark:text-gray-500 ml-1">
                 (Optional)
               </span>
             )

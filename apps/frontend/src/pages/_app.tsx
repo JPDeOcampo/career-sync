@@ -22,8 +22,9 @@ const poppins = Poppins({
 const AppContent = ({ Component, pageProps }: AppProps) => {
   const router = useRouter();
   const hideHeader = publicRoutes.includes(router.pathname);
+
   const {
-    isModalOpen,
+    isJobModalShow,
     selectedJob,
     handleAddJob,
     handleSaveJob,
@@ -37,7 +38,7 @@ const AppContent = ({ Component, pageProps }: AppProps) => {
       {!hideHeader && (
         <header
           className="top-0 z-30 w-full border-b border-gray-200 dark:border-gray-700 
-      bg-white dark:bg-gray-800 sticky"
+      surface sticky"
         >
           <Navbar onAddJob={handleAddJob} />
           <SubNavbar />
@@ -55,11 +56,12 @@ const AppContent = ({ Component, pageProps }: AppProps) => {
         </div>
       </main>
       <JobModal
-        isOpen={isModalOpen}
+        isShow={isJobModalShow}
         onClose={handleCloseModal}
         onSave={handleSaveJob}
         selectedJob={selectedJob}
       />
+
       <Toaster position="top-right" richColors />
     </div>
   );

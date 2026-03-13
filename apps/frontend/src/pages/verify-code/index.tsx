@@ -103,7 +103,7 @@ const VerifyCode = () => {
   }, [resendCooldown]);
 
   return (
-    <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-8 w-full max-w-md">
+    <div className="surface rounded-2xl shadow-xl p-8 w-full max-w-md">
       <button
         onClick={() => router.push("/forgot-password")}
         className="inline-flex items-center text-sm text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-200 mb-6 transition-colors"
@@ -114,14 +114,10 @@ const VerifyCode = () => {
 
       <div className="text-center mb-8">
         <LogoShield />
-        <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">
-          Verify Code
-        </h1>
+        <h1 className="text-3xl font-bold text-default mb-2">Verify Code</h1>
         <p className="text-gray-600 dark:text-gray-400">
           We sent a code to <span className="font-bold">{user?.email}</span>
-          <span className="font-medium text-gray-900 dark:text-white">
-            {resetEmail}
-          </span>
+          <span className="font-medium text-default">{resetEmail}</span>
         </p>
       </div>
 

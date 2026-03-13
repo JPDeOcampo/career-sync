@@ -1,18 +1,18 @@
 "use client";
-import * as React from "react";
+import { useState, useRef, useEffect, createContext, useContext } from "react";
 import { cn } from "@/utils/cn";
 
-const DropdownContext = React.createContext<{
+const DropdownContext = createContext<{
   open: boolean;
   setOpen: (open: boolean) => void;
 } | null>(null);
 
 const DropdownMenu = ({ children }: { children: React.ReactNode }) => {
-  const [open, setOpen] = React.useState(false);
+  const [open, setOpen] = useState(false);
 
   // Close on click outside
-  const ref = React.useRef<HTMLDivElement>(null);
-  React.useEffect(() => {
+  const ref = useRef<HTMLDivElement>(null);
+  useEffect(() => {
     const handler = (e: MouseEvent) => {
       if (ref.current && !ref.current.contains(e.target as Node))
         setOpen(false);
@@ -35,7 +35,7 @@ const DropdownMenuTrigger = ({
   children,
   ...props
 }: React.ComponentProps<"button">) => {
-  const context = React.useContext(DropdownContext);
+  const context = useContext(DropdownContext);
   return (
     <button
       onClick={() => context?.setOpen(!context.open)}
@@ -52,7 +52,7 @@ const DropdownMenuContent = ({
   children,
   ...props
 }: React.ComponentProps<"div">) => {
-  const context = React.useContext(DropdownContext);
+  const context = useContext(DropdownContext);
   if (!context?.open) return null;
 
   return (
@@ -73,7 +73,7 @@ const DropdownMenuItem = ({
   variant = "default",
   ...props
 }: React.ComponentProps<"div"> & { variant?: "default" | "destructive" }) => {
-  const context = React.useContext(DropdownContext);
+  const context = useContext(DropdownContext);
   return (
     <div
       onClick={(e) => {

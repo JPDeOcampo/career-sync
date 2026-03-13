@@ -5,7 +5,7 @@ import {
   applicationMethods,
   statuses,
   priorities,
-  interviewStages,
+  interviewTypes,
 } from "@/constant/jobSelectList";
 
 const company = z
@@ -40,7 +40,7 @@ export const jobSchema = z.object({
   cvVersion: z.string(),
   coverLetterSent: z.boolean(),
   contact: z.string(),
-  interviewStage: z.enum(interviewStages),
+  interviewStage: z.enum(interviewTypes),
   interviewDate: z.string(),
   interviewTime: z.string(),
   interviewerName: z.string(),

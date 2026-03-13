@@ -271,7 +271,23 @@
     line-height: 1.5;
   }
 
+  .surface {
+    @apply bg-white dark:bg-gray-800;
+  }
+
+  .text-default {
+    @apply text-gray-900 dark:text-white;
+  }
+
+  .text-cancel {
+    @apply text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white;
+  }
+
   .text-job-value {
     @apply text-sm py-2 text-gray-900 dark:text-white;
+  }
+
+  .job-modal-section-header {
+    @apply text-lg font-bold text-gray-900 dark:text-white pb-2 mb-4 border-b border-gray-100 dark:border-gray-700;
   }
 }
