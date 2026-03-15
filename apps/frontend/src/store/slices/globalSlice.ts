@@ -2,7 +2,7 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 
 interface globalState {
-  isViewOnly: boolean;
+  isJobViewOnly: boolean;
   isJobModalShow: boolean;
   isShowModal: boolean;
   currentStep: number;
@@ -13,7 +13,7 @@ interface globalState {
 }
 
 const initialState: globalState = {
-  isViewOnly: false,
+  isJobViewOnly: false,
   isJobModalShow: false,
   isShowModal: false,
   currentStep: 0,
@@ -27,8 +27,8 @@ const globalSlice = createSlice({
   name: "global",
   initialState,
   reducers: {
-    setIsViewOnly: (state, action: PayloadAction<boolean>) => {
-      state.isViewOnly = action.payload;
+    setIsJobViewOnly: (state, action: PayloadAction<boolean>) => {
+      state.isJobViewOnly = action.payload;
     },
     setIsJobModalShow: (state, action: PayloadAction<boolean>) => {
       state.isJobModalShow = action.payload;
@@ -50,7 +50,7 @@ const globalSlice = createSlice({
 });
 
 export const {
-  setIsViewOnly,
+  setIsJobViewOnly,
   setIsJobModalShow,
   setIsShowModal,
   setCurrentStep,

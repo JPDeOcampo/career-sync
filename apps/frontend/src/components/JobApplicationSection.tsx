@@ -9,9 +9,9 @@ import {
 } from "@/constant/jobSelectList";
 
 const JobApplicationSection = ({
-  isViewOnly = false,
+  isJobViewOnly = false,
 }: {
-  isViewOnly?: boolean;
+  isJobViewOnly?: boolean;
 }) => {
   const { register, control } = useFormContext();
   return (
@@ -25,7 +25,7 @@ const JobApplicationSection = ({
             name="applicationMethod"
             control={control}
             render={({ field }) =>
-              isViewOnly ? (
+              isJobViewOnly ? (
                 <p className="text-left font-medium">{field.value}</p>
               ) : (
                 <Dropdown label={field.value || "Select Method"} align="left">
@@ -50,7 +50,7 @@ const JobApplicationSection = ({
             name="status"
             control={control}
             render={({ field }) =>
-              isViewOnly ? (
+              isJobViewOnly ? (
                 <p className="text-left font-medium">{field.value}</p>
               ) : (
                 <Dropdown label={field.value || "Select Status"} align="left">
@@ -70,7 +70,7 @@ const JobApplicationSection = ({
             name="priority"
             control={control}
             render={({ field }) =>
-              isViewOnly ? (
+              isJobViewOnly ? (
                 <p className="text-left font-medium">{field.value}</p>
               ) : (
                 <Dropdown label={field.value || "Select Priority"} align="left">
@@ -89,10 +89,15 @@ const JobApplicationSection = ({
           placeholder="v1.0"
           {...register("cvVersion")}
         />
+        <DefaultField
+          label="Contact"
+          placeholder="e.g., recruiter@company.com"
+          {...register("contact")}
+        />
         <div className="md:col-span-2">
           <Checkbox
             label="Cover letter sent"
-            disabled={isViewOnly}
+            disabled={isJobViewOnly}
             {...register("coverLetterSent")}
           />
         </div>

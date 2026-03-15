@@ -2,14 +2,20 @@ import { store } from "@/store/store";
 import { addJob, selectJob, updateJob } from "@/store/slices/jobSlice";
 import { JobApplication } from "@/@types/jobTypes";
 import { useAppDispatch, useAppSelector } from "@/hooks/useRedux";
-import { setIsViewOnly, setIsJobModalShow } from "@/store/slices/globalSlice";
+import {
+  setIsJobViewOnly,
+  setIsJobModalShow,
+  setIsShowModal,
+} from "@/store/slices/globalSlice";
 import { selectGlobal, selectJobs } from "@/store/selectors";
 import { getTodayString } from "@/utils/dateHelper";
+import { useGlobalModal } from "@/context/GlobalModalContext";
 
 const useJobHooks = () => {
   const dispatch = useAppDispatch();
-  const { isJobModalShow } = useAppSelector(selectGlobal);
+  const { isJobModalShow, isJobViewOnly } = useAppSelector(selectGlobal);
   const { selectedJob } = useAppSelector(selectJobs);
+  const { handleGlobalModal } = useGlobalModal();
 
   const defaultJob: JobApplication = {
     id: "",
@@ -55,15 +61,27 @@ const useJobHooks = () => {
   };
 
   const handleCloseModal = () => {
-    dispatch(setIsJobModalShow(false));
-    dispatch(selectJob(defaultJob));
-    dispatch(setIsViewOnly(false));
+    const onClose = () => {
+      dispatch(setIsJobModalShow(false));
+      dispatch(selectJob(defaultJob));
+      dispatch(setIsJobViewOnly(false));
+      dispatch(setIsShowModal(true));
+    };
+
+    if (isJobViewOnly) return onClose();
+
+    handleGlobalModal({
+      variant: "default",
+      title: "Discard changes",
+      description: "Are you sure you want to discard changes?",
+      onConfirm: onClose,
+    });
   };
 
   const handleViewOnly = (job: JobApplication) => {
     dispatch(selectJob(job));
     dispatch(setIsJobModalShow(true));
-    dispatch(setIsViewOnly(true));
+    dispatch(setIsJobViewOnly(true));
   };
 
   return {

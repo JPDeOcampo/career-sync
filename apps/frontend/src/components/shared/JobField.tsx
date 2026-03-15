@@ -30,7 +30,7 @@ const DefaultField = ({
   className,
   ...registerProps
 }: DefaultFieldProps) => {
-  const { isViewOnly } = useAppSelector(selectGlobal);
+  const { isJobViewOnly } = useAppSelector(selectGlobal);
   const { watch } = useFormContext<JobFormData>();
   const value = watch(registerProps.name as keyof JobFormData);
 
@@ -47,8 +47,8 @@ const DefaultField = ({
         className={`block text-sm font-medium mb-1 ${error ? "text-red-500" : "text-gray-700 dark:text-gray-300"}`}
       >
         {label}
-        {/* Hide (Optional) and * marks in isViewOnly mode for a cleaner look */}
-        {!isViewOnly &&
+        {/* Hide (Optional) and * marks in isJobViewOnly mode for a cleaner look */}
+        {!isJobViewOnly &&
           (isRequired ? (
             <span className="ml-1">*</span>
           ) : (
@@ -60,7 +60,7 @@ const DefaultField = ({
           ))}
       </Label>
 
-      {isViewOnly ? (
+      {isJobViewOnly ? (
         // View Only State: Renders a styled div or p instead of an input
         <p className="text-job-value">{value || "N/A"}</p>
       ) : (
@@ -90,8 +90,10 @@ const DefaultField = ({
         </>
       )}
 
-      {/* Only show errors if not in isViewOnly mode */}
-      {!isViewOnly && error && <p className="text-red-500 text-sm">{error}</p>}
+      {/* Only show errors if not in isJobViewOnly mode */}
+      {!isJobViewOnly && error && (
+        <p className="text-red-500 text-sm">{error}</p>
+      )}
     </div>
   );
 };

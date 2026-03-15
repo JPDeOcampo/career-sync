@@ -3,7 +3,11 @@ import { DefaultField } from "./shared/JobField";
 import { Dropdown, DropdownItem } from "@/components/shared/CustomDropdown";
 import { jobTypes, workSetups } from "@/constant/jobSelectList";
 
-const JobInfoSection = ({ isViewOnly = false }: { isViewOnly?: boolean }) => {
+const JobInfoSection = ({
+  isJobViewOnly = false,
+}: {
+  isJobViewOnly?: boolean;
+}) => {
   const {
     register,
     control,
@@ -42,7 +46,7 @@ const JobInfoSection = ({ isViewOnly = false }: { isViewOnly?: boolean }) => {
             name="jobType"
             control={control}
             render={({ field }) =>
-              isViewOnly ? (
+              isJobViewOnly ? (
                 <p className="text-left font-medium">{field.value}</p>
               ) : (
                 <Dropdown label={field.value || "Select Type"} align="left">
@@ -62,7 +66,7 @@ const JobInfoSection = ({ isViewOnly = false }: { isViewOnly?: boolean }) => {
             name="workSetup"
             control={control}
             render={({ field }) =>
-              isViewOnly ? (
+              isJobViewOnly ? (
                 <p className="text-left font-medium">{field.value}</p>
               ) : (
                 <Dropdown label={field.value || "Select Setup"} align="left">
@@ -75,6 +79,11 @@ const JobInfoSection = ({ isViewOnly = false }: { isViewOnly?: boolean }) => {
           />
         </div>
         <DefaultField
+          label="Work Schedule"
+          placeholder="e.g., 9am - 5pm"
+          {...register("workSchedule")}
+        />
+        <DefaultField
           label="Salary"
           placeholder="e.g. $80k"
           {...register("salary")}
@@ -84,6 +93,14 @@ const JobInfoSection = ({ isViewOnly = false }: { isViewOnly?: boolean }) => {
           placeholder="e.g. Manila"
           {...register("location")}
         />
+        <div className="md:col-span-2">
+          <DefaultField
+            label="Job Link"
+            type="text"
+            placeholder="https://..."
+            {...register("jobLink")}
+          />
+        </div>
       </div>
     </div>
   );

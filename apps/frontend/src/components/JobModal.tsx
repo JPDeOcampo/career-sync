@@ -1,12 +1,7 @@
 /* eslint-disable react-hooks/exhaustive-deps */
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import { useState, useEffect } from "react";
 import { useAppDispatch, useAppSelector } from "@/hooks/useRedux";
-import {
-  setIsViewOnly,
-  setCurrentStep,
-  setReviewJobApplication,
-} from "@/store/slices/globalSlice";
+import { setIsJobViewOnly } from "@/store/slices/globalSlice";
 import { selectGlobal } from "@/store/selectors";
 import { motion, AnimatePresence } from "motion/react";
 import {
@@ -32,6 +27,8 @@ import JobApplicationSection from "./JobApplicationSection";
 import JobInterviewSection from "./JobInterviewSection";
 import JobNotesSection from "./JobNotesSection";
 
+type JobFormKeys = keyof JobFormData;
+
 interface JobModalProps {
   isShow: boolean;
   onClose: () => void;
@@ -45,6 +42,13 @@ const STEPS = [
   { id: 3, title: "Interview", icon: Calendar },
   { id: 4, title: "Notes", icon: Notebook },
 ];
+
+const stepFields: Record<number, JobFormKeys[]> = {
+  1: ["company", "roleTitle", "jobDescription"],
+  2: ["applicationMethod", "status", "priority"],
+  3: ["interviewStages"],
+  4: ["notes"],
+};
 
 const JobModalStepper = ({ currentStep }: { currentStep: number }) => {
   const [isOpen, setIsOpen] = useState(false);
@@ -187,12 +191,17 @@ const JobModalStepper = ({ currentStep }: { currentStep: number }) => {
 
 const JobModal = ({ isShow, onClose, onSave, selectedJob }: JobModalProps) => {
   const dispatch = useAppDispatch();
-  const { isViewOnly, currentStep, reviewJobApplication } =
-    useAppSelector(selectGlobal);
+  const [reviewJobApplication, setReviewJobApplication] = useState<{
+    isToReview: boolean;
+    isOnReview: boolean;
+  }>({ isToReview: false, isOnReview: false });
+  const [currentStep, setCurrentStep] = useState(1);
+  const { isJobViewOnly } = useAppSelector(selectGlobal);
   const { defaultJob } = useJobHooks();
 
   const methods = useForm<JobFormData>({
     resolver: zodResolver(jobSchema),
+    mode: "onChange",
     reValidateMode: "onChange",
   });
 
@@ -200,44 +209,40 @@ const JobModal = ({ isShow, onClose, onSave, selectedJob }: JobModalProps) => {
 
   useEffect(() => {
     if (isShow) {
-      dispatch(setCurrentStep(1));
+      setCurrentStep(1);
       reset(selectedJob || defaultJob);
     }
   }, [selectedJob, isShow]);
 
   const handleNext = async () => {
     // Validate current step fields before proceeding
-    const fieldsToValidate = {
-      1: ["company", "roleTitle", "jobDescription"],
-      2: ["applicationMethod", "status", "priority"],
-      // 3: ["interviewStage"],
-      3: ["notes"],
-    }[currentStep] as any;
+    const fieldsToValidate = stepFields[currentStep];
+
+    if (!fieldsToValidate) {
+      console.warn(`No fields defined for step ${currentStep}`);
+      return;
+    }
 
     const isValid = await trigger(fieldsToValidate);
     if (isValid) {
-      dispatch(setCurrentStep(Math.min(currentStep + 1, STEPS.length)));
+      setCurrentStep((prev) => Math.min(prev + 1, STEPS.length));
       if (currentStep === 3) {
-        dispatch(
-          setReviewJobApplication({
-            isToReview: true,
-            isOnReview: false,
-          }),
-        );
+        setReviewJobApplication({
+          isToReview: true,
+          isOnReview: false,
+        });
       }
     }
   };
 
   const handleBack = () => {
-    if (isViewOnly) {
-      dispatch(
-        setReviewJobApplication({ isToReview: true, isOnReview: false }),
-      );
-      dispatch(setIsViewOnly(false));
+    if (isJobViewOnly) {
+      setReviewJobApplication({ isToReview: true, isOnReview: false });
+      dispatch(setIsJobViewOnly(false));
       return;
     }
-    dispatch(setReviewJobApplication({ isToReview: false, isOnReview: false }));
-    dispatch(setCurrentStep(Math.max(currentStep - 1, 1)));
+    setReviewJobApplication({ isToReview: false, isOnReview: false });
+    setCurrentStep((prev) => Math.max(prev - 1, 1));
   };
 
   const onSubmit = (data: JobFormData) => {
@@ -246,11 +251,13 @@ const JobModal = ({ isShow, onClose, onSave, selectedJob }: JobModalProps) => {
       id: selectedJob?.id || uuidv4(),
       applicationDate: data.applicationDate || getTodayString(),
     } as JobApplication;
-
+    setReviewJobApplication({ isToReview: false, isOnReview: false });
     onSave(jobData);
     onClose();
   };
+
   if (!isShow) return null;
+
   return (
     <AnimatePresence>
       <div className="fixed inset-0 flex items-center justify-center z-50 p-4">
@@ -265,12 +272,12 @@ const JobModal = ({ isShow, onClose, onSave, selectedJob }: JobModalProps) => {
           initial={{ opacity: 0, scale: 0.95, y: 20 }}
           animate={{ opacity: 1, scale: 1, y: 0 }}
           exit={{ opacity: 0, scale: 0.95, y: 20 }}
-          className="relative surface rounded-2xl shadow-2xl w-full max-w-5xl min-h-[75vh] max-h-[90vh] overflow-hidden z-50 flex my-8 flex-col"
+          className="surface rounded-2xl shadow-2xl w-full max-w-5xl min-h-[75vh] max-h-[90vh] overflow-hidden z-50 flex my-8 flex-col"
         >
           {/* Header */}
           <div className="px-6 py-4 border-b border-gray-100 dark:border-gray-700 flex items-center justify-between">
             <h2 className="text-xl font-bold text-default">
-              {isViewOnly
+              {isJobViewOnly
                 ? "View Job Details"
                 : selectedJob
                   ? "Edit Application"
@@ -285,75 +292,83 @@ const JobModal = ({ isShow, onClose, onSave, selectedJob }: JobModalProps) => {
           </div>
 
           {/* Stepper Progress Indicator (Hidden in View Only) */}
-          {!isViewOnly && <JobModalStepper currentStep={currentStep} />}
+          {!isJobViewOnly && <JobModalStepper currentStep={currentStep} />}
 
           {/* Form Content */}
           <FormProvider {...methods}>
             <form
               onSubmit={handleSubmit(onSubmit)}
-              className="flex-1 overflow-y-auto p-6"
+              // onSubmit={handleSubmit(
+              //   (data) => {
+              //     console.log("VALID SUBMIT", data);
+              //   },
+              //   (errors) => {
+              //     console.log("FORM ERRORS", errors);
+              //   },
+              // )}
+              className="flex flex-col flex-1 min-h-0"
             >
-              {isViewOnly ? (
-                <div className="space-y-8">
-                  <div>
-                    <h3 className="job-modal-section-header">
-                      {STEPS[0].title}
-                    </h3>
-                    <JobInfoSection isViewOnly />
+              <div className="flex-1 overflow-y-auto px-6 pt-6 pb-8">
+                {isJobViewOnly ? (
+                  <div className="space-y-8 ">
+                    <div>
+                      <h3 className="job-modal-section-header">
+                        {STEPS[0].title}
+                      </h3>
+                      <JobInfoSection isJobViewOnly />
+                    </div>
+                    <div>
+                      <h3 className="job-modal-section-header">
+                        {STEPS[1].title} Method
+                      </h3>
+                      <JobApplicationSection isJobViewOnly />
+                    </div>
+                    <div>
+                      <h3 className="job-modal-section-header">
+                        {STEPS[2].title} Stage
+                      </h3>
+                      <JobInterviewSection isJobViewOnly />
+                    </div>
+                    <div>
+                      <h3 className="job-modal-section-header">Notes</h3>
+                      <JobNotesSection />
+                    </div>
                   </div>
-                  <div>
-                    <h3 className="job-modal-section-header">
-                      {STEPS[1].title} Method
-                    </h3>
-                    <JobApplicationSection isViewOnly />
-                  </div>
-                  <div>
-                    <h3 className="job-modal-section-header">
-                      {STEPS[2].title} Stage
-                    </h3>
-                    <JobInterviewSection isViewOnly />
-                  </div>
-                  <div>
-                    <h3 className="job-modal-section-header">Notes</h3>
-                    <JobNotesSection />
-                  </div>
-                </div>
-              ) : (
-                <motion.div
-                  key={currentStep}
-                  initial={{ opacity: 0, x: 10 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ duration: 0.2 }}
-                >
-                  {currentStep === 1 && <JobInfoSection />}
-                  {currentStep === 2 && <JobApplicationSection />}
-                  {currentStep === 3 && <JobInterviewSection />}
-                  {currentStep === 4 && <JobNotesSection />}
-                </motion.div>
-              )}
+                ) : (
+                  <motion.div
+                    key={currentStep}
+                    initial={{ opacity: 0, x: 10 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ duration: 0.2 }}
+                  >
+                    {currentStep === 1 && <JobInfoSection />}
+                    {currentStep === 2 && <JobApplicationSection />}
+                    {currentStep === 3 && <JobInterviewSection />}
+                    {currentStep === 4 && <JobNotesSection />}
+                  </motion.div>
+                )}
+              </div>
+              {/* Footer */}
+              <JobModalFooter
+                selectedJob={selectedJob}
+                currentStep={currentStep}
+                isJobViewOnly={isJobViewOnly}
+                reviewJob={reviewJobApplication}
+                onReviewJob={() => {
+                  setReviewJobApplication({
+                    isToReview: false,
+                    isOnReview: true,
+                  });
+
+                  dispatch(setIsJobViewOnly(true));
+                }}
+                onEditJob={() => dispatch(setIsJobViewOnly(false))}
+                onClose={onClose}
+                handleBack={handleBack}
+                handleNext={handleNext}
+              />
             </form>
           </FormProvider>
-
-          {/* Footer */}
-          <JobModalFooter
-            selectedJob={selectedJob}
-            currentStep={currentStep}
-            isViewOnly={isViewOnly}
-            reviewJob={reviewJobApplication}
-            onReviewJob={() => {
-              dispatch(
-                setReviewJobApplication({
-                  isToReview: false,
-                  isOnReview: true,
-                }),
-              );
-              dispatch(setIsViewOnly(true));
-            }}
-            onEditJob={() => dispatch(setIsViewOnly(false))}
-            onClose={onClose}
-            handleBack={handleBack}
-            handleNext={handleNext}
-          />
         </motion.div>
       </div>
     </AnimatePresence>
@@ -363,7 +378,7 @@ const JobModal = ({ isShow, onClose, onSave, selectedJob }: JobModalProps) => {
 const JobModalFooter = ({
   selectedJob,
   currentStep,
-  isViewOnly,
+  isJobViewOnly,
   reviewJob,
   onEditJob,
   onReviewJob,
@@ -373,69 +388,71 @@ const JobModalFooter = ({
 }: {
   selectedJob?: JobApplication | null;
   currentStep: number;
-  isViewOnly: boolean;
+  isJobViewOnly: boolean;
   reviewJob: { isToReview: boolean; isOnReview: boolean };
-  onReviewJob: () => void;
   onEditJob: () => void;
+  onReviewJob: () => void;
   onClose: () => void;
   handleBack: () => void;
   handleNext: () => void;
 }) => {
-  return (
-    <div className="px-6 py-4 bg-gray-50 dark:bg-gray-900/50 border-t border-gray-100 dark:border-gray-700 flex items-center justify-between">
+  const isFirstStep = currentStep === 1;
+  const isLastStep = currentStep === STEPS.length;
+
+  const showCancel = (isFirstStep || isJobViewOnly) && !reviewJob.isOnReview;
+
+  let actionButton;
+
+  if (isJobViewOnly && !reviewJob.isOnReview) {
+    actionButton = (
+      <button type="button" onClick={onEditJob} className="btn-primary">
+        Edit Job
+      </button>
+    );
+  } else if (!isLastStep && !reviewJob.isOnReview) {
+    actionButton = (
       <button
         type="button"
-        onClick={
-          (currentStep === 1 || isViewOnly) && !reviewJob.isOnReview
-            ? onClose
-            : handleBack
-        }
+        onClick={handleNext}
+        className="btn-primary flex items-center gap-2"
+      >
+        Next <ChevronRight className="w-4 h-4" />
+      </button>
+    );
+  } else if (reviewJob.isToReview && !reviewJob.isOnReview) {
+    actionButton = (
+      <button
+        type="button"
+        onClick={(e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          onReviewJob();
+        }}
+        className="btn-primary flex items-center gap-2"
+      >
+        Review <ChevronRight className="w-4 h-4" />
+      </button>
+    );
+  } else {
+    actionButton = (
+      <button type="submit" className="btn-success flex items-center gap-2">
+        <Check className="w-4 h-4" />
+        {selectedJob ? "Update" : "Save Job"}
+      </button>
+    );
+  }
+
+  return (
+    <div className="w-full px-6 py-4 bg-gray-50 dark:bg-gray-900/50 border-t border-gray-100 dark:border-gray-700 flex items-center justify-between">
+      <button
+        type="button"
+        onClick={showCancel ? onClose : handleBack}
         className="px-4 py-2 text-sm font-medium text-cancel transition-colors"
       >
-        {(currentStep === 1 || isViewOnly) && !reviewJob.isOnReview
-          ? "Cancel"
-          : "Back"}
+        {showCancel ? "Cancel" : "Back"}
       </button>
 
-      <div className="flex gap-3">
-        {isViewOnly && !reviewJob.isOnReview ? (
-          <button
-            type="button"
-            onClick={onEditJob}
-            className="px-6 py-2 bg-blue-600 text-white rounded-xl hover:bg-blue-700 font-semibold shadow-lg shadow-blue-500/30 transition-all"
-          >
-            Edit Job
-          </button>
-        ) : (
-          <>
-            {currentStep < STEPS.length && !reviewJob.isOnReview ? (
-              <button
-                type="button"
-                onClick={handleNext}
-                className="flex items-center gap-2 px-6 py-2 bg-blue-600 text-white rounded-xl hover:bg-blue-700 font-semibold shadow-lg shadow-blue-500/30 transition-all"
-              >
-                Next <ChevronRight className="w-4 h-4" />
-              </button>
-            ) : reviewJob.isToReview && !reviewJob.isOnReview ? (
-              <button
-                type="button"
-                onClick={onReviewJob}
-                className="flex items-center gap-2 px-6 py-2 bg-blue-600 text-white rounded-xl hover:bg-blue-700 font-semibold shadow-lg shadow-blue-500/30 transition-all"
-              >
-                Review <ChevronRight className="w-4 h-4" />
-              </button>
-            ) : (
-              <button
-                type="submit"
-                className="flex items-center gap-2 px-6 py-2 bg-green-600 text-white rounded-xl hover:bg-green-700 font-semibold shadow-lg shadow-green-500/30 transition-all"
-              >
-                <Check className="w-4 h-4" />{" "}
-                {selectedJob ? "Update" : "Save Job"}
-              </button>
-            )}
-          </>
-        )}
-      </div>
+      <div className="flex gap-3">{actionButton}</div>
     </div>
   );
 };

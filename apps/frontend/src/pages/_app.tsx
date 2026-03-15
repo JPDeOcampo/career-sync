@@ -11,6 +11,7 @@ import SubNavbar from "@/components/SubNavbar";
 import { publicRoutes } from "@/constant/routesPath";
 import JobModal from "@/components/JobModal";
 import useJobHooks from "@/hooks/useJob";
+import { GlobalModalProvider } from "@/context/GlobalModalContext";
 
 const poppins = Poppins({
   subsets: ["latin"],
@@ -70,8 +71,10 @@ const AppContent = ({ Component, pageProps }: AppProps) => {
 export default function MyApp(props: AppProps) {
   return (
     <Provider store={store}>
-      <HelmetMeta />
-      <AppContent {...props} />
+      <GlobalModalProvider>
+        <HelmetMeta />
+        <AppContent {...props} />
+      </GlobalModalProvider>
     </Provider>
   );
 }

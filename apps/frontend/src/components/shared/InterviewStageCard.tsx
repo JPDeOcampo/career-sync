@@ -1,6 +1,6 @@
 import { motion } from "motion/react";
 import { cn } from "@/utils/cn";
-const Card = ({
+const InterviewStageCard = ({
   className,
   children,
 }: {
@@ -8,7 +8,7 @@ const Card = ({
   children: React.ReactNode;
 }) => {
   return (
-    <motion.form
+    <motion.div
       layout
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
@@ -26,8 +26,8 @@ const Card = ({
       style={{ transition: "none" }}
     >
       {children}
-    </motion.form>
+    </motion.div>
   );
 };
 
-export default Card;
+export default InterviewStageCard;

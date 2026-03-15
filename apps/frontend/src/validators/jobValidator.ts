@@ -23,6 +23,15 @@ const jobDescription = z
   .nonempty("Job description is required")
   .min(10, "Job description is too short, must be at least 10 characters long");
 
+const interviewStagesSchema = z.object({
+  interviewID: z.string(),
+  interviewType: z.enum(interviewTypes),
+  interviewDate: z.string(),
+  interviewTime: z.string(),
+  interviewerName: z.string(),
+  interviewComment: z.string(),
+});
+
 export const jobSchema = z.object({
   company: company,
   roleTitle: roleTitle,
@@ -40,10 +49,7 @@ export const jobSchema = z.object({
   cvVersion: z.string(),
   coverLetterSent: z.boolean(),
   contact: z.string(),
-  interviewStage: z.enum(interviewTypes),
-  interviewDate: z.string(),
-  interviewTime: z.string(),
-  interviewerName: z.string(),
+  interviewStages: z.array(interviewStagesSchema).optional(),
   offer: z.boolean(),
   notes: z.string(),
 });

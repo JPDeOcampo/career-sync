@@ -4,16 +4,15 @@ import { useEffect } from "react";
 import { motion, AnimatePresence } from "motion/react";
 import { X } from "lucide-react";
 import CustomTooltip from "./CustomTooltip";
-import { useAppDispatch } from "@/hooks/useRedux";
-import { setIsShowModal } from "@/store/slices/globalSlice";
 import { cn } from "@/utils/cn";
 
-const ConfirmActionModal = ({
+const GlobalModal = ({
   isShow,
   title = "Confirm Action",
   description,
   variant = "default",
   onConfirm,
+  onClose,
   className = "max-w-md",
   children,
 }: {
@@ -22,21 +21,22 @@ const ConfirmActionModal = ({
   description?: string;
   variant?: "default" | "custom";
   onConfirm: () => void;
+  onClose: () => void;
   className?: string;
   children?: React.ReactNode;
 }) => {
-  const dispatch = useAppDispatch();
-
-  const onClose = () => dispatch(setIsShowModal(false));
+  const handleOnClose = () => {
+    if (onClose) onClose();
+  };
 
   // Close on Escape
   useEffect(() => {
     const handleEsc = (e: KeyboardEvent) => {
-      if (e.key === "Escape") onClose();
+      if (e.key === "Escape") handleOnClose();
     };
     window.addEventListener("keydown", handleEsc);
     return () => window.removeEventListener("keydown", handleEsc);
-  }, [onClose]);
+  }, [handleOnClose]);
 
   // Prevent Body Scroll
   useEffect(() => {
@@ -56,7 +56,7 @@ const ConfirmActionModal = ({
         animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
         className="fixed inset-0 z-9999 flex items-center justify-center bg-slate-900/40 p-4 sm:p-8"
-        onClick={onClose}
+        onClick={handleOnClose}
       >
         <motion.div
           initial={{ scale: 0.95, opacity: 0, y: 20 }}
@@ -68,7 +68,7 @@ const ConfirmActionModal = ({
           <div className="absolute top-2 right-2">
             <CustomTooltip label="Close" position="bottom">
               <button
-                onClick={onClose}
+                onClick={handleOnClose}
                 className="hidden md:flex p-2 text-foreground/80 hover:text-foreground cursor-pointer"
               >
                 <X size={20} />
@@ -96,7 +96,7 @@ const ConfirmActionModal = ({
                 <button
                   onClick={() => {
                     onConfirm?.();
-                    onClose();
+                    handleOnClose();
                   }}
                   className="rounded-md bg-red-600 px-4 py-2 text-sm font-medium text-white hover:bg-red-700 cursor-pointer"
                 >
@@ -111,4 +111,4 @@ const ConfirmActionModal = ({
   );
 };
 
-export default ConfirmActionModal;
+export default GlobalModal;

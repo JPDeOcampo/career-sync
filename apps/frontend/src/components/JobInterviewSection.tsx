@@ -7,14 +7,11 @@ import { cn } from "@/utils/cn";
 import { Plus, ArrowUp, ArrowDown, Minus } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
 import CustomTooltip from "@/components/shared/CustomTooltip";
-import { useAppDispatch, useAppSelector } from "@/hooks/useRedux";
-import { selectGlobal } from "@/store/selectors";
-import { setIsShowModal } from "@/store/slices/globalSlice";
-import ConfirmActionModal from "@/components/shared/ConfirmActionModal";
 import { v4 as uuidv4 } from "uuid";
-import Card from "@/components/shared/Card";
+import InterviewStageCard from "@/components/shared/InterviewStageCard";
 import { getTodayString } from "@/utils/dateHelper";
 import { InterviewInfo } from "@/@types/jobTypes";
+import { useGlobalModal } from "@/context/GlobalModalContext";
 
 interface AddButtonProps {
   label?: string;
@@ -30,7 +27,7 @@ const ItemHeader = ({
   moveDown,
   removedItem,
   items,
-  isViewOnly,
+  isJobViewOnly,
 }: {
   title: string;
   orderId: number;
@@ -39,11 +36,9 @@ const ItemHeader = ({
   moveDown: () => void;
   removedItem: () => void;
   items: InterviewInfo[];
-  isViewOnly?: boolean;
+  isJobViewOnly?: boolean;
 }) => {
-  const dispatch = useAppDispatch();
-  const { isShowModal } = useAppSelector(selectGlobal);
-
+  const { handleGlobalModal } = useGlobalModal();
   return (
     <div className="flex justify-between items-center mb-4">
       <div className="overflow-hidden font-bold flex gap-1">
@@ -60,7 +55,7 @@ const ItemHeader = ({
           </motion.span>
         </AnimatePresence>
       </div>
-      {!isViewOnly && (
+      {!isJobViewOnly && (
         <div className="flex gap-2">
           {index > 0 && (
             <CustomTooltip label="Move Up" position="bottom">
@@ -94,17 +89,19 @@ const ItemHeader = ({
           <CustomTooltip label="Remove" position="bottom">
             <button
               type="button"
-              onClick={() => dispatch(setIsShowModal(true))}
+              onClick={() =>
+                handleGlobalModal({
+                  variant: "default",
+                  title: "Confirm Action",
+                  description: `Are you sure you want to delete this <b>${title} ${orderId}</b>? This action cannot be undone.`,
+                  onConfirm: removedItem,
+                })
+              }
               className="text-background bg-red-500 hover:bg-red-400 rounded-full p-1 cursor-pointer"
             >
               <Minus size={16} />
             </button>
           </CustomTooltip>
-          <ConfirmActionModal
-            isShow={isShowModal}
-            description={`Are you sure you want to delete this <b>${title} ${orderId}</b>? This action cannot be undone.`}
-            onConfirm={removedItem}
-          />
         </div>
       )}
     </div>
@@ -134,12 +131,11 @@ const AddButton: React.FC<AddButtonProps> = ({
 };
 
 const JobInterviewSection = ({
-  isViewOnly = false,
+  isJobViewOnly = false,
 }: {
-  isViewOnly?: boolean;
+  isJobViewOnly?: boolean;
 }) => {
   const { register, control } = useFormContext();
-
   const { fields, append, remove, move } = useFieldArray({
     control,
     name: "interviewStages",
@@ -151,7 +147,7 @@ const JobInterviewSection = ({
   const handleAdd = () => {
     append({
       interviewID: uuidv4(),
-      interviewType: "",
+      interviewType: interviewTypes[fields.length],
       interviewDate: getTodayString(),
       interviewTime: "",
       interviewerName: "",
@@ -161,12 +157,12 @@ const JobInterviewSection = ({
 
   return (
     <div className="space-y-4">
-      {isViewOnly && !hasInterviewStages && <p>No interviews added</p>}
+      {isJobViewOnly && !hasInterviewStages && <p>No interviews added</p>}
 
       {fields.map((field, index) => (
-        <Card
+        <InterviewStageCard
           key={field.id}
-          className={!isViewOnly ? "hover:border-primary/30" : ""}
+          className={!isJobViewOnly ? "hover:border-primary/30" : ""}
         >
           <ItemHeader
             title="Interview"
@@ -176,7 +172,7 @@ const JobInterviewSection = ({
             moveDown={() => index < fields.length - 1 && move(index, index + 1)}
             removedItem={() => remove(index)}
             items={fields as unknown as InterviewInfo[]}
-            isViewOnly={isViewOnly}
+            isJobViewOnly={isJobViewOnly}
           />
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -188,15 +184,12 @@ const JobInterviewSection = ({
                 name={`interviewStages.${index}.interviewType`}
                 control={control}
                 render={({ field: controllerField }) =>
-                  isViewOnly ? (
+                  isJobViewOnly ? (
                     <p className="text-sm font-medium">
                       {controllerField.value}
                     </p>
                   ) : (
-                    <Dropdown
-                      label={controllerField.value || interviewTypes[0]}
-                      align="left"
-                    >
+                    <Dropdown label={controllerField.value} align="left">
                       {interviewTypes.map((s) => (
                         <DropdownItem
                           key={s}
@@ -232,20 +225,20 @@ const JobInterviewSection = ({
                 label="Comment"
                 as="textarea"
                 rows={3}
-                {...register("interviewComment")}
+                {...register(`interviewStages.${index}.interviewComment`)}
               />
             </div>
           </div>
-        </Card>
+        </InterviewStageCard>
       ))}
 
-      {!isViewOnly && fields.length <= 4 && (
+      {!isJobViewOnly && fields.length <= 4 && (
         <AddButton label="Add new Interview" onClick={handleAdd} />
       )}
 
       <Checkbox
         label="Received Offer"
-        disabled={isViewOnly}
+        disabled={isJobViewOnly}
         {...register("offer")}
       />
     </div>
