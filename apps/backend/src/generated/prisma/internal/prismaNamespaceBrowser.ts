@@ -52,7 +52,10 @@ export const AnyNull = runtime.AnyNull
 
 export const ModelName = {
   User: 'User',
-  RefreshToken: 'RefreshToken'
+  RefreshToken: 'RefreshToken',
+  Job: 'Job',
+  CVVersion: 'CVVersion',
+  InterviewStage: 'InterviewStage'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -96,6 +99,58 @@ export const RefreshTokenScalarFieldEnum = {
 } as const
 
 export type RefreshTokenScalarFieldEnum = (typeof RefreshTokenScalarFieldEnum)[keyof typeof RefreshTokenScalarFieldEnum]
+
+
+export const JobScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  company: 'company',
+  roleTitle: 'roleTitle',
+  jobDescription: 'jobDescription',
+  jobType: 'jobType',
+  salary: 'salary',
+  workSetup: 'workSetup',
+  workSchedule: 'workSchedule',
+  location: 'location',
+  jobLink: 'jobLink',
+  applicationMethod: 'applicationMethod',
+  applicationDate: 'applicationDate',
+  status: 'status',
+  priority: 'priority',
+  coverLetterSent: 'coverLetterSent',
+  contact: 'contact',
+  offer: 'offer',
+  notes: 'notes',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type JobScalarFieldEnum = (typeof JobScalarFieldEnum)[keyof typeof JobScalarFieldEnum]
+
+
+export const CVVersionScalarFieldEnum = {
+  id: 'id',
+  jobId: 'jobId',
+  fileUrl: 'fileUrl',
+  name: 'name',
+  createdAt: 'createdAt'
+} as const
+
+export type CVVersionScalarFieldEnum = (typeof CVVersionScalarFieldEnum)[keyof typeof CVVersionScalarFieldEnum]
+
+
+export const InterviewStageScalarFieldEnum = {
+  id: 'id',
+  jobId: 'jobId',
+  interviewType: 'interviewType',
+  interviewDate: 'interviewDate',
+  interviewTime: 'interviewTime',
+  interviewerName: 'interviewerName',
+  interviewComment: 'interviewComment',
+  createdAt: 'createdAt'
+} as const
+
+export type InterviewStageScalarFieldEnum = (typeof InterviewStageScalarFieldEnum)[keyof typeof InterviewStageScalarFieldEnum]
 
 
 export const SortOrder = {

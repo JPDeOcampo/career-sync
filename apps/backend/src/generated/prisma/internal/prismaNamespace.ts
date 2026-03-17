@@ -385,7 +385,10 @@ type FieldRefInputType<Model, FieldType> = Model extends never ? never : FieldRe
 
 export const ModelName = {
   User: 'User',
-  RefreshToken: 'RefreshToken'
+  RefreshToken: 'RefreshToken',
+  Job: 'Job',
+  CVVersion: 'CVVersion',
+  InterviewStage: 'InterviewStage'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -401,7 +404,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "user" | "refreshToken"
+    modelProps: "user" | "refreshToken" | "job" | "cVVersion" | "interviewStage"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -553,6 +556,228 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
+    Job: {
+      payload: Prisma.$JobPayload<ExtArgs>
+      fields: Prisma.JobFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.JobFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$JobPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.JobFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$JobPayload>
+        }
+        findFirst: {
+          args: Prisma.JobFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$JobPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.JobFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$JobPayload>
+        }
+        findMany: {
+          args: Prisma.JobFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$JobPayload>[]
+        }
+        create: {
+          args: Prisma.JobCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$JobPayload>
+        }
+        createMany: {
+          args: Prisma.JobCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.JobCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$JobPayload>[]
+        }
+        delete: {
+          args: Prisma.JobDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$JobPayload>
+        }
+        update: {
+          args: Prisma.JobUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$JobPayload>
+        }
+        deleteMany: {
+          args: Prisma.JobDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.JobUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.JobUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$JobPayload>[]
+        }
+        upsert: {
+          args: Prisma.JobUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$JobPayload>
+        }
+        aggregate: {
+          args: Prisma.JobAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateJob>
+        }
+        groupBy: {
+          args: Prisma.JobGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.JobGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.JobCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.JobCountAggregateOutputType> | number
+        }
+      }
+    }
+    CVVersion: {
+      payload: Prisma.$CVVersionPayload<ExtArgs>
+      fields: Prisma.CVVersionFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.CVVersionFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CVVersionPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.CVVersionFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CVVersionPayload>
+        }
+        findFirst: {
+          args: Prisma.CVVersionFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CVVersionPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.CVVersionFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CVVersionPayload>
+        }
+        findMany: {
+          args: Prisma.CVVersionFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CVVersionPayload>[]
+        }
+        create: {
+          args: Prisma.CVVersionCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CVVersionPayload>
+        }
+        createMany: {
+          args: Prisma.CVVersionCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.CVVersionCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CVVersionPayload>[]
+        }
+        delete: {
+          args: Prisma.CVVersionDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CVVersionPayload>
+        }
+        update: {
+          args: Prisma.CVVersionUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CVVersionPayload>
+        }
+        deleteMany: {
+          args: Prisma.CVVersionDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.CVVersionUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.CVVersionUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CVVersionPayload>[]
+        }
+        upsert: {
+          args: Prisma.CVVersionUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CVVersionPayload>
+        }
+        aggregate: {
+          args: Prisma.CVVersionAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateCVVersion>
+        }
+        groupBy: {
+          args: Prisma.CVVersionGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.CVVersionGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.CVVersionCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.CVVersionCountAggregateOutputType> | number
+        }
+      }
+    }
+    InterviewStage: {
+      payload: Prisma.$InterviewStagePayload<ExtArgs>
+      fields: Prisma.InterviewStageFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.InterviewStageFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$InterviewStagePayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.InterviewStageFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$InterviewStagePayload>
+        }
+        findFirst: {
+          args: Prisma.InterviewStageFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$InterviewStagePayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.InterviewStageFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$InterviewStagePayload>
+        }
+        findMany: {
+          args: Prisma.InterviewStageFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$InterviewStagePayload>[]
+        }
+        create: {
+          args: Prisma.InterviewStageCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$InterviewStagePayload>
+        }
+        createMany: {
+          args: Prisma.InterviewStageCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.InterviewStageCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$InterviewStagePayload>[]
+        }
+        delete: {
+          args: Prisma.InterviewStageDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$InterviewStagePayload>
+        }
+        update: {
+          args: Prisma.InterviewStageUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$InterviewStagePayload>
+        }
+        deleteMany: {
+          args: Prisma.InterviewStageDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.InterviewStageUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.InterviewStageUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$InterviewStagePayload>[]
+        }
+        upsert: {
+          args: Prisma.InterviewStageUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$InterviewStagePayload>
+        }
+        aggregate: {
+          args: Prisma.InterviewStageAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateInterviewStage>
+        }
+        groupBy: {
+          args: Prisma.InterviewStageGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.InterviewStageGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.InterviewStageCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.InterviewStageCountAggregateOutputType> | number
+        }
+      }
+    }
   }
 } & {
   other: {
@@ -617,6 +842,58 @@ export const RefreshTokenScalarFieldEnum = {
 } as const
 
 export type RefreshTokenScalarFieldEnum = (typeof RefreshTokenScalarFieldEnum)[keyof typeof RefreshTokenScalarFieldEnum]
+
+
+export const JobScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  company: 'company',
+  roleTitle: 'roleTitle',
+  jobDescription: 'jobDescription',
+  jobType: 'jobType',
+  salary: 'salary',
+  workSetup: 'workSetup',
+  workSchedule: 'workSchedule',
+  location: 'location',
+  jobLink: 'jobLink',
+  applicationMethod: 'applicationMethod',
+  applicationDate: 'applicationDate',
+  status: 'status',
+  priority: 'priority',
+  coverLetterSent: 'coverLetterSent',
+  contact: 'contact',
+  offer: 'offer',
+  notes: 'notes',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type JobScalarFieldEnum = (typeof JobScalarFieldEnum)[keyof typeof JobScalarFieldEnum]
+
+
+export const CVVersionScalarFieldEnum = {
+  id: 'id',
+  jobId: 'jobId',
+  fileUrl: 'fileUrl',
+  name: 'name',
+  createdAt: 'createdAt'
+} as const
+
+export type CVVersionScalarFieldEnum = (typeof CVVersionScalarFieldEnum)[keyof typeof CVVersionScalarFieldEnum]
+
+
+export const InterviewStageScalarFieldEnum = {
+  id: 'id',
+  jobId: 'jobId',
+  interviewType: 'interviewType',
+  interviewDate: 'interviewDate',
+  interviewTime: 'interviewTime',
+  interviewerName: 'interviewerName',
+  interviewComment: 'interviewComment',
+  createdAt: 'createdAt'
+} as const
+
+export type InterviewStageScalarFieldEnum = (typeof InterviewStageScalarFieldEnum)[keyof typeof InterviewStageScalarFieldEnum]
 
 
 export const SortOrder = {
@@ -794,6 +1071,9 @@ export type PrismaClientOptions = ({
 export type GlobalOmitConfig = {
   user?: Prisma.UserOmit
   refreshToken?: Prisma.RefreshTokenOmit
+  job?: Prisma.JobOmit
+  cVVersion?: Prisma.CVVersionOmit
+  interviewStage?: Prisma.InterviewStageOmit
 }
 
 /* Types for Logging */

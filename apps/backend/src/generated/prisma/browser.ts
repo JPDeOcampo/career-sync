@@ -27,3 +27,18 @@ export type User = Prisma.UserModel
  * 
  */
 export type RefreshToken = Prisma.RefreshTokenModel
+/**
+ * Model Job
+ * 
+ */
+export type Job = Prisma.JobModel
+/**
+ * Model CVVersion
+ * 
+ */
+export type CVVersion = Prisma.CVVersionModel
+/**
+ * Model InterviewStage
+ * 
+ */
+export type InterviewStage = Prisma.InterviewStageModel

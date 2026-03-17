@@ -32,7 +32,9 @@ const DefaultField = ({
 }: DefaultFieldProps) => {
   const { isJobViewOnly } = useAppSelector(selectGlobal);
   const { watch } = useFormContext<JobFormData>();
-  const value = watch(registerProps.name as keyof JobFormData);
+  const value = watch(
+    registerProps.name as keyof JobFormData,
+  ) as JobFormData[keyof JobFormData];
 
   const baseClass = `w-full ${as === "input" ? "h-10.5" : ""} px-3 py-2 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-foreground`;
 
@@ -62,7 +64,7 @@ const DefaultField = ({
 
       {isJobViewOnly ? (
         // View Only State: Renders a styled div or p instead of an input
-        <p className="text-job-value">{value || "N/A"}</p>
+        <p className="text-job-value">{String(value ?? "N/A")}</p>
       ) : (
         // Editable State
         <>

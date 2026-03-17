@@ -1,8 +1,9 @@
 import express, { type Express } from "express";
 import cors from "cors";
-import authRoutes from "./routes/authRoutes.js";
+import authRoutes from "@/routes/authRoutes.js";
+import jobRoutes from "@/routes/jobRoutes.js";
 import cookieParser from "cookie-parser";
-import { errorHandler } from "./middleware/errorHandler.js";
+import { errorHandler } from "@/middleware/errorHandler.js";
 
 const app: Express = express();
 
@@ -18,7 +19,8 @@ app.use(cookieParser());
 app.use(express.json());
 
 // Routes
-app.use("/api", authRoutes);
+app.use("/api/v1/auth", authRoutes);
+app.use("/api/v1/jobs", jobRoutes);
 
 // Global error handler
 app.use(errorHandler);

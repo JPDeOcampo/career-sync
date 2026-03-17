@@ -32,7 +32,7 @@ const extractFieldErrors = (
   }
 
   return result;
-}
+};
 
 export const validate =
   <T extends z.ZodTypeAny>(schema: T) =>

@@ -3,7 +3,7 @@ import { UserType } from "@/@types/userTypes";
 import { login, logout, setUserId } from "../slices/authSlice";
 import type { RootState } from "../store";
 import { toast } from "sonner";
-const BASE_URL = `${process.env.NEXT_PUBLIC_API_URL}/api`;
+const BASE_URL = `${process.env.NEXT_PUBLIC_API_URL}/api/v1/auth`;
 
 interface UserResponseType {
   user: UserType;
@@ -32,7 +32,7 @@ export const authApi = createApi({
       { email: string; password: string }
     >({
       query: (credentials) => ({
-        url: "/v1/user/login",
+        url: "/login",
         method: "POST",
         body: credentials,
       }),
@@ -50,7 +50,7 @@ export const authApi = createApi({
       }
     >({
       query: (credentials) => ({
-        url: "/v1/user/register",
+        url: "/register",
         method: "POST",
         body: credentials,
       }),
@@ -62,7 +62,7 @@ export const authApi = createApi({
       { email: string }
     >({
       query: (credentials) => ({
-        url: "/v1/user/forgot-password",
+        url: "/forgot-password",
         method: "POST",
         body: credentials,
       }),
@@ -83,7 +83,7 @@ export const authApi = createApi({
       void
     >({
       query: (credentials) => ({
-        url: "/v1/user/reset/refresh-reset-password",
+        url: "/reset/refresh-reset-password",
         method: "GET",
         body: credentials,
       }),
@@ -103,7 +103,7 @@ export const authApi = createApi({
       { userId?: UserType["userId"]; verificationCode: string }
     >({
       query: ({ userId, verificationCode }) => ({
-        url: `/v1/user/reset/verify-reset-password/${userId}`,
+        url: `/reset/verify-reset-password/${userId}`,
         method: "POST",
         body: { verificationCode },
       }),
@@ -113,7 +113,7 @@ export const authApi = createApi({
       { userId?: UserType["userId"] }
     >({
       query: (userId) => ({
-        url: `/v1/user/reset/resend-reset-verification-code/${userId}`,
+        url: `/reset/resend-reset-verification-code/${userId}`,
         method: "POST",
       }),
     }),
@@ -128,7 +128,7 @@ export const authApi = createApi({
       }
     >({
       query: ({ userId, newPassword, confirmPassword }) => ({
-        url: `/v1/user/reset/reset-password/${userId}`,
+        url: `/reset/reset-password/${userId}`,
         method: "POST",
         body: { newPassword, confirmPassword },
       }),
@@ -137,7 +137,7 @@ export const authApi = createApi({
     // --- Refresh Token ---
     refreshToken: builder.mutation<UserResponseType, void>({
       query: () => ({
-        url: "/v1/user/refresh-token",
+        url: "/refresh-token",
         method: "POST",
       }),
       async onQueryStarted(_, { dispatch, queryFulfilled }) {
@@ -153,7 +153,7 @@ export const authApi = createApi({
     }),
     singleLogout: builder.mutation<void, void>({
       query: () => ({
-        url: "/v1/user/single-logout",
+        url: "/single-logout",
         method: "POST",
       }),
       async onQueryStarted(_, { dispatch, queryFulfilled }) {
