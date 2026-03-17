@@ -15,7 +15,7 @@ const Dashboard = () => {
   const stats = {
     total: jobs.length,
     interviews: jobs.filter(
-      (job) => job.status === "Interview" || job.interviewDate,
+      (job) => job.status === "Interview", // || job.interviewDate
     ).length,
     offers: jobs.filter((job) => job.status === "Offer" || job.offer).length,
     rejected: jobs.filter((job) => job.status === "Rejected").length,
