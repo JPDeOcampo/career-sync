@@ -18,6 +18,7 @@ model User {
   verificationCode        String?
   verificationCodeExpires DateTime?
   jobs                    Job[]
+  documents               Document[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -59,8 +60,8 @@ model Job {
   status   String?
   priority String?
 
-  cvVersions      CVVersion[]
-  coverLetterSent Boolean     @default(false)
+  cvId          String  @db.Uuid
+  coverLetterId String? @db.Uuid
 
   contact String?
   offer   Boolean @default(false)
@@ -72,21 +73,36 @@ model Job {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
+  cv          Document  @relation("JobCV", fields: [cvId], references: [id])
+  coverLetter Document? @relation("JobCL", fields: [coverLetterId], references: [id])
+
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([userId])
 }
 
-model CVVersion {
-  id    String @id @default(uuid()) @db.Uuid
-  jobId String @db.Uuid
+enum DocumentType {
+  CV
+  COVER_LETTER
+}
+
+model Document {
+  id     String       @id @default(uuid()) @db.Uuid
+  userId String       @db.Uuid
+  type   DocumentType
 
   fileUrl String
   name    String?
 
   createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
-  job Job @relation(fields: [jobId], references: [id], onDelete: Cascade)
+  jobsWithCV Job[] @relation("JobCV")
+  jobsWithCL Job[] @relation("JobCL")
+  user       User  @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, name])
+  @@index([userId, type])
 }
 
 model InterviewStage {
@@ -101,6 +117,7 @@ model InterviewStage {
   interviewComment String?
 
   createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   job Job @relation(fields: [jobId], references: [id], onDelete: Cascade)
 

@@ -387,7 +387,7 @@ export const ModelName = {
   User: 'User',
   RefreshToken: 'RefreshToken',
   Job: 'Job',
-  CVVersion: 'CVVersion',
+  Document: 'Document',
   InterviewStage: 'InterviewStage'
 } as const
 
@@ -404,7 +404,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "user" | "refreshToken" | "job" | "cVVersion" | "interviewStage"
+    modelProps: "user" | "refreshToken" | "job" | "document" | "interviewStage"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -630,77 +630,77 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
-    CVVersion: {
-      payload: Prisma.$CVVersionPayload<ExtArgs>
-      fields: Prisma.CVVersionFieldRefs
+    Document: {
+      payload: Prisma.$DocumentPayload<ExtArgs>
+      fields: Prisma.DocumentFieldRefs
       operations: {
         findUnique: {
-          args: Prisma.CVVersionFindUniqueArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$CVVersionPayload> | null
+          args: Prisma.DocumentFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DocumentPayload> | null
         }
         findUniqueOrThrow: {
-          args: Prisma.CVVersionFindUniqueOrThrowArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$CVVersionPayload>
+          args: Prisma.DocumentFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DocumentPayload>
         }
         findFirst: {
-          args: Prisma.CVVersionFindFirstArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$CVVersionPayload> | null
+          args: Prisma.DocumentFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DocumentPayload> | null
         }
         findFirstOrThrow: {
-          args: Prisma.CVVersionFindFirstOrThrowArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$CVVersionPayload>
+          args: Prisma.DocumentFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DocumentPayload>
         }
         findMany: {
-          args: Prisma.CVVersionFindManyArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$CVVersionPayload>[]
+          args: Prisma.DocumentFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DocumentPayload>[]
         }
         create: {
-          args: Prisma.CVVersionCreateArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$CVVersionPayload>
+          args: Prisma.DocumentCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DocumentPayload>
         }
         createMany: {
-          args: Prisma.CVVersionCreateManyArgs<ExtArgs>
+          args: Prisma.DocumentCreateManyArgs<ExtArgs>
           result: BatchPayload
         }
         createManyAndReturn: {
-          args: Prisma.CVVersionCreateManyAndReturnArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$CVVersionPayload>[]
+          args: Prisma.DocumentCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DocumentPayload>[]
         }
         delete: {
-          args: Prisma.CVVersionDeleteArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$CVVersionPayload>
+          args: Prisma.DocumentDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DocumentPayload>
         }
         update: {
-          args: Prisma.CVVersionUpdateArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$CVVersionPayload>
+          args: Prisma.DocumentUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DocumentPayload>
         }
         deleteMany: {
-          args: Prisma.CVVersionDeleteManyArgs<ExtArgs>
+          args: Prisma.DocumentDeleteManyArgs<ExtArgs>
           result: BatchPayload
         }
         updateMany: {
-          args: Prisma.CVVersionUpdateManyArgs<ExtArgs>
+          args: Prisma.DocumentUpdateManyArgs<ExtArgs>
           result: BatchPayload
         }
         updateManyAndReturn: {
-          args: Prisma.CVVersionUpdateManyAndReturnArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$CVVersionPayload>[]
+          args: Prisma.DocumentUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DocumentPayload>[]
         }
         upsert: {
-          args: Prisma.CVVersionUpsertArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$CVVersionPayload>
+          args: Prisma.DocumentUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DocumentPayload>
         }
         aggregate: {
-          args: Prisma.CVVersionAggregateArgs<ExtArgs>
-          result: runtime.Types.Utils.Optional<Prisma.AggregateCVVersion>
+          args: Prisma.DocumentAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateDocument>
         }
         groupBy: {
-          args: Prisma.CVVersionGroupByArgs<ExtArgs>
-          result: runtime.Types.Utils.Optional<Prisma.CVVersionGroupByOutputType>[]
+          args: Prisma.DocumentGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.DocumentGroupByOutputType>[]
         }
         count: {
-          args: Prisma.CVVersionCountArgs<ExtArgs>
-          result: runtime.Types.Utils.Optional<Prisma.CVVersionCountAggregateOutputType> | number
+          args: Prisma.DocumentCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.DocumentCountAggregateOutputType> | number
         }
       }
     }
@@ -860,7 +860,8 @@ export const JobScalarFieldEnum = {
   applicationDate: 'applicationDate',
   status: 'status',
   priority: 'priority',
-  coverLetterSent: 'coverLetterSent',
+  cvId: 'cvId',
+  coverLetterId: 'coverLetterId',
   contact: 'contact',
   offer: 'offer',
   notes: 'notes',
@@ -871,15 +872,17 @@ export const JobScalarFieldEnum = {
 export type JobScalarFieldEnum = (typeof JobScalarFieldEnum)[keyof typeof JobScalarFieldEnum]
 
 
-export const CVVersionScalarFieldEnum = {
+export const DocumentScalarFieldEnum = {
   id: 'id',
-  jobId: 'jobId',
+  userId: 'userId',
+  type: 'type',
   fileUrl: 'fileUrl',
   name: 'name',
-  createdAt: 'createdAt'
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
 } as const
 
-export type CVVersionScalarFieldEnum = (typeof CVVersionScalarFieldEnum)[keyof typeof CVVersionScalarFieldEnum]
+export type DocumentScalarFieldEnum = (typeof DocumentScalarFieldEnum)[keyof typeof DocumentScalarFieldEnum]
 
 
 export const InterviewStageScalarFieldEnum = {
@@ -890,7 +893,8 @@ export const InterviewStageScalarFieldEnum = {
   interviewTime: 'interviewTime',
   interviewerName: 'interviewerName',
   interviewComment: 'interviewComment',
-  createdAt: 'createdAt'
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
 } as const
 
 export type InterviewStageScalarFieldEnum = (typeof InterviewStageScalarFieldEnum)[keyof typeof InterviewStageScalarFieldEnum]
@@ -958,6 +962,20 @@ export type DateTimeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel
  * Reference to a field of type 'DateTime[]'
  */
 export type ListDateTimeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'DateTime[]'>
+    
+
+
+/**
+ * Reference to a field of type 'DocumentType'
+ */
+export type EnumDocumentTypeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'DocumentType'>
+    
+
+
+/**
+ * Reference to a field of type 'DocumentType[]'
+ */
+export type ListEnumDocumentTypeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'DocumentType[]'>
     
 
 
@@ -1072,7 +1090,7 @@ export type GlobalOmitConfig = {
   user?: Prisma.UserOmit
   refreshToken?: Prisma.RefreshTokenOmit
   job?: Prisma.JobOmit
-  cVVersion?: Prisma.CVVersionOmit
+  document?: Prisma.DocumentOmit
   interviewStage?: Prisma.InterviewStageOmit
 }
 

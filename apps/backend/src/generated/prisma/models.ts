@@ -11,6 +11,6 @@
 export type * from './models/User'
 export type * from './models/RefreshToken'
 export type * from './models/Job'
-export type * from './models/CVVersion'
+export type * from './models/Document'
 export type * from './models/InterviewStage'
 export type * from './commonInputTypes'

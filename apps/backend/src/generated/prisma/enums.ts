@@ -9,7 +9,9 @@
 * 🟢 You can import this file directly.
 */
 
+export const DocumentType = {
+  CV: 'CV',
+  COVER_LETTER: 'COVER_LETTER'
+} as const
 
-
-// This file is empty because there are no enums in the schema.
-export {}
+export type DocumentType = (typeof DocumentType)[keyof typeof DocumentType]

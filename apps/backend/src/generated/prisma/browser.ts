@@ -33,10 +33,10 @@ export type RefreshToken = Prisma.RefreshTokenModel
  */
 export type Job = Prisma.JobModel
 /**
- * Model CVVersion
+ * Model Document
  * 
  */
-export type CVVersion = Prisma.CVVersionModel
+export type Document = Prisma.DocumentModel
 /**
  * Model InterviewStage
  * 

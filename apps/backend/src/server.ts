@@ -4,6 +4,7 @@ import authRoutes from "@/routes/authRoutes.js";
 import jobRoutes from "@/routes/jobRoutes.js";
 import cookieParser from "cookie-parser";
 import { errorHandler } from "@/middleware/errorHandler.js";
+import documentRoutes from "./routes/documentRoutes.js";
 
 const app: Express = express();
 
@@ -21,6 +22,7 @@ app.use(express.json());
 // Routes
 app.use("/api/v1/auth", authRoutes);
 app.use("/api/v1/jobs", jobRoutes);
+app.use("/api/v1/document", documentRoutes);
 
 // Global error handler
 app.use(errorHandler);

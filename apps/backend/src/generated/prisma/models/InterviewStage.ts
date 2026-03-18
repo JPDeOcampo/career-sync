@@ -33,6 +33,7 @@ export type InterviewStageMinAggregateOutputType = {
   interviewerName: string | null
   interviewComment: string | null
   createdAt: Date | null
+  updatedAt: Date | null
 }
 
 export type InterviewStageMaxAggregateOutputType = {
@@ -44,6 +45,7 @@ export type InterviewStageMaxAggregateOutputType = {
   interviewerName: string | null
   interviewComment: string | null
   createdAt: Date | null
+  updatedAt: Date | null
 }
 
 export type InterviewStageCountAggregateOutputType = {
@@ -55,6 +57,7 @@ export type InterviewStageCountAggregateOutputType = {
   interviewerName: number
   interviewComment: number
   createdAt: number
+  updatedAt: number
   _all: number
 }
 
@@ -68,6 +71,7 @@ export type InterviewStageMinAggregateInputType = {
   interviewerName?: true
   interviewComment?: true
   createdAt?: true
+  updatedAt?: true
 }
 
 export type InterviewStageMaxAggregateInputType = {
@@ -79,6 +83,7 @@ export type InterviewStageMaxAggregateInputType = {
   interviewerName?: true
   interviewComment?: true
   createdAt?: true
+  updatedAt?: true
 }
 
 export type InterviewStageCountAggregateInputType = {
@@ -90,6 +95,7 @@ export type InterviewStageCountAggregateInputType = {
   interviewerName?: true
   interviewComment?: true
   createdAt?: true
+  updatedAt?: true
   _all?: true
 }
 
@@ -174,6 +180,7 @@ export type InterviewStageGroupByOutputType = {
   interviewerName: string | null
   interviewComment: string | null
   createdAt: Date
+  updatedAt: Date
   _count: InterviewStageCountAggregateOutputType | null
   _min: InterviewStageMinAggregateOutputType | null
   _max: InterviewStageMaxAggregateOutputType | null
@@ -206,6 +213,7 @@ export type InterviewStageWhereInput = {
   interviewerName?: Prisma.StringNullableFilter<"InterviewStage"> | string | null
   interviewComment?: Prisma.StringNullableFilter<"InterviewStage"> | string | null
   createdAt?: Prisma.DateTimeFilter<"InterviewStage"> | Date | string
+  updatedAt?: Prisma.DateTimeFilter<"InterviewStage"> | Date | string
   job?: Prisma.XOR<Prisma.JobScalarRelationFilter, Prisma.JobWhereInput>
 }
 
@@ -218,6 +226,7 @@ export type InterviewStageOrderByWithRelationInput = {
   interviewerName?: Prisma.SortOrderInput | Prisma.SortOrder
   interviewComment?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
   job?: Prisma.JobOrderByWithRelationInput
 }
 
@@ -233,6 +242,7 @@ export type InterviewStageWhereUniqueInput = Prisma.AtLeast<{
   interviewerName?: Prisma.StringNullableFilter<"InterviewStage"> | string | null
   interviewComment?: Prisma.StringNullableFilter<"InterviewStage"> | string | null
   createdAt?: Prisma.DateTimeFilter<"InterviewStage"> | Date | string
+  updatedAt?: Prisma.DateTimeFilter<"InterviewStage"> | Date | string
   job?: Prisma.XOR<Prisma.JobScalarRelationFilter, Prisma.JobWhereInput>
 }, "id">
 
@@ -245,6 +255,7 @@ export type InterviewStageOrderByWithAggregationInput = {
   interviewerName?: Prisma.SortOrderInput | Prisma.SortOrder
   interviewComment?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
   _count?: Prisma.InterviewStageCountOrderByAggregateInput
   _max?: Prisma.InterviewStageMaxOrderByAggregateInput
   _min?: Prisma.InterviewStageMinOrderByAggregateInput
@@ -262,6 +273,7 @@ export type InterviewStageScalarWhereWithAggregatesInput = {
   interviewerName?: Prisma.StringNullableWithAggregatesFilter<"InterviewStage"> | string | null
   interviewComment?: Prisma.StringNullableWithAggregatesFilter<"InterviewStage"> | string | null
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"InterviewStage"> | Date | string
+  updatedAt?: Prisma.DateTimeWithAggregatesFilter<"InterviewStage"> | Date | string
 }
 
 export type InterviewStageCreateInput = {
@@ -272,6 +284,7 @@ export type InterviewStageCreateInput = {
   interviewerName?: string | null
   interviewComment?: string | null
   createdAt?: Date | string
+  updatedAt?: Date | string
   job: Prisma.JobCreateNestedOneWithoutInterviewStagesInput
 }
 
@@ -284,6 +297,7 @@ export type InterviewStageUncheckedCreateInput = {
   interviewerName?: string | null
   interviewComment?: string | null
   createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type InterviewStageUpdateInput = {
@@ -294,6 +308,7 @@ export type InterviewStageUpdateInput = {
   interviewerName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   interviewComment?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   job?: Prisma.JobUpdateOneRequiredWithoutInterviewStagesNestedInput
 }
 
@@ -306,6 +321,7 @@ export type InterviewStageUncheckedUpdateInput = {
   interviewerName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   interviewComment?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type InterviewStageCreateManyInput = {
@@ -317,6 +333,7 @@ export type InterviewStageCreateManyInput = {
   interviewerName?: string | null
   interviewComment?: string | null
   createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type InterviewStageUpdateManyMutationInput = {
@@ -327,6 +344,7 @@ export type InterviewStageUpdateManyMutationInput = {
   interviewerName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   interviewComment?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type InterviewStageUncheckedUpdateManyInput = {
@@ -338,6 +356,7 @@ export type InterviewStageUncheckedUpdateManyInput = {
   interviewerName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   interviewComment?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type InterviewStageListRelationFilter = {
@@ -359,6 +378,7 @@ export type InterviewStageCountOrderByAggregateInput = {
   interviewerName?: Prisma.SortOrder
   interviewComment?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
 }
 
 export type InterviewStageMaxOrderByAggregateInput = {
@@ -370,6 +390,7 @@ export type InterviewStageMaxOrderByAggregateInput = {
   interviewerName?: Prisma.SortOrder
   interviewComment?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
 }
 
 export type InterviewStageMinOrderByAggregateInput = {
@@ -381,6 +402,7 @@ export type InterviewStageMinOrderByAggregateInput = {
   interviewerName?: Prisma.SortOrder
   interviewComment?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
 }
 
 export type InterviewStageCreateNestedManyWithoutJobInput = {
@@ -433,6 +455,7 @@ export type InterviewStageCreateWithoutJobInput = {
   interviewerName?: string | null
   interviewComment?: string | null
   createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type InterviewStageUncheckedCreateWithoutJobInput = {
@@ -443,6 +466,7 @@ export type InterviewStageUncheckedCreateWithoutJobInput = {
   interviewerName?: string | null
   interviewComment?: string | null
   createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type InterviewStageCreateOrConnectWithoutJobInput = {
@@ -483,6 +507,7 @@ export type InterviewStageScalarWhereInput = {
   interviewerName?: Prisma.StringNullableFilter<"InterviewStage"> | string | null
   interviewComment?: Prisma.StringNullableFilter<"InterviewStage"> | string | null
   createdAt?: Prisma.DateTimeFilter<"InterviewStage"> | Date | string
+  updatedAt?: Prisma.DateTimeFilter<"InterviewStage"> | Date | string
 }
 
 export type InterviewStageCreateManyJobInput = {
@@ -493,6 +518,7 @@ export type InterviewStageCreateManyJobInput = {
   interviewerName?: string | null
   interviewComment?: string | null
   createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type InterviewStageUpdateWithoutJobInput = {
@@ -503,6 +529,7 @@ export type InterviewStageUpdateWithoutJobInput = {
   interviewerName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   interviewComment?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type InterviewStageUncheckedUpdateWithoutJobInput = {
@@ -513,6 +540,7 @@ export type InterviewStageUncheckedUpdateWithoutJobInput = {
   interviewerName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   interviewComment?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type InterviewStageUncheckedUpdateManyWithoutJobInput = {
@@ -523,6 +551,7 @@ export type InterviewStageUncheckedUpdateManyWithoutJobInput = {
   interviewerName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   interviewComment?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 
@@ -536,6 +565,7 @@ export type InterviewStageSelect<ExtArgs extends runtime.Types.Extensions.Intern
   interviewerName?: boolean
   interviewComment?: boolean
   createdAt?: boolean
+  updatedAt?: boolean
   job?: boolean | Prisma.JobDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["interviewStage"]>
 
@@ -548,6 +578,7 @@ export type InterviewStageSelectCreateManyAndReturn<ExtArgs extends runtime.Type
   interviewerName?: boolean
   interviewComment?: boolean
   createdAt?: boolean
+  updatedAt?: boolean
   job?: boolean | Prisma.JobDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["interviewStage"]>
 
@@ -560,6 +591,7 @@ export type InterviewStageSelectUpdateManyAndReturn<ExtArgs extends runtime.Type
   interviewerName?: boolean
   interviewComment?: boolean
   createdAt?: boolean
+  updatedAt?: boolean
   job?: boolean | Prisma.JobDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["interviewStage"]>
 
@@ -572,9 +604,10 @@ export type InterviewStageSelectScalar = {
   interviewerName?: boolean
   interviewComment?: boolean
   createdAt?: boolean
+  updatedAt?: boolean
 }
 
-export type InterviewStageOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "jobId" | "interviewType" | "interviewDate" | "interviewTime" | "interviewerName" | "interviewComment" | "createdAt", ExtArgs["result"]["interviewStage"]>
+export type InterviewStageOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "jobId" | "interviewType" | "interviewDate" | "interviewTime" | "interviewerName" | "interviewComment" | "createdAt" | "updatedAt", ExtArgs["result"]["interviewStage"]>
 export type InterviewStageInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   job?: boolean | Prisma.JobDefaultArgs<ExtArgs>
 }
@@ -599,6 +632,7 @@ export type $InterviewStagePayload<ExtArgs extends runtime.Types.Extensions.Inte
     interviewerName: string | null
     interviewComment: string | null
     createdAt: Date
+    updatedAt: Date
   }, ExtArgs["result"]["interviewStage"]>
   composites: {}
 }
@@ -1031,6 +1065,7 @@ export interface InterviewStageFieldRefs {
   readonly interviewerName: Prisma.FieldRef<"InterviewStage", 'String'>
   readonly interviewComment: Prisma.FieldRef<"InterviewStage", 'String'>
   readonly createdAt: Prisma.FieldRef<"InterviewStage", 'DateTime'>
+  readonly updatedAt: Prisma.FieldRef<"InterviewStage", 'DateTime'>
 }
     
 

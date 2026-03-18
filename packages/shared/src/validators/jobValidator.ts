@@ -25,14 +25,6 @@ const jobDescription = z
 
 const id = z.string().optional();
 
-const cvVersionSchema = z.object({
-  id: id,
-  jobId: id,
-  fileUrl: z.string().url("Invalid file URL"),
-  name: z.string().optional(),
-  createdAt: z.string().datetime().optional(),
-});
-
 const interviewStagesSchema = z.object({
   id: id,
   jobId: id,
@@ -59,8 +51,8 @@ export const jobSchema = z.object({
   applicationDate: z.string().nonempty("Application date is required"),
   status: z.enum(statuses),
   priority: z.enum(priorities),
-  cvVersions: z.array(cvVersionSchema).optional(),
-  coverLetterSent: z.boolean(),
+  cvId: z.string(),
+  coverLetterId: z.string().optional(),
   contact: z.string(),
   interviewStages: z.array(interviewStagesSchema).optional(),
   offer: z.boolean(),

@@ -49,9 +49,9 @@ export type InterviewStages = {
   interviewStages: InterviewInfo[];
 };
 
-export type CVVersion = {
+export type Documents = {
   id: string;
-  jobId: string;
+  userId: string;
   fileUrl: string;
   name: string;
   createdAt: Date;
@@ -76,8 +76,8 @@ export interface JobApplication {
   applicationDate: string;
   status: ApplicationStatus;
   priority: PriorityType;
-  cvVersions?: CVVersion[];
-  coverLetterSent: boolean;
+  cvId: string;
+  coverLetterId?: string;
   contact?: string;
 
   // Interview Info

@@ -1,7 +1,7 @@
 import { AppError } from "@/utils/errors/appError.js";
 import { prisma } from "@/lib/prisma.js";
 import { JobApplication } from "@career-sync/shared";
-import { prepareDelete, prepareUpsert } from "@/utils/prisma";
+import { prepareDelete, prepareUpsert } from "@/utils/upsertUtils";
 
 // --- Add Job Logic ---
 export const addJob = async (
@@ -24,8 +24,8 @@ export const addJob = async (
     applicationDate,
     status,
     priority,
-    cvVersions = [],
-    coverLetterSent,
+    cvId,
+    coverLetterId,
     interviewStages = [],
     contact,
     offer,
@@ -41,13 +41,6 @@ export const addJob = async (
       : undefined,
     interviewerName: stage.interviewerName,
     interviewComment: stage.interviewComment,
-  }));
-
-  // Convert dates in CV versions
-  const cvVersionData = cvVersions.map((cv) => ({
-    fileUrl: cv.fileUrl,
-    name: cv.name,
-    createdAt: cv.createdAt ? new Date(cv.createdAt) : undefined,
   }));
 
   // Validate job ID uniqueness
@@ -81,8 +74,6 @@ export const addJob = async (
       applicationDate: applicationDate ? new Date(applicationDate) : undefined,
       status,
       priority,
-      cvVersions: cvVersionData.length ? { create: cvVersionData } : undefined,
-      coverLetterSent,
       contact,
       interviewStages: interviewData.length
         ? { create: interviewData }
@@ -90,6 +81,12 @@ export const addJob = async (
       offer,
       notes,
       user: { connect: { id: userID as string } },
+      cv: {
+        connect: { id: cvId as string },
+      },
+      coverLetter: {
+        connect: { id: coverLetterId as string },
+      },
     },
   });
 
@@ -119,7 +116,6 @@ export const getJobs = async (
 
     include: {
       interviewStages: true,
-      cvVersions: true,
     },
 
     orderBy:
@@ -160,7 +156,6 @@ export const getJobById = async (id: string | string[], userID: string) => {
     },
     include: {
       interviewStages: true,
-      cvVersions: true,
       user: {
         select: {
           id: true,
@@ -185,32 +180,14 @@ export const updateJob = async (
 ) => {
   const jobId = Array.isArray(id) ? id[0] : id;
 
-  const {
-    id: _,
-    userId: __,
-    cvVersions = [],
-    interviewStages = [],
-    ...jobFields
-  } = data;
+  const { id: _, userId: __, interviewStages = [], ...jobFields } = data;
 
   const existingJob = await prisma.job.findFirst({
     where: { id: jobId, userId },
-    include: { cvVersions: true, interviewStages: true },
+    include: { interviewStages: true },
   });
 
   if (!existingJob) throw new AppError("Job not found", 404);
-
-  // CV Versions
-  const cvToDelete = prepareDelete(
-    existingJob.cvVersions.map((cv) => cv.id),
-    cvVersions.map((cv) => cv.id),
-  );
-
-  const cvToUpsert = prepareUpsert(
-    cvVersions,
-    (cv) => ({ fileUrl: cv.fileUrl, name: cv.name }),
-    (cv) => ({ fileUrl: cv.fileUrl, name: cv.name }),
-  );
 
   // Interview Stages
   const stagesToDelete = prepareDelete(
@@ -248,10 +225,9 @@ export const updateJob = async (
       applicationDate: data.applicationDate
         ? new Date(data.applicationDate)
         : undefined,
-      cvVersions: { delete: cvToDelete, upsert: cvToUpsert },
       interviewStages: { delete: stagesToDelete, upsert: stagesToUpsert },
     },
-    include: { cvVersions: true, interviewStages: true },
+    include: { interviewStages: true },
   });
 };
 

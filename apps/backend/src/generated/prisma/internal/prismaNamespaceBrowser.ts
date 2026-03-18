@@ -54,7 +54,7 @@ export const ModelName = {
   User: 'User',
   RefreshToken: 'RefreshToken',
   Job: 'Job',
-  CVVersion: 'CVVersion',
+  Document: 'Document',
   InterviewStage: 'InterviewStage'
 } as const
 
@@ -117,7 +117,8 @@ export const JobScalarFieldEnum = {
   applicationDate: 'applicationDate',
   status: 'status',
   priority: 'priority',
-  coverLetterSent: 'coverLetterSent',
+  cvId: 'cvId',
+  coverLetterId: 'coverLetterId',
   contact: 'contact',
   offer: 'offer',
   notes: 'notes',
@@ -128,15 +129,17 @@ export const JobScalarFieldEnum = {
 export type JobScalarFieldEnum = (typeof JobScalarFieldEnum)[keyof typeof JobScalarFieldEnum]
 
 
-export const CVVersionScalarFieldEnum = {
+export const DocumentScalarFieldEnum = {
   id: 'id',
-  jobId: 'jobId',
+  userId: 'userId',
+  type: 'type',
   fileUrl: 'fileUrl',
   name: 'name',
-  createdAt: 'createdAt'
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
 } as const
 
-export type CVVersionScalarFieldEnum = (typeof CVVersionScalarFieldEnum)[keyof typeof CVVersionScalarFieldEnum]
+export type DocumentScalarFieldEnum = (typeof DocumentScalarFieldEnum)[keyof typeof DocumentScalarFieldEnum]
 
 
 export const InterviewStageScalarFieldEnum = {
@@ -147,7 +150,8 @@ export const InterviewStageScalarFieldEnum = {
   interviewTime: 'interviewTime',
   interviewerName: 'interviewerName',
   interviewComment: 'interviewComment',
-  createdAt: 'createdAt'
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
 } as const
 
 export type InterviewStageScalarFieldEnum = (typeof InterviewStageScalarFieldEnum)[keyof typeof InterviewStageScalarFieldEnum]

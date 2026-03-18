@@ -5,7 +5,7 @@ import {
   ApplicationStatus,
   PriorityType,
   InterviewTypes,
-} from "./../@types/jobTypes";
+} from "../@types/job.types";
 
 export const jobTypes: JobType[] = [
   "Full-time",
