@@ -1,9 +1,9 @@
-import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
+import { createApi } from "@reduxjs/toolkit/query/react";
 import { UserType } from "@/@types/userTypes";
-import { login, logout, setUserId } from "../slices/authSlice";
-import type { RootState } from "../store";
-import { toast } from "sonner";
-const BASE_URL = `${process.env.NEXT_PUBLIC_API_URL}/api/v1/auth`;
+import { logout, setUserId } from "../slices/authSlice";
+import { baseQueryWithReauth } from "./baseQueryWithReauth";
+
+const path = "/auth";
 
 interface UserResponseType {
   user: UserType;
@@ -11,28 +11,14 @@ interface UserResponseType {
 }
 export const authApi = createApi({
   reducerPath: "authApi",
-  baseQuery: fetchBaseQuery({
-    baseUrl: BASE_URL,
-    credentials: "include",
-    prepareHeaders: (headers, { getState }) => {
-      const token = (getState() as RootState).auth?.accessToken;
-
-      if (token) {
-        headers.set("Authorization", `Bearer ${token}`);
-      }
-
-      headers.set("Content-Type", "application/json");
-
-      return headers;
-    },
-  }),
+  baseQuery: baseQueryWithReauth,
   endpoints: (builder) => ({
     userLogin: builder.mutation<
       UserResponseType,
       { email: string; password: string }
     >({
       query: (credentials) => ({
-        url: "/login",
+        url: `${path}/login`,
         method: "POST",
         body: credentials,
       }),
@@ -50,7 +36,7 @@ export const authApi = createApi({
       }
     >({
       query: (credentials) => ({
-        url: "/register",
+        url: `${path}/register`,
         method: "POST",
         body: credentials,
       }),
@@ -62,7 +48,7 @@ export const authApi = createApi({
       { email: string }
     >({
       query: (credentials) => ({
-        url: "/forgot-password",
+        url: `${path}/forgot-password`,
         method: "POST",
         body: credentials,
       }),
@@ -83,7 +69,7 @@ export const authApi = createApi({
       void
     >({
       query: (credentials) => ({
-        url: "/reset/refresh-reset-password",
+        url: `${path}/reset/refresh-reset-password`,
         method: "GET",
         body: credentials,
       }),
@@ -103,7 +89,7 @@ export const authApi = createApi({
       { userId?: UserType["userId"]; verificationCode: string }
     >({
       query: ({ userId, verificationCode }) => ({
-        url: `/reset/verify-reset-password/${userId}`,
+        url: `${path}/reset/verify-reset-password/${userId}`,
         method: "POST",
         body: { verificationCode },
       }),
@@ -113,7 +99,7 @@ export const authApi = createApi({
       { userId?: UserType["userId"] }
     >({
       query: (userId) => ({
-        url: `/reset/resend-reset-verification-code/${userId}`,
+        url: `${path}/reset/resend-reset-verification-code/${userId}`,
         method: "POST",
       }),
     }),
@@ -128,32 +114,15 @@ export const authApi = createApi({
       }
     >({
       query: ({ userId, newPassword, confirmPassword }) => ({
-        url: `/reset/reset-password/${userId}`,
+        url: `${path}/reset/reset-password/${userId}`,
         method: "POST",
         body: { newPassword, confirmPassword },
       }),
     }),
 
-    // --- Refresh Token ---
-    refreshToken: builder.mutation<UserResponseType, void>({
-      query: () => ({
-        url: "/refresh-token",
-        method: "POST",
-      }),
-      async onQueryStarted(_, { dispatch, queryFulfilled }) {
-        try {
-          const { data } = await queryFulfilled;
-          dispatch(login(data));
-        } catch (err) {
-          console.log("Refresh token failed", err);
-          toast.error("Session expired");
-          dispatch(logout());
-        }
-      },
-    }),
     singleLogout: builder.mutation<void, void>({
       query: () => ({
-        url: "/single-logout",
+        url: `${path}/single-logout`,
         method: "POST",
       }),
       async onQueryStarted(_, { dispatch, queryFulfilled }) {
@@ -176,6 +145,5 @@ export const {
   useUserResendResetVerificationCodeMutation,
   useUserRefreshResetPasswordMutation,
   useUserResetPasswordMutation,
-  useRefreshTokenMutation,
   useSingleLogoutMutation,
 } = authApi;

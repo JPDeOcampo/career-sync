@@ -98,6 +98,7 @@ export interface JobFilters {
 
 export interface JobState {
   jobs: JobApplication[];
+  recentJobs: JobApplication[] | undefined;
   selectedJob: JobApplication | undefined;
   filters: JobFilters;
   sortBy: "applicationDate" | "company" | "priority";

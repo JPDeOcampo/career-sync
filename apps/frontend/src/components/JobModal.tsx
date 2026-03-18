@@ -14,11 +14,10 @@ import {
   Calendar,
   Notebook,
 } from "lucide-react";
-import { JobFormData, JobApplication } from "@/@types/jobTypes";
+import { JobFormData, JobApplication, jobSchema } from "@career-sync/shared";
 import { getTodayString } from "@/utils/dateHelper";
 import { useForm, FormProvider } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { jobSchema } from "@/validators/jobValidator";
 import { v4 as uuidv4 } from "uuid";
 import { useOutsideClick } from "@/hooks/useOutsideClick";
 import useJobHooks from "@/hooks/useJob";

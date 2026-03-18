@@ -1,6 +1,7 @@
 import { store } from "@/store/store";
 import { addJob, selectJob, updateJob } from "@/store/slices/jobSlice";
-import { JobApplication } from "@/@types/jobTypes";
+import { selectAuth } from "@/store/selectors";
+import { JobApplication } from "@career-sync/shared";
 import { useAppDispatch, useAppSelector } from "@/hooks/useRedux";
 import {
   setIsJobViewOnly,
@@ -15,10 +16,12 @@ const useJobHooks = () => {
   const dispatch = useAppDispatch();
   const { isJobModalShow, isJobViewOnly } = useAppSelector(selectGlobal);
   const { selectedJob } = useAppSelector(selectJobs);
+  const { user } = useAppSelector(selectAuth);
   const { handleGlobalModal } = useGlobalModal();
 
   const defaultJob: JobApplication = {
     id: "",
+    userId: user?.userId as string,
     company: "",
     roleTitle: "",
     jobDescription: "",
@@ -32,8 +35,8 @@ const useJobHooks = () => {
     applicationDate: getTodayString(),
     status: "Applied",
     priority: "Medium",
-    cvVersion: "",
-    coverLetterSent: false,
+    cvId: "",
+    coverLetterId: "",
     contact: "",
     interviewStages: [],
     offer: false,

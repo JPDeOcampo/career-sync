@@ -74,6 +74,6 @@ router.post(
 );
 
 // -- Logout --
-router.post("/single-logout", protect, asyncHandler(userSingleLogout));
+router.post("/single-logout", asyncHandler(userSingleLogout));
 
 export default router;

@@ -1,15 +1,37 @@
 import { motion } from "motion/react";
 import { useAppSelector } from "@/hooks/useRedux";
-import { selectAuth, selectJobs } from "@/store/selectors";
+import { selectJobs } from "@/store/selectors";
 import StatCard from "@/components/StatCard";
 import { Briefcase, Calendar, Gift, XCircle, AlertCircle } from "lucide-react";
 import JobStatus from "@/components/shared/JobStatus";
 import useJobHooks from "@/hooks/useJob";
+import { useGetJobsQuery } from "@/store/api/jobsApi";
+import Skeleton from "@/components/shared/Skeleton";
+import Error from "@/components/shared/Error";
+
+const JobRowSkeleton = () => (
+  <div className="px-6 py-4 flex items-center justify-between">
+    <div className="flex-1 min-w-0">
+      {/* Company Name */}
+      <Skeleton variant="text" className="w-full max-w-52 mb-2" />
+      {/* Role Title */}
+      <Skeleton variant="text" className="w-full max-w-48 h-3" />
+    </div>
+    <div className="ml-4 flex items-center gap-3">
+      {/* Status Badge */}
+      <Skeleton variant="rectangular" className="w-20 h-6 rounded-full" />
+      {/* Date */}
+      <Skeleton variant="text" className="w-16 h-3" />
+    </div>
+  </div>
+);
 
 const Dashboard = () => {
-  const auth = useAppSelector(selectAuth);
-  console.log(auth);
-  const jobs = useAppSelector(selectJobs).jobs;
+  const { isLoading, isError } = useGetJobsQuery({ page: 1, limit: 5 });
+  const { jobs } = useAppSelector(selectJobs);
+  const recentJobs = jobs;
+  const hasRecentJobs = recentJobs && recentJobs?.length > 0;
+  const isLoadingJobs = isLoading && !isError && recentJobs?.length === 0;
   const { handleViewOnly } = useJobHooks();
 
   const stats = {
@@ -22,13 +44,28 @@ const Dashboard = () => {
     highPriority: jobs.filter((job) => job.priority === "High").length,
   };
 
-  const recentJobs = [...jobs]
-    .sort(
-      (a, b) =>
-        new Date(b.applicationDate).getTime() -
-        new Date(a.applicationDate).getTime(),
-    )
-    .slice(0, 5);
+  const statsArray = [
+    {
+      title: "Total Applications",
+      value: stats.total,
+      icon: Briefcase,
+      color: "blue",
+    },
+    {
+      title: "Interviews",
+      value: stats.interviews,
+      icon: Calendar,
+      color: "yellow",
+    },
+    { title: "Offers", value: stats.offers, icon: Gift, color: "green" },
+    { title: "Rejected", value: stats.rejected, icon: XCircle, color: "red" },
+    {
+      title: "High Priority",
+      value: stats.highPriority,
+      icon: AlertCircle,
+      color: "purple",
+    },
+  ];
 
   return (
     <div className="space-y-8">
@@ -45,41 +82,19 @@ const Dashboard = () => {
 
       {/* Stats Grid */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
-        <StatCard
-          title="Total Applications"
-          value={stats.total}
-          icon={Briefcase}
-          color="blue"
-          delay={0}
-        />
-        <StatCard
-          title="Interviews"
-          value={stats.interviews}
-          icon={Calendar}
-          color="yellow"
-          delay={0.1}
-        />
-        <StatCard
-          title="Offers"
-          value={stats.offers}
-          icon={Gift}
-          color="green"
-          delay={0.2}
-        />
-        <StatCard
-          title="Rejected"
-          value={stats.rejected}
-          icon={XCircle}
-          color="red"
-          delay={0.3}
-        />
-        <StatCard
-          title="High Priority"
-          value={stats.highPriority}
-          icon={AlertCircle}
-          color="purple"
-          delay={0.4}
-        />
+        {statsArray.map((stat, index) => {
+          return (
+            <StatCard
+              key={stat.title}
+              title={stat.title}
+              value={stat.value}
+              icon={stat.icon}
+              color={stat.color}
+              delay={index * 0.1}
+              isLoading={isLoadingJobs}
+            />
+          );
+        })}
       </div>
 
       {/* Recent Applications */}
@@ -95,14 +110,27 @@ const Dashboard = () => {
           </h2>
         </div>
 
-        {recentJobs.length > 0 ? (
+        {/* Loading State */}
+        {isLoadingJobs && (
           <div className="divide-y divide-gray-200 dark:divide-gray-700">
-            {recentJobs.map((job, index) => (
+            {[...Array(5)].map((_, i) => (
+              <JobRowSkeleton key={i} />
+            ))}
+          </div>
+        )}
+
+        {/* Error State */}
+        {isError && !isLoading && !hasRecentJobs && <Error />}
+
+        {/* Data State */}
+        {!isLoading && !isError && hasRecentJobs && (
+          <div className="divide-y divide-gray-200 dark:divide-gray-700">
+            {recentJobs?.map((job, index) => (
               <motion.div
                 key={job.id}
                 initial={{ opacity: 0, x: -20 }}
                 animate={{ opacity: 1, x: 0 }}
-                transition={{ duration: 0.3, delay: 0.6 + index * 0.1 }}
+                transition={{ duration: 0.3, delay: 0.5 + index * 0.1 }}
                 className="px-6 py-4 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors cursor-pointer"
                 onClick={() => handleViewOnly(job)}
               >
@@ -125,7 +153,10 @@ const Dashboard = () => {
               </motion.div>
             ))}
           </div>
-        ) : (
+        )}
+
+        {/* No Data State */}
+        {!isLoading && !isError && recentJobs?.length === 0 && (
           <div className="px-6 py-12 text-center text-gray-500 dark:text-gray-400">
             <Briefcase className="w-12 h-12 mx-auto mb-3 opacity-50" />
             <p>No job applications yet</p>

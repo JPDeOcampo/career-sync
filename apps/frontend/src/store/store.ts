@@ -1,6 +1,7 @@
 import { configureStore } from "@reduxjs/toolkit";
 import { authApi } from "./api/authApi";
 import authReducer from "./slices/authSlice";
+import { jobsApi } from "./api/jobsApi";
 import jobReducer from "./slices/jobSlice";
 import globalReducer from "./slices/globalSlice";
 
@@ -10,20 +11,11 @@ export const store = configureStore({
     jobs: jobReducer,
     global: globalReducer,
     [authApi.reducerPath]: authApi.reducer,
+    [jobsApi.reducerPath]: jobsApi.reducer,
   },
   middleware: (getDefaultMiddleware) =>
-    getDefaultMiddleware().concat(authApi.middleware),
+    getDefaultMiddleware().concat(authApi.middleware, jobsApi.middleware),
 });
-
-// TRIGGER ON REFRESH:
-// This starts the cookie verification as soon as the JS bundle loads
-if (typeof window !== "undefined") {
-  const hasCookie = document.cookie.includes("is_logged_in=true");
-
-  if (hasCookie) {
-    store.dispatch(authApi.endpoints.refreshToken.initiate());
-  }
-}
 
 export type RootState = ReturnType<typeof store.getState>;
 export type AppDispatch = typeof store.dispatch;

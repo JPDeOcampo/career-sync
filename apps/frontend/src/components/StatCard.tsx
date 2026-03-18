@@ -1,6 +1,7 @@
 import { motion, useMotionValue, useTransform, animate } from "motion/react";
 import { LucideIcon } from "lucide-react";
 import { useEffect } from "react";
+import Skeleton from "@/components/shared/Skeleton";
 
 interface StatCardProps {
   title: string;
@@ -8,6 +9,7 @@ interface StatCardProps {
   icon: LucideIcon;
   color: string;
   delay?: number;
+  isLoading?: boolean;
 }
 
 const StatCard = ({
@@ -16,18 +18,20 @@ const StatCard = ({
   icon: Icon,
   color,
   delay = 0,
+  isLoading = false,
 }: StatCardProps) => {
   const count = useMotionValue(0);
   const rounded = useTransform(count, (latest) => Math.round(latest));
 
   useEffect(() => {
+    if (isLoading) return;
     const controls = animate(count, value, {
       duration: 1,
       delay,
     });
 
     return controls.stop;
-  }, [value, count, delay]);
+  }, [value, count, delay, isLoading]);
 
   const colorStyles: Record<string, string> = {
     blue: "bg-blue-50 dark:bg-blue-950/30 text-blue-600 dark:text-blue-400",
@@ -52,9 +56,13 @@ const StatCard = ({
           <p className="text-sm text-gray-600 dark:text-gray-400 mb-1">
             {title}
           </p>
-          <motion.p className="text-3xl font-semibold text-default">
-            {rounded}
-          </motion.p>
+          {isLoading ? (
+            <Skeleton variant="text" />
+          ) : (
+            <motion.p className="text-3xl font-semibold text-default">
+              {rounded}
+            </motion.p>
+          )}
         </div>
         <div className={`p-3 rounded-xl ${colorStyles[color]}`}>
           <Icon className="w-6 h-6" />
