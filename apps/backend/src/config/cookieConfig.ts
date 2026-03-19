@@ -17,21 +17,12 @@ export const getCookieConfig = ({
   secure: isProduction,
   sameSite,
   domain,
-  maxAge: maxAge * 1000,
+  maxAge,
   path,
 });
 
-export const clearCookieConfig = ({
-  httpOnly = true,
-  path = "/",
-}: {
-  httpOnly?: boolean;
-  path?: string;
-} = {}): SerializeOptions => ({
-  httpOnly,
-  secure: isProduction,
-  sameSite,
-  domain,
-  path,
+export const clearCookieConfig = (options = {}): SerializeOptions => ({
+  ...getCookieConfig(options),
+  maxAge: 0,
   expires: new Date(0),
 });

@@ -68,6 +68,14 @@ export const loginUser = async (credentials: LoginUserDTO) => {
   const expiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
 
   const updatedUser = await prisma.$transaction(async (tx) => {
+    // Delete anything already expired
+    await tx.refreshToken.deleteMany({
+      where: {
+        userId: user.id,
+        expiresAt: { lt: new Date() },
+      },
+    });
+
     // Delete expired sessions OR excess sessions in one go if possible
     // To prevent a growing list, we fetch current count within the transaction
     const activeSessions = await tx.refreshToken.findMany({
