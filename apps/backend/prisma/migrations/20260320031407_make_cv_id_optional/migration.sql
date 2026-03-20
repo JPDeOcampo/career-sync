@@ -1,0 +1,8 @@
+-- DropForeignKey
+ALTER TABLE "Job" DROP CONSTRAINT "Job_cvId_fkey";
+
+-- AlterTable
+ALTER TABLE "Job" ALTER COLUMN "cvId" DROP NOT NULL;
+
+-- AddForeignKey
+ALTER TABLE "Job" ADD CONSTRAINT "Job_cvId_fkey" FOREIGN KEY ("cvId") REFERENCES "Document"("id") ON DELETE SET NULL ON UPDATE CASCADE;

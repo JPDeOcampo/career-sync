@@ -57,6 +57,22 @@ export const addJob = async (
     throw new AppError("User not found.", 404);
   }
 
+  const [cv, coverLetter] = await Promise.all([
+    cvId ? prisma.document.findUnique({ where: { id: cvId } }) : null,
+    coverLetterId
+      ? prisma.document.findUnique({ where: { id: coverLetterId } })
+      : null,
+  ]);
+
+  // Throw error if CV or cover letter is not found
+  if (cvId && !cv) {
+    throw new Error("CV document not found");
+  }
+
+  if (coverLetterId && !coverLetter) {
+    throw new Error("Cover letter document not found");
+  }
+
   // Create job in one go
   const job = await prisma.job.create({
     data: {
@@ -81,12 +97,17 @@ export const addJob = async (
       offer,
       notes,
       user: { connect: { id: userID as string } },
-      cv: {
-        connect: { id: cvId as string },
-      },
-      coverLetter: {
-        connect: { id: coverLetterId as string },
-      },
+      ...(cvId && {
+        cv: {
+          connect: { id: cvId },
+        },
+      }),
+
+      ...(coverLetterId && {
+        coverLetter: {
+          connect: { id: coverLetterId },
+        },
+      }),
     },
   });
 

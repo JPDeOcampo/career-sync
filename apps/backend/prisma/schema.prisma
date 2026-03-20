@@ -60,7 +60,7 @@ model Job {
   status   String?
   priority String?
 
-  cvId          String  @db.Uuid
+  cvId          String? @db.Uuid
   coverLetterId String? @db.Uuid
 
   contact String?
@@ -73,7 +73,7 @@ model Job {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  cv          Document  @relation("JobCV", fields: [cvId], references: [id])
+  cv          Document? @relation("JobCV", fields: [cvId], references: [id])
   coverLetter Document? @relation("JobCL", fields: [coverLetterId], references: [id])
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
@@ -91,8 +91,9 @@ model Document {
   userId String       @db.Uuid
   type   DocumentType
 
-  fileUrl String
-  name    String?
+  fileUrl  String
+  filePath String
+  name     String?
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt

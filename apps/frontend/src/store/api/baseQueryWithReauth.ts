@@ -9,6 +9,7 @@ import { RootState } from "../store";
 import { UserType } from "@/@types/userTypes";
 import { login, logout } from "@/store/slices/authSlice";
 import { toast } from "sonner";
+import { BASE_URL } from "@/utils/apiPath";
 
 interface UserResponseType {
   user: UserType;
@@ -17,8 +18,6 @@ interface UserResponseType {
 
 // Wrap the Mutex with a 10-second timeout
 const mutex = withTimeout(new Mutex(), 10000);
-
-const BASE_URL = `${process.env.NEXT_PUBLIC_API_URL}/api/v1`;
 
 const baseQuery = fetchBaseQuery({
   baseUrl: BASE_URL,

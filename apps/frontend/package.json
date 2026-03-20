@@ -13,6 +13,7 @@
   "dependencies": {
     "@career-sync/shared": "workspace:*",
     "@hookform/resolvers": "^5.2.2",
+    "@radix-ui/react-popover": "^1.1.15",
     "async-mutex": "^0.5.0",
     "axios": "^1.13.5",
     "clsx": "^2.1.1",

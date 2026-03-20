@@ -15,6 +15,8 @@ const GlobalModal = ({
   onClose,
   className = "max-w-md",
   children,
+  cancelText = "Cancel",
+  confirmText = "Confirm",
 }: {
   isShow: boolean;
   title?: string;
@@ -24,6 +26,8 @@ const GlobalModal = ({
   onClose: () => void;
   className?: string;
   children?: React.ReactNode;
+  cancelText?: string;
+  confirmText?: string;
 }) => {
   const handleOnClose = () => {
     if (onClose) onClose();
@@ -90,7 +94,7 @@ const GlobalModal = ({
                   onClick={onClose}
                   className="px-4 py-2 text-sm font-medium text-cancel cursor-pointer"
                 >
-                  Cancel
+                  {cancelText}
                 </button>
 
                 <button
@@ -100,7 +104,7 @@ const GlobalModal = ({
                   }}
                   className="rounded-md bg-red-600 px-4 py-2 text-sm font-medium text-white hover:bg-red-700 cursor-pointer"
                 >
-                  Confirm
+                  {confirmText}
                 </button>
               </div>
             </>

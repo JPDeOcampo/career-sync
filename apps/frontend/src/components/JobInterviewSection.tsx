@@ -1,5 +1,5 @@
 import { Controller, useFormContext, useFieldArray } from "react-hook-form";
-import { DefaultField } from "@/components/shared/JobField";
+import { JobFormField } from "@/components/shared/JobFormField";
 import { Dropdown, DropdownItem } from "@/components/shared/CustomDropdown";
 import { Checkbox } from "@/components/shared/Checkbox";
 import { interviewTypes } from "@/constant/jobSelectList";
@@ -12,6 +12,8 @@ import InterviewStageCard from "@/components/shared/InterviewStageCard";
 import { getTodayString } from "@/utils/dateHelper";
 import { InterviewInfo } from "@/@types/jobTypes";
 import { useGlobalModal } from "@/context/GlobalModalContext";
+import CustomDatePicker from "./shared/CustomDatePicker";
+import CustomTimePicker from "./shared/CustomTimePicker";
 
 interface AddButtonProps {
   label?: string;
@@ -176,52 +178,59 @@ const JobInterviewSection = ({
           />
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
-              <label className="block text-sm font-medium mb-1 text-left">
-                Type
-              </label>
-              <Controller
-                name={`interviewStages.${index}.interviewType`}
-                control={control}
-                render={({ field: controllerField }) =>
-                  isJobViewOnly ? (
-                    <p className="text-sm font-medium">
-                      {controllerField.value}
-                    </p>
-                  ) : (
-                    <Dropdown label={controllerField.value} align="left">
-                      {interviewTypes.map((s) => (
-                        <DropdownItem
-                          key={s}
-                          label={s}
-                          onSelect={controllerField.onChange}
-                        />
-                      ))}
-                    </Dropdown>
-                  )
-                }
-              />
-            </div>
+            <Controller
+              name={`interviewStages.${index}.interviewType`}
+              control={control}
+              render={({ field: controllerField }) => (
+                <Dropdown
+                  label={"Type"}
+                  value={controllerField.value}
+                  isViewOnly={isJobViewOnly}
+                  align="left"
+                >
+                  {interviewTypes.map((s) => (
+                    <DropdownItem
+                      key={s}
+                      item={s}
+                      selectedItem={controllerField.value}
+                      onSelect={controllerField.onChange}
+                    />
+                  ))}
+                </Dropdown>
+              )}
+            />
 
-            <DefaultField
+            <JobFormField
               label="Interviewer"
               {...register(`interviewStages.${index}.interviewerName`)}
             />
 
-            <DefaultField
-              type="date"
-              label="Date"
-              {...register(`interviewStages.${index}.interviewDate`)}
+            <Controller
+              control={control}
+              name={`interviewStages.${index}.interviewDate`}
+              render={({ field }) => (
+                <CustomDatePicker
+                  value={field.value}
+                  isViewOnly={isJobViewOnly}
+                  onChange={field.onChange}
+                />
+              )}
             />
 
-            <DefaultField
-              type="time"
-              label="Time"
-              {...register(`interviewStages.${index}.interviewTime`)}
+            <Controller
+              control={control}
+              name={`interviewStages.${index}.interviewTime`}
+              render={({ field }) => (
+                <CustomTimePicker
+                  value={field.value}
+                  isViewOnly={isJobViewOnly}
+                  onChange={field.onChange}
+                />
+              )}
             />
 
             <div className="md:col-span-2">
-              <DefaultField
+              <JobFormField
                 label="Comment"
                 as="textarea"
                 rows={3}

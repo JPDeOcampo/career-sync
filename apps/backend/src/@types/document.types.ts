@@ -1,4 +1,4 @@
-export type FileType = "CV" | "COVER_LETTER";
+import { DocumentType } from "@/generated/prisma/client";
 
 export interface DocumentFileType {
   file: Express.Multer.File;
@@ -6,10 +6,10 @@ export interface DocumentFileType {
 
 export interface UploadDocumentType extends DocumentFileType {
   userId: string;
-  fileType: FileType;
+  fileType: DocumentType;
 }
 
 export interface GetDocumentType {
-  fileId: string;
-  fileType: FileType;
+  fileId?: string;
+  fileType?: DocumentType;
 }

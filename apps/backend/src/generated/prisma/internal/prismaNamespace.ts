@@ -877,6 +877,7 @@ export const DocumentScalarFieldEnum = {
   userId: 'userId',
   type: 'type',
   fileUrl: 'fileUrl',
+  filePath: 'filePath',
   name: 'name',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'

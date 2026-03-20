@@ -56,12 +56,14 @@ const AppContent = ({ Component, pageProps }: AppProps) => {
           <Component {...pageProps} />
         </div>
       </main>
-      <JobModal
-        isShow={isJobModalShow}
-        onClose={handleCloseModal}
-        onSave={handleSaveJob}
-        selectedJob={selectedJob}
-      />
+      {isJobModalShow && (
+        <JobModal
+          isShow={isJobModalShow}
+          onClose={handleCloseModal}
+          onSave={handleSaveJob}
+          selectedJob={selectedJob}
+        />
+      )}
 
       <Toaster position="top-right" richColors />
     </div>

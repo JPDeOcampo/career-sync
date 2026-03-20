@@ -195,6 +195,7 @@ const JobModal = ({ isShow, onClose, onSave, selectedJob }: JobModalProps) => {
     isOnReview: boolean;
   }>({ isToReview: false, isOnReview: false });
   const [currentStep, setCurrentStep] = useState(1);
+
   const { isJobViewOnly } = useAppSelector(selectGlobal);
   const { defaultJob } = useJobHooks();
 

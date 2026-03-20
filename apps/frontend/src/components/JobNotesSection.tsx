@@ -1,12 +1,12 @@
 import { useFormContext } from "react-hook-form";
-import { DefaultField } from "@/components/shared/JobField";
+import { JobFormField } from "@/components/shared/JobFormField";
 
 const JobInterviewSection = () => {
   const { register } = useFormContext();
 
   return (
     <div className="space-y-4">
-      <DefaultField
+      <JobFormField
         label="Notes"
         rows={5}
         as="textarea"

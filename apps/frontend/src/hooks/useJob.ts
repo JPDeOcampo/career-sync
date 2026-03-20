@@ -77,6 +77,7 @@ const useJobHooks = () => {
       variant: "default",
       title: "Discard changes",
       description: "Are you sure you want to discard changes?",
+      confirmText: "Discard",
       onConfirm: onClose,
     });
   };

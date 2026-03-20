@@ -283,6 +283,11 @@
     @apply text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white;
   }
 
+  label.job-form-label,
+  span.job-form-label {
+    @apply text-gray-700 dark:text-gray-300;
+  }
+
   .text-job-value {
     @apply text-sm py-2 text-gray-900 dark:text-white;
   }

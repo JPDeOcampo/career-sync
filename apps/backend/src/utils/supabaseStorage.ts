@@ -27,5 +27,18 @@ export const uploadFileToStorage = async (
     data: { publicUrl },
   } = supabaseAdmin.storage.from(bucket).getPublicUrl(filePath);
 
-  return publicUrl;
+  return {
+    url: publicUrl,
+    path: filePath,
+  };
+};
+
+export const deleteFilesFromStorage = async (filePaths: string[]) => {
+  if (!filePaths.length) return;
+
+  const { error } = await supabaseAdmin.storage
+    .from("documents")
+    .remove(filePaths);
+
+  if (error) throw error;
 };

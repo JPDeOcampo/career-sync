@@ -1,5 +1,5 @@
 import { Controller, useFormContext, FieldError } from "react-hook-form";
-import { DefaultField } from "./shared/JobField";
+import { JobFormField } from "./shared/JobFormField";
 import { Dropdown, DropdownItem } from "@/components/shared/CustomDropdown";
 import { jobTypes, workSetups } from "@/constant/jobSelectList";
 
@@ -16,20 +16,20 @@ const JobInfoSection = ({
   return (
     <div className="space-y-4">
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <DefaultField
+        <JobFormField
           label="Company"
           isRequired
           {...register("company")}
           error={errors.company?.message as FieldError["message"]}
         />
-        <DefaultField
+        <JobFormField
           label="Role Title"
           isRequired
           {...register("roleTitle")}
           error={errors.roleTitle?.message as FieldError["message"]}
         />
       </div>
-      <DefaultField
+      <JobFormField
         label="Job Description"
         isRequired
         as="textarea"
@@ -38,63 +38,67 @@ const JobInfoSection = ({
         error={errors.jobDescription?.message as FieldError["message"]}
       />
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <div>
-          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1 text-left">
-            Job Type
-          </label>
-          <Controller
-            name="jobType"
-            control={control}
-            render={({ field }) =>
-              isJobViewOnly ? (
-                <p className="text-left font-medium">{field.value}</p>
-              ) : (
-                <Dropdown label={field.value || "Select Type"} align="left">
-                  {jobTypes.map((t) => (
-                    <DropdownItem key={t} label={t} onSelect={field.onChange} />
-                  ))}
-                </Dropdown>
-              )
-            }
-          />
-        </div>
-        <div>
-          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1 text-left">
-            Work Setup
-          </label>
-          <Controller
-            name="workSetup"
-            control={control}
-            render={({ field }) =>
-              isJobViewOnly ? (
-                <p className="text-left font-medium">{field.value}</p>
-              ) : (
-                <Dropdown label={field.value || "Select Setup"} align="left">
-                  {workSetups.map((s) => (
-                    <DropdownItem key={s} label={s} onSelect={field.onChange} />
-                  ))}
-                </Dropdown>
-              )
-            }
-          />
-        </div>
-        <DefaultField
+        <Controller
+          name="jobType"
+          control={control}
+          render={({ field }) => (
+            <Dropdown
+              label="Job Type"
+              value={field.value}
+              isViewOnly={isJobViewOnly}
+              align="left"
+            >
+              {jobTypes.map((t) => (
+                <DropdownItem
+                  key={t}
+                  item={t}
+                  selectedItem={field.value}
+                  onSelect={field.onChange}
+                />
+              ))}
+            </Dropdown>
+          )}
+        />
+
+        <Controller
+          name="workSetup"
+          control={control}
+          render={({ field }) => (
+            <Dropdown
+              label="Work Setup"
+              value={field.value}
+              isViewOnly={isJobViewOnly}
+              align="left"
+            >
+              {workSetups.map((s) => (
+                <DropdownItem
+                  key={s}
+                  item={s}
+                  selectedItem={field.value}
+                  onSelect={field.onChange}
+                />
+              ))}
+            </Dropdown>
+          )}
+        />
+
+        <JobFormField
           label="Work Schedule"
           placeholder="e.g., 9am - 5pm"
           {...register("workSchedule")}
         />
-        <DefaultField
+        <JobFormField
           label="Salary"
           placeholder="e.g. $80k"
           {...register("salary")}
         />
-        <DefaultField
+        <JobFormField
           label="Location"
           placeholder="e.g. Manila"
           {...register("location")}
         />
         <div className="md:col-span-2">
-          <DefaultField
+          <JobFormField
             label="Job Link"
             type="text"
             placeholder="https://..."

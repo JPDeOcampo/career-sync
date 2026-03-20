@@ -7,6 +7,8 @@ type GlobalModalOptions = {
   description?: string;
   variant?: "default" | "custom";
   className?: string;
+  cancelText?: string;
+  confirmText?: string;
   children?: React.ReactNode;
   onConfirm?: () => void;
 };
@@ -40,6 +42,8 @@ export const GlobalModalProvider = ({
         description={globalModal?.description}
         variant={globalModal?.variant}
         className={globalModal?.className}
+        cancelText={globalModal?.cancelText}
+        confirmText={globalModal?.confirmText}
         onConfirm={() => {
           globalModal?.onConfirm?.();
         }}

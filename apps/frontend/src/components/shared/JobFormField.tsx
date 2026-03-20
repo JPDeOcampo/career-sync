@@ -8,7 +8,7 @@ import { BaseFormFieldProps } from "@/@types/fieldTypes";
 import { cn } from "@/utils/cn";
 import { JobFormData } from "@/@types/jobTypes";
 
-type DefaultFieldProps = BaseFormFieldProps & {
+type JobFormFieldProps = BaseFormFieldProps & {
   as?: "input" | "textarea";
   rows?: number;
   disabled?: boolean;
@@ -17,7 +17,7 @@ type DefaultFieldProps = BaseFormFieldProps & {
   className?: string;
 };
 
-const DefaultField = ({
+const JobFormField = ({
   label = "",
   placeholder = "",
   error,
@@ -29,7 +29,7 @@ const DefaultField = ({
   type = "text",
   className,
   ...registerProps
-}: DefaultFieldProps) => {
+}: JobFormFieldProps) => {
   const { isJobViewOnly } = useAppSelector(selectGlobal);
   const { watch } = useFormContext<JobFormData>();
   const value = watch(
@@ -43,10 +43,10 @@ const DefaultField = ({
     : "border border-gray-300 dark:border-gray-600";
 
   return (
-    <div className="space-y-2">
+    <div className="flex flex-col gap-1 w-full">
       <Label
         htmlFor={registerProps.name}
-        className={`block text-sm font-medium mb-1 ${error ? "text-red-500" : "text-gray-700 dark:text-gray-300"}`}
+        className={`block text-sm font-medium ${error ? "text-red-500" : "job-form-label"}`}
       >
         {label}
         {/* Hide (Optional) and * marks in isJobViewOnly mode for a cleaner look */}
@@ -83,7 +83,12 @@ const DefaultField = ({
               id={registerProps.name}
               type={type}
               placeholder={placeholder}
-              className={cn(baseClass, borderClass, className)}
+              className={cn(
+                baseClass,
+                borderClass,
+                className,
+                type === "date" || type === "time" ? "inline-block" : "",
+              )}
               autoFocus={autofocus}
               disabled={disabled}
               {...registerProps}
@@ -100,4 +105,4 @@ const DefaultField = ({
   );
 };
 
-export { DefaultField };
+export { JobFormField };
