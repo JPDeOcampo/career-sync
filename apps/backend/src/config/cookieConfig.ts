@@ -2,7 +2,7 @@ import type { SerializeOptions } from "cookie";
 
 const isProduction = process.env.NODE_ENV === "production";
 const sameSite = "lax";
-const domain = isProduction ? process.env.DOMAIN : undefined;
+const domain = process.env.DOMAIN || undefined;
 
 export const getCookieConfig = ({
   httpOnly = true,

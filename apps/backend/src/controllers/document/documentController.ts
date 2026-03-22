@@ -35,9 +35,34 @@ export const deleteDocumentController = async (req: Request, res: Response) => {
   const userId = req.user?.id as string;
   const { fileId } = req.params as { fileId: string };
 
-  const data = await documentService.deleteDocument(userId, fileId);
+  await documentService.deleteDocument(userId, fileId);
 
   return res.status(200).json({
     message: "Document deleted successfully",
   });
+};
+
+export const getCleanedURLDocument = async (req: Request, res: Response) => {
+  // const userId = req.user?.id as string;
+  const { userId, filename } = req.params as {
+    userId: string;
+    filename: string;
+  };
+
+  const data = await documentService.getCleanedURLDocument({
+    userId,
+    filename,
+  });
+
+  if (!data) throw new Error("File not found in S3");
+
+  const buffer = Buffer.from(await data.arrayBuffer());
+
+  // Set the headers so the browser knows how to handle the file
+  res.setHeader("Content-Type", data.type || "application/pdf");
+
+  // 'inline' shows it in the browser; 'attachment' forces a download
+  res.setHeader("Content-Disposition", `inline; filename="${filename}"`);
+
+  return res.send(buffer);
 };

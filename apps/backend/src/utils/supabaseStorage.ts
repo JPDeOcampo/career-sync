@@ -1,4 +1,5 @@
 import { createClient } from "@supabase/supabase-js";
+import { Documents } from "@career-sync/shared";
 
 const supabaseAdmin = createClient(
   process.env.SUPABASE_URL!,
@@ -41,4 +42,28 @@ export const deleteFilesFromStorage = async (filePaths: string[]) => {
     .remove(filePaths);
 
   if (error) throw error;
+};
+
+export const signedUrlFromStorage = async (doc: Documents) => {
+  if (!doc) return;
+
+  const { data: signedData, error } = await supabaseAdmin.storage
+    .from("documents")
+    .createSignedUrl(doc.filePath, 3600);
+
+  if (error) throw error;
+
+  return signedData;
+};
+
+export const downloadFileFromStorage = async (filePath: string) => {
+  if (!filePath) return;
+
+  const { data, error } = await supabaseAdmin.storage
+    .from("documents")
+    .download(filePath);
+
+  if (error) throw error;
+
+  return data;
 };

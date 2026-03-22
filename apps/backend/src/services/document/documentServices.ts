@@ -3,9 +3,12 @@ import { prisma } from "@/lib/prisma";
 import {
   uploadFileToStorage,
   deleteFilesFromStorage,
+  // signedUrlFromStorage,
+  downloadFileFromStorage,
 } from "@/utils/supabaseStorage";
 import { FiltersType } from "@/@types/global.types";
 import { UploadDocumentType, GetDocumentType } from "@/@types/document.types";
+// import { Documents } from "@career-sync/shared";
 
 export const uploadDocument = async (data: UploadDocumentType) => {
   const { file, userId, fileType } = data;
@@ -31,7 +34,6 @@ export const uploadDocument = async (data: UploadDocumentType) => {
     throw new AppError("Invalid file type", 400);
   }
 
-  // 👇 NOW returns BOTH url + path
   const { url, path } = await uploadFileToStorage(file, "documents", userId);
 
   const record = await prisma.document.create({
@@ -68,6 +70,7 @@ export const getDocument = async ({
     ...(fileId && { id: fileId }),
     ...(fileType && { type: fileType }),
   };
+
   const documents = await prisma.document.findMany({
     where: whereClause,
     orderBy:
@@ -80,12 +83,33 @@ export const getDocument = async ({
     take: limit,
   });
 
+  // --- Generate Signed URLs ---
+  // const documentsWithUrls = await Promise.all(
+  //   documents.map(async (doc) => {
+  //     // Generate a signed URL valid for 1 hour (3600 seconds)
+  //     const signedData = await signedUrlFromStorage(doc as Documents);
+  //     return {
+  //       ...doc,
+  //       fileUrl: signedData?.signedUrl,
+  //     };
+  //   }),
+  // );
+  const documentsWithCleanUrls = documents.map((doc) => {
+    // "user_123/my_resume.pdf"
+    const filename = doc.filePath.split("/").pop();
+
+    return {
+      ...doc,
+      fileUrl: `${process.env.BACKEND_URL}/api/v1/document/${doc.userId}/${filename}`,
+    };
+  });
+
   const totalDocuments = await prisma.document.count({
     where: whereClause,
   });
 
   return {
-    documents,
+    documents: documentsWithCleanUrls,
     pagination: {
       total: totalDocuments,
       page,
@@ -149,4 +173,22 @@ export const deleteDocument = async (userId: string, fileId?: string) => {
   });
 
   return { message: "Document deleted successfully" };
+};
+
+export const getCleanedURLDocument = async ({
+  userId,
+  filename,
+}: {
+  userId: string;
+  filename: string;
+}) => {
+  const filePath = `${userId}/${filename}`;
+
+  const data = downloadFileFromStorage(filePath);
+
+  if (!data) {
+    throw new AppError("File not found in S3");
+  }
+
+  return data;
 };

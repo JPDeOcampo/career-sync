@@ -4,6 +4,7 @@ import {
   uploadDocumentController,
   getDocumentController,
   deleteDocumentController,
+  getCleanedURLDocument,
 } from "@/controllers/document/documentController";
 import { protect } from "@/middleware/authenticate";
 import { authLimiter } from "@/middleware/rateLimiters";
@@ -21,5 +22,7 @@ router.post(
 
 router.get("/", protect, authLimiter, getDocumentController);
 router.delete("/delete", protect, authLimiter, deleteDocumentController);
+
+router.get("/:userId/:filename", authLimiter, getCleanedURLDocument);
 
 export default router;

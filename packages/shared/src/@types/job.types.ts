@@ -53,6 +53,7 @@ export type Documents = {
   id: string;
   userId: string;
   fileUrl: string;
+  filePath: string;
   name: string;
   createdAt: Date;
 };
