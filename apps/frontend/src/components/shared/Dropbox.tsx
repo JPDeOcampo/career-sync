@@ -1,5 +1,5 @@
 import React, { useState, useRef } from "react";
-import { UploadCloud } from "lucide-react"; // Optional: install lucide-react or use an SVG
+import { UploadCloud } from "lucide-react";
 
 const FileUpload: React.FC = () => {
   const [isDragging, setIsDragging] = useState(false);
@@ -20,7 +20,6 @@ const FileUpload: React.FC = () => {
     const files = e.dataTransfer.files;
     if (files.length > 0) {
       console.log("Files dropped:", files[0].name);
-      // Handle file upload logic here
     }
   };
 

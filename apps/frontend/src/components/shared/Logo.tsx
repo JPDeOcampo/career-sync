@@ -13,7 +13,7 @@ const Logo = ({ className = "w-16 h-16 mb-4" }: { className?: string }) => {
         className,
       )}
     >
-      <Briefcase className="w-8 h-8 text-white" />
+      <Briefcase className="w-6 h-6 sm:w-8 sm:h-8 text-white" />
     </motion.div>
   );
 };

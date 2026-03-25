@@ -1,12 +1,13 @@
 import { useAppSelector } from "@/hooks/useRedux";
 import { selectGlobal } from "@/store/selectors";
 import { useFormContext } from "react-hook-form";
-import Label from "./Label";
+import { FieldLabel } from "./Label";
 import Input from "./Input";
 import TextArea from "./TextArea";
 import { BaseFormFieldProps } from "@/@types/fieldTypes";
 import { cn } from "@/utils/cn";
 import { JobFormData } from "@/@types/jobTypes";
+import { capitalizeSmart } from "@/utils/stringHelper";
 
 type JobFormFieldProps = BaseFormFieldProps & {
   as?: "input" | "textarea";
@@ -31,7 +32,7 @@ const JobFormField = ({
   ...registerProps
 }: JobFormFieldProps) => {
   const { isJobViewOnly } = useAppSelector(selectGlobal);
-  const { watch } = useFormContext<JobFormData>();
+  const { watch, setValue } = useFormContext<JobFormData>();
   const value = watch(
     registerProps.name as keyof JobFormData,
   ) as JobFormData[keyof JobFormData];
@@ -42,29 +43,44 @@ const JobFormField = ({
     ? "border border-red-500"
     : "border border-gray-300 dark:border-gray-600";
 
+  const registerPropsWithCapitalize = {
+    ...registerProps,
+    onBlur: (e: React.FocusEvent<HTMLInputElement>) => {
+      // Call the original RHF onBlur
+      registerProps.onBlur?.(e);
+
+      // Apply capitalization
+      const value = capitalizeSmart(e.target.value);
+      setValue(registerProps.name as keyof JobFormData, value, {
+        shouldValidate: true,
+      });
+    },
+  };
+
   return (
-    <div className="flex flex-col gap-1 w-full">
-      <Label
-        htmlFor={registerProps.name}
-        className={`block text-sm font-medium ${error ? "text-red-500" : "job-form-label"}`}
-      >
-        {label}
-        {/* Hide (Optional) and * marks in isJobViewOnly mode for a cleaner look */}
-        {!isJobViewOnly &&
-          (isRequired ? (
-            <span className="ml-1">*</span>
-          ) : (
-            label && (
-              <span className="text-gray-400 dark:text-gray-500 ml-1">
-                (Optional)
-              </span>
-            )
-          ))}
-      </Label>
+    <div className="flex flex-col gap-2 w-full">
+      <FieldLabel
+        name={registerProps.name}
+        label={label}
+        error={error}
+        isRequired={isRequired}
+        isViewOnly={isJobViewOnly}
+      />
 
       {isJobViewOnly ? (
         // View Only State: Renders a styled div or p instead of an input
-        <p className="text-job-value">{String(value ?? "N/A")}</p>
+
+        registerProps.name === "jobLink" &&
+        typeof value === "string" &&
+        value !== "" ? (
+          <a href={value as string} className="text-job-value" target="_blank">
+            {value}
+          </a>
+        ) : (
+          <p className="text-job-value">
+            {typeof value === "string" && value !== "" ? value : "-"}
+          </p>
+        )
       ) : (
         // Editable State
         <>
@@ -91,7 +107,7 @@ const JobFormField = ({
               )}
               autoFocus={autofocus}
               disabled={disabled}
-              {...registerProps}
+              {...registerPropsWithCapitalize}
             />
           )}
         </>

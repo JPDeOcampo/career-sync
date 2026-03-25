@@ -271,6 +271,10 @@
     line-height: 1.5;
   }
 
+  a {
+    @apply underline hover:opacity-70;
+  }
+
   .surface {
     @apply bg-white dark:bg-gray-800;
   }

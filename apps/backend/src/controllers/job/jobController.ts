@@ -6,9 +6,10 @@ export const createJobController = async (req: Request, res: Response) => {
   const userID = req.user?.id as string;
   const data = req.body;
 
-  await jobService.addJob(data, userID);
+  const job = await jobService.addJob(data, userID);
   return res.status(201).json({
     message: "New Job added successfully!",
+    data: job,
   });
 };
 

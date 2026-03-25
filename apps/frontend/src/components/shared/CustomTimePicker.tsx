@@ -3,7 +3,7 @@ import { useState, useEffect } from "react";
 import * as Popover from "@radix-ui/react-popover";
 import { Clock } from "lucide-react";
 import { cn } from "@/utils/cn";
-import Label from "./Label";
+import { FieldLabel } from "./Label";
 
 type Props = {
   label?: string;
@@ -57,9 +57,9 @@ const CustomTimePicker = ({
 
   return (
     <div className="flex flex-col gap-1 w-full">
-      {label && <Label className="job-form-label">{label}</Label>}
+      {label && <FieldLabel label={label} isViewOnly={isViewOnly} />}
 
-      {isViewOnly && <p className="text-job-value">{value}</p>}
+      {isViewOnly && <p className="text-job-value">{value || "-"}</p>}
 
       {!isViewOnly && (
         <Popover.Root open={open} onOpenChange={setOpen}>

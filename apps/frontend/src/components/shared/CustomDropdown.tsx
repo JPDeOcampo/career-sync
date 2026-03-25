@@ -2,7 +2,7 @@ import { useState, ReactNode, createContext, useContext } from "react";
 import { ChevronDown } from "lucide-react";
 import { useOutsideClick } from "@/hooks/useOutsideClick";
 import { cn } from "@/utils/cn";
-import Label from "./Label";
+import { FieldLabel } from "./Label";
 import { UploadCloud } from "lucide-react";
 
 interface DropdownProps {
@@ -55,18 +55,19 @@ export const Dropdown = ({
 
   return (
     <DropdownContext.Provider value={{ closeDropdown }}>
-      <div className="flex flex-col gap-1 w-full">
-        {label && <Label className="job-form-label">{label}</Label>}
+      <div className="flex flex-col gap-2 w-full">
+        {label && <FieldLabel label={label} isViewOnly={isViewOnly} />}
 
         {/* VIEW ONLY MODE */}
         {isViewOnly &&
           (url ? (
-            <a href={url} className="text-job-value">
-              {value}
+            <a href={url} className="text-job-value" target="_blank">
+              {value || "-"}
             </a>
           ) : (
-            <p className="text-job-value">{value}</p>
+            <p className="text-job-value">{value || "-"}</p>
           ))}
+
         {!isViewOnly && (
           <div className="relative w-full" ref={ref}>
             {/* Trigger */}
@@ -143,13 +144,11 @@ export const DropdownItem = ({
   icon,
   item,
   selectedItem,
-  children,
   onSelect,
 }: {
   icon?: ReactNode;
   item?: string;
   selectedItem?: string;
-  children?: ReactNode;
   onSelect?: (value?: string) => void;
 }) => {
   const { closeDropdown } = useDropdown();
@@ -158,16 +157,6 @@ export const DropdownItem = ({
     onSelect?.(item);
     closeDropdown();
   };
-
-  if (!item && children) {
-    return (
-      <div className="flex items-center justify-center gap-3 w-full px-3 py-2">
-        {children}
-      </div>
-    );
-  }
-
-  if (!item) return null;
 
   const isActive = item === selectedItem;
 

@@ -16,7 +16,7 @@ import {
 import * as Popover from "@radix-ui/react-popover";
 import { cn } from "@/utils/cn";
 import { formatDate } from "@/utils/dateHelper";
-import Label from "@/components/shared/Label";
+import { FieldLabel } from "@/components/shared/Label";
 
 type Props = {
   label?: string;
@@ -69,11 +69,11 @@ const CustomDatePicker = ({
 
   return (
     <div className="flex flex-col gap-1 w-full">
-      {label && <Label className="job-form-label">{label}</Label>}
+      {label && <FieldLabel label={label} isViewOnly={isViewOnly} />}
 
       {isViewOnly && (
         <p className="text-job-value">
-          {value && formatDate(value, "MMM dd, yyyy")}
+          {(value && formatDate(value, "MMM dd, yyyy")) || "-"}
         </p>
       )}
 

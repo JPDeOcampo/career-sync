@@ -17,8 +17,8 @@ const SubNavbar = () => {
   ];
 
   return (
-    <nav className="surface overflow-x-auto no-scrollbar">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-0">
+    <nav className="surface overflow-x-auto no-scrollbar px-4 md:px-8">
+      <div className="max-w-7xl mx-auto">
         <div className="flex items-center gap-4 sm:gap-1 whitespace-nowrap">
           {navItems.map((item) => {
             const isActive = pathname === item.path;

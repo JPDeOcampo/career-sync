@@ -5,12 +5,15 @@ import { cn } from "@/utils/cn";
 
 interface LabelProps extends React.LabelHTMLAttributes<HTMLLabelElement> {}
 
-const Label = ({ className = "text-foreground", ...props }: LabelProps) => {
+export const Label = ({
+  className = "text-foreground",
+  ...props
+}: LabelProps) => {
   return (
     <label
       data-slot="label"
       className={cn(
-        "flex items-center gap-2 text-sm leading-none font-medium select-none disabled:pointer-events-none disabled:opacity-50 cursor-pointer",
+        "flex items-center gap-1 text-sm leading-none font-medium select-none disabled:pointer-events-none disabled:opacity-50 cursor-pointer",
         className,
       )}
       {...props}
@@ -18,4 +21,36 @@ const Label = ({ className = "text-foreground", ...props }: LabelProps) => {
   );
 };
 
-export default Label;
+export const FieldLabel = ({
+  name,
+  label,
+  error,
+  isRequired = false,
+  isViewOnly = false,
+}: {
+  name?: string;
+  label: string;
+  error?: string;
+  isRequired?: boolean;
+  isViewOnly?: boolean;
+}) => {
+  return (
+    <Label
+      htmlFor={name}
+      className={`font-medium ${error ? "text-red-500" : "job-form-label"}`}
+    >
+      {label}
+
+      {!isViewOnly &&
+        (isRequired ? (
+          <span>*</span>
+        ) : (
+          label && (
+            <span className="text-xs text-gray-400 dark:text-gray-500">
+              (Optional)
+            </span>
+          )
+        ))}
+    </Label>
+  );
+};

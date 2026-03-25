@@ -32,7 +32,7 @@ const jobSlice = createSlice({
       state.jobs = action.payload;
     },
     addJob: (state, action: PayloadAction<JobApplication>) => {
-      state.jobs.push(action.payload);
+      state.jobs.unshift(action.payload);
     },
     selectJob: (state, action: PayloadAction<JobApplication>) => {
       state.selectedJob = state.jobs.find(

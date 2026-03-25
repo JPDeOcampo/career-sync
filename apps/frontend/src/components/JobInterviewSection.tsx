@@ -7,7 +7,6 @@ import { cn } from "@/utils/cn";
 import { Plus, ArrowUp, ArrowDown, Minus } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
 import CustomTooltip from "@/components/shared/CustomTooltip";
-import { v4 as uuidv4 } from "uuid";
 import InterviewStageCard from "@/components/shared/InterviewStageCard";
 import { getTodayString } from "@/utils/dateHelper";
 import { InterviewInfo } from "@/@types/jobTypes";
@@ -148,7 +147,6 @@ const JobInterviewSection = ({
 
   const handleAdd = () => {
     append({
-      interviewID: uuidv4(),
       interviewType: interviewTypes[fields.length],
       interviewDate: getTodayString(),
       interviewTime: "",

@@ -59,53 +59,65 @@ const Navbar = ({ onAddJob }: NavbarProps) => {
   // };
 
   return (
-    <div className="sticky top-0 z-30 surface border-b border-gray-200 dark:border-gray-700 shadow-sm">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-0">
+    <div className="sticky top-0 z-30 surface border-b border-gray-200 dark:border-gray-700 shadow-sm px-4 md:px-8">
+      <div className="max-w-7xl mx-auto">
         <div className="flex items-center justify-between h-16">
-          <div className="flex items-center gap-3">
-            <Logo className="h-12 w-12 mb-0" />
-            <div>
-              <h1 className="text-xl font-bold text-default">CareerSync</h1>
-              <p className="text-xs text-gray-500 dark:text-gray-400">
+          {/* LEFT SIDE */}
+          <div className="flex items-center gap-2 sm:gap-3 min-w-0">
+            <Logo className="h-10 w-10 sm:h-12 sm:w-12 shrink-0" />
+
+            <div className="truncate">
+              <h1 className="text-base sm:text-xl font-bold text-default truncate">
+                CareerSync
+              </h1>
+              <p className="hidden sm:block text-xs text-gray-500 dark:text-gray-400 truncate">
                 Manage your job applications
               </p>
             </div>
           </div>
 
-          <div className="flex items-center gap-3">
+          {/* RIGHT SIDE */}
+          <div className="flex items-center gap-2 sm:gap-3">
+            {/* Add Job Button */}
             <button
               onClick={onAddJob}
-              className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium"
+              className="flex items-center gap-2 px-3 sm:px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium"
             >
               <Plus className="w-4 h-4" />
-              <span className="hidden sm:inline">Add Job</span>
+              <span className="hidden md:inline">Add Job</span>
             </button>
 
-            {/* Handle dark mode */}
+            {/* Dark Mode */}
             <DarkModeButton />
 
+            {/* Profile Dropdown */}
             <DropdownMenu>
               <DropdownMenuTrigger>
-                <div className="flex items-center gap-2 p-2 rounded-lg bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors">
-                  <div
-                    className={`w-8 h-8 bg-red-400 rounded-full flex items-center justify-center text-white font-semibold shadow-sm`}
-                  >
+                <div
+                  className="flex items-center gap-2 p-1 rounded-full 
+                            hover:bg-gray-200 dark:hover:bg-gray-600
+                            transition-colors"
+                >
+                  <div className="w-7 h-7 sm:w-8 sm:h-8 bg-red-400 rounded-full flex items-center justify-center text-white font-semibold shadow-sm">
                     <User className="w-4 h-4" />
                   </div>
                 </div>
               </DropdownMenuTrigger>
+
               <DropdownMenuContent className="w-56">
                 <DropdownMenuLabel>
                   <div className="flex flex-col space-y-1">
-                    <p className="text-sm font-medium">
+                    <p className="text-sm font-medium truncate">
                       {user?.firstName} {user?.lastName}
                     </p>
-                    <p className="text-xs text-gray-500 dark:text-gray-400">
+                    <p className="text-xs text-gray-500 dark:text-gray-400 truncate">
                       {user?.email}
                     </p>
                   </div>
                 </DropdownMenuLabel>
+
                 <DropdownMenuSeparator />
+
                 <DropdownMenuItem
                   onClick={handleLogout}
                   className="cursor-pointer"

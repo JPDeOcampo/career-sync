@@ -27,7 +27,11 @@ const JobRowSkeleton = () => (
 );
 
 const Dashboard = () => {
-  const { isLoading, isError } = useGetJobsQuery({ page: 1, limit: 5 });
+  const { isLoading, isError } = useGetJobsQuery({
+    sort: "recent",
+    page: 1,
+    limit: 10,
+  });
   const { jobs } = useAppSelector(selectJobs);
   const recentJobs = jobs;
   const hasRecentJobs = recentJobs && recentJobs?.length > 0;

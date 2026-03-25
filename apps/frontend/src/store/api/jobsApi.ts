@@ -10,34 +10,21 @@ export const jobsApi = createApi({
   reducerPath: "jobsApi",
   baseQuery: baseQueryWithReauth,
   endpoints: (builder) => ({
-    addJob: builder.mutation<
-      JobApplication,
-      {
-        id: string;
-        company: string;
-        roleTitle: string;
-        jobDescription: string;
-        jobType: string;
-        salary: string;
-        workSetup: string;
-        workSchedule: string;
-        location: string;
-        jobLink: string;
-        applicationMethod: string;
-        applicationDate: string;
-        status: string;
-        priority: string;
-        cvId: string;
-        coverLetterId: string;
-        contact: string;
-        interviewStages: string;
-        offer: boolean;
-        notes: string;
-      }
-    >({
+    addJob: builder.mutation<{ data: JobApplication }, JobApplication>({
       query: (credentials) => ({
         url: path,
         method: "POST",
+        body: credentials,
+      }),
+    }),
+
+    updateJob: builder.mutation<
+      { data: JobApplication },
+      { id: string; data: JobApplication }
+    >({
+      query: ({ id, data: credentials }) => ({
+        url: `${path}/${id}`,
+        method: "PATCH",
         body: credentials,
       }),
     }),
@@ -97,4 +84,5 @@ export const jobsApi = createApi({
   }),
 });
 
-export const { useAddJobMutation, useGetJobsQuery } = jobsApi;
+export const { useAddJobMutation, useUpdateJobMutation, useGetJobsQuery } =
+  jobsApi;

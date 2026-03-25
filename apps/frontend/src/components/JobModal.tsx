@@ -20,11 +20,14 @@ import { useForm, FormProvider } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { v4 as uuidv4 } from "uuid";
 import { useOutsideClick } from "@/hooks/useOutsideClick";
-import useJobHooks from "@/hooks/useJob";
 import JobInfoSection from "./JobInfoSection";
 import JobApplicationSection from "./JobApplicationSection";
 import JobInterviewSection from "./JobInterviewSection";
 import JobNotesSection from "./JobNotesSection";
+import { useAddJobMutation, useUpdateJobMutation } from "@/store/api/jobsApi";
+import { LoadingSpinner } from "./shared/Loading";
+import { capitalizeSmart } from "@/utils/stringHelper";
+import { toast } from "sonner";
 
 type JobFormKeys = keyof JobFormData;
 
@@ -196,8 +199,10 @@ const JobModal = ({ isShow, onClose, onSave, selectedJob }: JobModalProps) => {
   }>({ isToReview: false, isOnReview: false });
   const [currentStep, setCurrentStep] = useState(1);
 
+  const [addJob, { isLoading: isAdding }] = useAddJobMutation();
+  const [updateJob, { isLoading: isUpdating }] = useUpdateJobMutation();
+
   const { isJobViewOnly } = useAppSelector(selectGlobal);
-  const { defaultJob } = useJobHooks();
 
   const methods = useForm<JobFormData>({
     resolver: zodResolver(jobSchema),
@@ -208,9 +213,15 @@ const JobModal = ({ isShow, onClose, onSave, selectedJob }: JobModalProps) => {
   const { reset, handleSubmit, trigger } = methods;
 
   useEffect(() => {
+    const updatedJob = {
+      ...selectedJob,
+      cvId: selectedJob?.cvId || "",
+      coverLetterId: selectedJob?.coverLetterId || "",
+    };
+
     if (isShow) {
       setCurrentStep(1);
-      reset(selectedJob || defaultJob);
+      reset(updatedJob);
     }
   }, [selectedJob, isShow]);
 
@@ -245,15 +256,38 @@ const JobModal = ({ isShow, onClose, onSave, selectedJob }: JobModalProps) => {
     setCurrentStep((prev) => Math.max(prev - 1, 1));
   };
 
-  const onSubmit = (data: JobFormData) => {
+  const onSubmit = async (data: JobFormData) => {
     const jobData: JobApplication = {
       ...data,
-      id: selectedJob?.id || uuidv4(),
+      ...(selectedJob ? {} : { id: uuidv4() }),
       applicationDate: data.applicationDate || getTodayString(),
+      company: capitalizeSmart(data.company),
+      roleTitle: capitalizeSmart(data.roleTitle),
+      contact: capitalizeSmart(data.contact),
+      location: capitalizeSmart(data.location),
     } as JobApplication;
-    setReviewJobApplication({ isToReview: false, isOnReview: false });
-    onSave(jobData);
-    onClose();
+
+    try {
+      const result = selectedJob
+        ? await updateJob({ id: selectedJob.id, data: jobData }).unwrap()
+        : await addJob(jobData).unwrap();
+      onSave(result.data);
+      if (selectedJob) {
+        toast.success("Job updated successfully.");
+      } else {
+        toast.success("Job added successfully.");
+      }
+    } catch (error) {
+      console.error("Error adding job:", error);
+      if (selectedJob) {
+        toast.error("Error updating job. Please try again later.");
+      } else {
+        toast.error("Error adding job. Please try again later.");
+      }
+    } finally {
+      setReviewJobApplication({ isToReview: false, isOnReview: false });
+      onClose();
+    }
   };
 
   if (!isShow) return null;
@@ -353,6 +387,7 @@ const JobModal = ({ isShow, onClose, onSave, selectedJob }: JobModalProps) => {
                 selectedJob={selectedJob}
                 currentStep={currentStep}
                 isJobViewOnly={isJobViewOnly}
+                isLoading={isAdding || isUpdating}
                 reviewJob={reviewJobApplication}
                 onReviewJob={() => {
                   setReviewJobApplication({
@@ -379,6 +414,7 @@ const JobModalFooter = ({
   selectedJob,
   currentStep,
   isJobViewOnly,
+  isLoading,
   reviewJob,
   onEditJob,
   onReviewJob,
@@ -389,6 +425,7 @@ const JobModalFooter = ({
   selectedJob?: JobApplication | null;
   currentStep: number;
   isJobViewOnly: boolean;
+  isLoading: boolean;
   reviewJob: { isToReview: boolean; isOnReview: boolean };
   onEditJob: () => void;
   onReviewJob: () => void;
@@ -438,6 +475,7 @@ const JobModalFooter = ({
       <button type="submit" className="btn-success flex items-center gap-2">
         <Check className="w-4 h-4" />
         {selectedJob ? "Update" : "Save Job"}
+        {isLoading && <LoadingSpinner />}
       </button>
     );
   }

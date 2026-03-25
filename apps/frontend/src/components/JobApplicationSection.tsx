@@ -1,11 +1,16 @@
-import { Controller, useFormContext } from "react-hook-form";
+import {
+  Controller,
+  useFormContext,
+  ControllerRenderProps,
+  FieldValues,
+  Path,
+} from "react-hook-form";
 import { JobFormField } from "./shared/JobFormField";
 import {
   Dropdown,
   DropdownItem,
   DropdownUpload,
 } from "@/components/shared/CustomDropdown";
-import { Checkbox } from "@/components/shared/Checkbox";
 import {
   applicationMethods,
   priorities,
@@ -25,6 +30,11 @@ import {
   removeDocument,
 } from "@/store/slices/documentSlice";
 import ProgressBar from "./shared/ProgressBar";
+import { getTodayString } from "@/utils/dateHelper";
+import { toast } from "sonner";
+import { isFetchBaseQueryError } from "@/utils/errorGuard";
+import { LoadingSpinner } from "./shared/Loading";
+import { v4 as uuidv4 } from "uuid";
 
 const JobApplicationSection = ({
   isJobViewOnly = false,
@@ -32,13 +42,10 @@ const JobApplicationSection = ({
   isJobViewOnly?: boolean;
 }) => {
   const dispatch = useAppDispatch();
-  const { documents, uploadProgress } = useAppSelector(selectDocuments);
-
+  const { documents } = useAppSelector(selectDocuments);
   const { register, control, setValue } = useFormContext();
 
-  const [uploadDocument, { isLoading: isUploading }] =
-    useUploadDocumentMutation();
-
+  const [uploadDocument] = useUploadDocumentMutation();
   const [fetchDocuments, { isLoading: isFetchingDocuments }] =
     useLazyGetDocumentsQuery();
 
@@ -46,16 +53,16 @@ const JobApplicationSection = ({
     fetchDocuments({});
   };
 
-  const handleFileUpload = async (file: File) => {
-    const tempId = crypto.randomUUID();
+  const handleFileUpload = async (file: File, type: "CV" | "COVER_LETTER") => {
+    const tempId = uuidv4();
+    const valueType = type === "CV" ? "cvId" : "coverLetterId";
 
-    // 1. Optimistically add to Redux
     dispatch(
       addDocument({
         id: tempId,
         name: file.name,
         fileUrl: URL.createObjectURL(file),
-        type: "CV",
+        type,
         isUploading: true,
         progress: 0,
       }),
@@ -63,7 +70,7 @@ const JobApplicationSection = ({
 
     const formData = new FormData();
     formData.append("file", file);
-    formData.append("fileType", "CV");
+    formData.append("fileType", type);
 
     try {
       const response = await uploadDocument({
@@ -72,20 +79,92 @@ const JobApplicationSection = ({
           dispatch(updateDocumentProgress({ id: tempId, progress: percent }));
         },
       }).unwrap();
+
       const document = response.data;
+
       dispatch(markDocumentUploaded({ id: tempId, document }));
-      setValue("cvVersion", document.id);
-    } catch (error) {
+      setValue(valueType, document.id);
+    } catch (error: unknown) {
       dispatch(removeDocument(tempId));
+
+      if (isFetchBaseQueryError(error)) {
+        const errMsg =
+          "data" in error && error.data && typeof error.data === "object"
+            ? (error.data as { message?: string }).message
+            : "An error occurred";
+
+        toast.error(errMsg ?? "An error occurred");
+      } else if (error instanceof Error) {
+        toast.error(error.message);
+      } else {
+        toast.error("Unknown error");
+      }
+
       console.error("Upload error:", error);
     }
   };
+
+  const renderDocumentDropdown = (
+    type: "CV" | "COVER_LETTER",
+    field: ControllerRenderProps<FieldValues, Path<FieldValues>>,
+    label: string,
+    emptyText: string,
+  ) => {
+    const selectedDoc = documents.find((d) => d.id === field.value);
+    const filteredDocs = documents.filter((d) => d.type === type);
+
+    return (
+      <Dropdown
+        containerClassName="max-h-40 overflow-hidden"
+        value={selectedDoc?.name || ""}
+        url={selectedDoc?.fileUrl}
+        onClick={handleDropdownToggle}
+        isViewOnly={isJobViewOnly}
+        label={label}
+      >
+        <div className="pt-2 px-1 mb-10 max-h-28 overflow-auto">
+          {isFetchingDocuments && documents.length === 0 && (
+            <div className="flex justify-center items-center px-2 py-3">
+              <LoadingSpinner />
+            </div>
+          )}
+
+          {!isFetchingDocuments && filteredDocs.length > 0 ? (
+            filteredDocs.map((d) => (
+              <div key={d.id} className="flex items-center justify-between">
+                <DropdownItem
+                  item={d.name || ""}
+                  selectedItem={selectedDoc?.name || ""}
+                  onSelect={() => field.onChange(d.id)}
+                  icon={
+                    d.isUploading ? (
+                      <ProgressBar progress={d.progress ?? 0} />
+                    ) : null
+                  }
+                />
+              </div>
+            ))
+          ) : !isFetchingDocuments && documents.length === 0 ? (
+            <div className="text-gray-500 text-sm text-center py-4">
+              {emptyText}
+            </div>
+          ) : null}
+        </div>
+
+        <DropdownUpload onFileSelect={(file) => handleFileUpload(file, type)} />
+      </Dropdown>
+    );
+  };
+
   return (
     <div className="space-y-4">
+      {/* Top Section */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        {/* Application Method */}
         <Controller
           name="applicationMethod"
           control={control}
+          defaultValue={applicationMethods[0]}
           render={({ field }) => (
             <Dropdown
               label="Select Method"
@@ -105,9 +184,11 @@ const JobApplicationSection = ({
           )}
         />
 
+        {/* Application Date */}
         <Controller
           control={control}
           name="applicationDate"
+          defaultValue={getTodayString()}
           render={({ field }) => (
             <CustomDatePicker
               value={field.value}
@@ -117,9 +198,11 @@ const JobApplicationSection = ({
           )}
         />
 
+        {/* Status */}
         <Controller
           name="status"
           control={control}
+          defaultValue={statuses[0]}
           render={({ field }) => (
             <Dropdown
               label="Status"
@@ -139,9 +222,11 @@ const JobApplicationSection = ({
           )}
         />
 
+        {/* Priority */}
         <Controller
           name="priority"
           control={control}
+          defaultValue={priorities[0]}
           render={({ field }) => (
             <Dropdown
               label="Priority"
@@ -161,59 +246,43 @@ const JobApplicationSection = ({
           )}
         />
       </div>
+
+      {/* Bottom Section */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-2">
+        {/* CV */}
         <Controller
-          name="cvVersion"
+          name="cvId"
           control={control}
-          render={({ field }) => {
-            const selectedDoc = documents.find((d) => d.id === field.value);
-
-            return (
-              <Dropdown
-                containerClassName="max-h-40 overflow-hidden"
-                value={selectedDoc?.name || ""}
-                url={selectedDoc?.fileUrl}
-                onClick={handleDropdownToggle}
-                isViewOnly={isJobViewOnly}
-                label="CV Version"
-              >
-                <div className="pt-2 px-1 mb-10 max-h-28 overflow-auto">
-                  {documents.map((d) => (
-                    <div
-                      key={d.id}
-                      className="flex items-center justify-between"
-                    >
-                      <DropdownItem
-                        item={d.name || ""}
-                        selectedItem={selectedDoc?.name || ""}
-                        onSelect={() => field.onChange(d.id)}
-                        icon={
-                          d.isUploading ? (
-                            <ProgressBar progress={d.progress ?? 0} />
-                          ) : null
-                        }
-                      />
-                    </div>
-                  ))}
-                </div>
-
-                <DropdownUpload onFileSelect={handleFileUpload} />
-              </Dropdown>
-            );
-          }}
+          render={({ field }) =>
+            renderDocumentDropdown(
+              "CV",
+              field,
+              "CV Version",
+              "No CV available.",
+            )
+          }
         />
+
+        {/* Contact */}
         <JobFormField
           label="Contact"
           placeholder="e.g., recruiter@company.com"
           {...register("contact")}
         />
-        <div className="md:col-span-2">
-          <Checkbox
-            label="Cover letter sent"
-            disabled={isJobViewOnly}
-            {...register("coverLetterSent")}
-          />
-        </div>
+
+        {/* Cover Letter */}
+        <Controller
+          name="coverLetterId"
+          control={control}
+          render={({ field }) =>
+            renderDocumentDropdown(
+              "COVER_LETTER",
+              field,
+              "Cover Letter",
+              "No cover letters available.",
+            )
+          }
+        />
       </div>
     </div>
   );

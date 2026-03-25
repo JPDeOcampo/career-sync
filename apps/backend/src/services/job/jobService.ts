@@ -210,15 +210,44 @@ export const updateJob = async (
 
   if (!existingJob) throw new AppError("Job not found", 404);
 
-  // Interview Stages
-  const stagesToDelete = prepareDelete(
-    existingJob.interviewStages.map((s) => s.id),
-    interviewStages.map((s) => s.id),
-  );
+  // IDs of stages in request
+  const incomingIds = interviewStages
+    .filter((stage) => stage.id && stage.id.trim() !== "")
+    .map((stage) => stage.id);
 
-  const stagesToUpsert = prepareUpsert(
-    interviewStages,
-    (stage) => ({
+  // IDs of existing stages in DB
+  const existingIds = existingJob.interviewStages.map((s) => s.id);
+
+  // Delete stages that exist in DB but are missing from request
+  const stagesToDelete = existingIds.filter((id) => !incomingIds.includes(id));
+
+  const stagesToUpsert = interviewStages
+    .filter((stage) => stage.id && stage.id.trim() !== "")
+    .map((stage) => ({
+      where: { id: stage.id },
+      update: {
+        interviewType: stage.interviewType,
+        interviewDate: stage.interviewDate
+          ? new Date(stage.interviewDate)
+          : undefined,
+        interviewTime: stage.interviewTime,
+        interviewerName: stage.interviewerName,
+        interviewComment: stage.interviewComment,
+      },
+      create: {
+        interviewType: stage.interviewType,
+        interviewDate: stage.interviewDate
+          ? new Date(stage.interviewDate)
+          : undefined,
+        interviewTime: stage.interviewTime,
+        interviewerName: stage.interviewerName,
+        interviewComment: stage.interviewComment,
+      },
+    }));
+
+  const stagesToCreate = interviewStages
+    .filter((stage) => !stage.id || stage.id.trim() === "")
+    .map((stage) => ({
       interviewType: stage.interviewType,
       interviewDate: stage.interviewDate
         ? new Date(stage.interviewDate)
@@ -226,17 +255,7 @@ export const updateJob = async (
       interviewTime: stage.interviewTime,
       interviewerName: stage.interviewerName,
       interviewComment: stage.interviewComment,
-    }),
-    (stage) => ({
-      interviewType: stage.interviewType,
-      interviewDate: stage.interviewDate
-        ? new Date(stage.interviewDate)
-        : undefined,
-      interviewTime: stage.interviewTime,
-      interviewerName: stage.interviewerName,
-      interviewComment: stage.interviewComment,
-    }),
-  );
+    }));
 
   // Update Job
   return prisma.job.update({
@@ -246,7 +265,13 @@ export const updateJob = async (
       applicationDate: data.applicationDate
         ? new Date(data.applicationDate)
         : undefined,
-      interviewStages: { delete: stagesToDelete, upsert: stagesToUpsert },
+      cvId: data.cvId || null,
+      coverLetterId: data.coverLetterId || null,
+      interviewStages: {
+        delete: stagesToDelete.map((id) => ({ id })),
+        upsert: stagesToUpsert,
+        create: stagesToCreate,
+      },
     },
     include: { interviewStages: true },
   });

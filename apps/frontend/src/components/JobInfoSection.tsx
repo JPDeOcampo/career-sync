@@ -41,6 +41,7 @@ const JobInfoSection = ({
         <Controller
           name="jobType"
           control={control}
+          defaultValue={jobTypes[0]}
           render={({ field }) => (
             <Dropdown
               label="Job Type"
@@ -63,6 +64,7 @@ const JobInfoSection = ({
         <Controller
           name="workSetup"
           control={control}
+          defaultValue={workSetups[0]}
           render={({ field }) => (
             <Dropdown
               label="Work Setup"

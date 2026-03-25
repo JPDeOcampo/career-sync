@@ -1,4 +1,4 @@
-import Label from "./Label";
+import { Label } from "./Label";
 import Input from "./Input";
 import { Eye, EyeOff } from "lucide-react";
 import { useRouter } from "next/router";
