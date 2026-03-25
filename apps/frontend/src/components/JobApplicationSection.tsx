@@ -91,9 +91,9 @@ const JobApplicationSection = ({
         const errMsg =
           "data" in error && error.data && typeof error.data === "object"
             ? (error.data as { message?: string }).message
-            : "An error occurred";
+            : "An error occurred, please try again later.";
 
-        toast.error(errMsg ?? "An error occurred");
+        toast.error(errMsg ?? "An error occurred, please try again later.");
       } else if (error instanceof Error) {
         toast.error(error.message);
       } else {
@@ -129,7 +129,8 @@ const JobApplicationSection = ({
             </div>
           )}
 
-          {!isFetchingDocuments && filteredDocs.length > 0 ? (
+          {!isFetchingDocuments &&
+            filteredDocs.length > 0 &&
             filteredDocs.map((d) => (
               <div key={d.id} className="flex items-center justify-between">
                 <DropdownItem
@@ -143,12 +144,13 @@ const JobApplicationSection = ({
                   }
                 />
               </div>
-            ))
-          ) : !isFetchingDocuments && documents.length === 0 ? (
+            ))}
+
+          {!isFetchingDocuments && documents.length === 0 && (
             <div className="text-gray-500 text-sm text-center py-4">
               {emptyText}
             </div>
-          ) : null}
+          )}
         </div>
 
         <DropdownUpload onFileSelect={(file) => handleFileUpload(file, type)} />

@@ -275,10 +275,12 @@
     @apply underline hover:opacity-70;
   }
 
+  /* Background */
   .surface {
     @apply bg-white dark:bg-gray-800;
   }
 
+  /* Text */
   .text-default {
     @apply text-gray-900 dark:text-white;
   }
@@ -296,15 +298,21 @@
     @apply text-sm py-2 text-gray-900 dark:text-white;
   }
 
+  /* Modal */
   .job-modal-section-header {
     @apply text-lg font-bold text-gray-900 dark:text-white pb-2 mb-4 border-b border-gray-100 dark:border-gray-700;
   }
 
+  /* Button */
   .btn-primary {
     @apply flex items-center gap-2 px-6 py-2 bg-blue-600 text-white rounded-xl hover:bg-blue-700 font-semibold shadow-lg shadow-blue-500/30 transition-all;
   }
 
   .btn-success {
     @apply flex items-center gap-2 px-6 py-2 bg-green-600 text-white rounded-xl hover:bg-green-700 font-semibold shadow-lg shadow-green-500/30 transition-all;
+  }
+
+  .auth-card {
+    @apply md:bg-white md:dark:bg-gray-800 rounded-2xl md:shadow-xl p-8 w-full max-w-md;
   }
 }

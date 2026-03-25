@@ -58,7 +58,7 @@ const DropdownMenuContent = ({
   return (
     <div
       className={cn(
-        "bg-popover text-popover-foreground absolute z-50 mt-2 min-w-32 rounded-md border p-1 shadow-md animate-in fade-in zoom-in-95",
+        "surface text-popover-foreground absolute right-0 z-50 mt-2 min-w-32 rounded-md border border-gray-100 dark:border-gray-700 p-1 shadow-md animate-in fade-in zoom-in-95",
         className,
       )}
       {...props}
@@ -81,7 +81,7 @@ const DropdownMenuItem = ({
         context?.setOpen(false);
       }}
       className={cn(
-        "hover:bg-accent hover:text-accent-foreground relative flex cursor-default items-center gap-2 rounded-sm px-2 py-1.5 text-sm outline-none select-none",
+        "text-default hover:bg-gray-100 dark:hover:text-gray-900 relative flex cursor-default items-center gap-2 rounded-sm px-2 py-1.5 text-sm outline-none select-none",
         variant === "destructive" && "text-destructive hover:bg-destructive/10",
         className,
       )}

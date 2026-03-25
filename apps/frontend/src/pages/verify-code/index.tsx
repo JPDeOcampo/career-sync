@@ -103,7 +103,7 @@ const VerifyCode = () => {
   }, [resendCooldown]);
 
   return (
-    <div className="surface rounded-2xl shadow-xl p-8 w-full max-w-md">
+    <div className="auth-card">
       <button
         onClick={() => router.push("/forgot-password")}
         className="inline-flex items-center text-sm text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-200 mb-6 transition-colors"

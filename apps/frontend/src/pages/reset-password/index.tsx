@@ -63,7 +63,7 @@ const ResetPassword = () => {
   }, []);
 
   return (
-    <div className="surface rounded-2xl shadow-xl p-8 w-full max-w-md">
+    <div className="auth-card">
       <div className="text-center mb-8">
         <LogoShield />
         <h1 className="text-3xl font-bold text-default mb-2">Reset Password</h1>

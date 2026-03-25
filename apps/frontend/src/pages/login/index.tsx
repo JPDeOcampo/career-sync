@@ -60,10 +60,10 @@ const Login = () => {
   };
 
   return (
-    <div className="surface rounded-2xl shadow-xl p-8 w-full max-w-md">
+    <div className="auth-card">
       <div className="text-center mb-8">
         <Logo />
-        <h1 className="text-3xl font-bold text-default mb-2">Welcome Back</h1>
+        <h1 className="text-3xl font-bold text-default mb-2">Welcome</h1>
         <p className="text-gray-600 dark:text-gray-400">
           Sign in to continue to your job tracker
         </p>
