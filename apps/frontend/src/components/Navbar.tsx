@@ -64,7 +64,10 @@ const Navbar = ({ onAddJob }: NavbarProps) => {
         <div className="flex items-center justify-between h-16">
           {/* LEFT SIDE */}
           <div className="flex items-center gap-2 sm:gap-3 min-w-0">
-            <Logo className="h-10 w-10 sm:h-12 sm:w-12 shrink-0" />
+            <Logo
+              className="h-10 w-10 sm:h-12 sm:w-12 shrink-0"
+              iconClassName="w-6 h-6 sm:w-8 sm:h-8"
+            />
 
             <div className="truncate">
               <h1 className="text-base sm:text-xl font-bold text-default truncate">

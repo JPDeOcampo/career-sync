@@ -2,7 +2,13 @@ import { motion } from "motion/react";
 import { Briefcase } from "lucide-react";
 import { cn } from "@/utils/cn";
 
-const Logo = ({ className = "w-16 h-16 mb-4" }: { className?: string }) => {
+const Logo = ({
+  className = "w-16 h-16 mb-4",
+  iconClassName = "w-10 h-10",
+}: {
+  className?: string;
+  iconClassName?: string;
+}) => {
   return (
     <motion.div
       initial={{ scale: 0.8, opacity: 0 }}
@@ -13,7 +19,7 @@ const Logo = ({ className = "w-16 h-16 mb-4" }: { className?: string }) => {
         className,
       )}
     >
-      <Briefcase className="w-6 h-6 sm:w-8 sm:h-8 text-white" />
+      <Briefcase className={cn("text-white", iconClassName)} />
     </motion.div>
   );
 };
