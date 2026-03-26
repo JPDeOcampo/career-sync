@@ -313,6 +313,6 @@
   }
 
   .auth-card {
-    @apply md:bg-white md:dark:bg-gray-800 rounded-2xl md:shadow-xl p-8 w-full max-w-md;
+    @apply md:bg-white md:dark:bg-gray-800 rounded-2xl md:shadow-xl p-8 w-full md:max-w-md;
   }
 }

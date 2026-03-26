@@ -1,6 +1,5 @@
 import { store } from "@/store/store";
 import { addJob, selectJob, updateJob } from "@/store/slices/jobSlice";
-import { selectAuth } from "@/store/selectors";
 import { JobApplication } from "@career-sync/shared";
 import { useAppDispatch, useAppSelector } from "@/hooks/useRedux";
 import {
@@ -8,48 +7,25 @@ import {
   setIsJobModalShow,
   setIsShowModal,
 } from "@/store/slices/globalSlice";
+import { addDocument } from "@/store/slices/documentSlice";
 import { selectGlobal, selectJobs } from "@/store/selectors";
-import { getTodayString } from "@/utils/dateHelper";
 import { useGlobalModal } from "@/context/GlobalModalContext";
 
 const useJobHooks = () => {
   const dispatch = useAppDispatch();
   const { isJobModalShow, isJobViewOnly } = useAppSelector(selectGlobal);
   const { selectedJob } = useAppSelector(selectJobs);
-  const { user } = useAppSelector(selectAuth);
   const { handleGlobalModal } = useGlobalModal();
-
-  const defaultJob: JobApplication = {
-    id: "",
-    userId: user?.userId as string,
-    company: "",
-    roleTitle: "",
-    jobDescription: "",
-    jobType: "Full-time",
-    salary: "",
-    workSetup: "Remote",
-    workSchedule: "",
-    location: "",
-    jobLink: "",
-    applicationMethod: "LinkedIn",
-    applicationDate: getTodayString(),
-    status: "Applied",
-    priority: "Medium",
-    cvId: "",
-    coverLetterId: "",
-    contact: "",
-    interviewStages: [],
-    offer: false,
-    notes: "",
-  };
+  const isDefined = <T>(value: T | null | undefined): value is T =>
+    value != null;
 
   const handleAddJob = () => {
-    dispatch(selectJob(defaultJob));
+    dispatch(selectJob());
     dispatch(setIsJobModalShow(true));
   };
 
   const handleEditJob = (job: JobApplication) => {
-    dispatch(selectJob(job));
+    dispatch(selectJob(job.id));
     dispatch(setIsJobModalShow(true));
   };
 
@@ -60,13 +36,13 @@ const useJobHooks = () => {
       store.dispatch(addJob(job));
     }
     dispatch(setIsJobModalShow(false));
-    dispatch(selectJob(defaultJob));
+    dispatch(selectJob());
   };
 
   const handleCloseModal = () => {
     const onClose = () => {
       dispatch(setIsJobModalShow(false));
-      dispatch(selectJob(defaultJob));
+      dispatch(selectJob());
       dispatch(setIsJobViewOnly(false));
       dispatch(setIsShowModal(true));
     };
@@ -83,7 +59,8 @@ const useJobHooks = () => {
   };
 
   const handleViewOnly = (job: JobApplication) => {
-    dispatch(selectJob(job));
+    dispatch(addDocument([job.cv, job.coverLetter].filter(isDefined)));
+    dispatch(selectJob(job.id));
     dispatch(setIsJobModalShow(true));
     dispatch(setIsJobViewOnly(true));
   };
@@ -91,7 +68,6 @@ const useJobHooks = () => {
   return {
     isJobModalShow,
     selectedJob,
-    defaultJob,
     handleAddJob,
     handleEditJob,
     handleSaveJob,

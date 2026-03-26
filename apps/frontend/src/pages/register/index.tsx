@@ -10,7 +10,7 @@ import {
 } from "@/components/shared/CustomUserInput";
 // import { Checkbox } from "@/components/shared/Checkbox";
 import { toast } from "sonner";
-import { useUserRegisterMutation } from "@/store/api/authApi";
+import { useRegisterMutation } from "@/store/api/authApi";
 import useGlobalHooks from "@/hooks/useGlobal";
 import { registerSchema } from "@career-sync/shared";
 import { useForm } from "react-hook-form";
@@ -24,7 +24,7 @@ const Register = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   // const [agreedToTerms, setAgreedToTerms] = useState(false);
-  const [userRegister, { isLoading }] = useUserRegisterMutation();
+  const [userRegister, { isLoading }] = useRegisterMutation();
   const { navigate } = useGlobalHooks();
 
   const {

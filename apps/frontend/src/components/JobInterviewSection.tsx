@@ -9,7 +9,7 @@ import { motion, AnimatePresence } from "motion/react";
 import CustomTooltip from "@/components/shared/CustomTooltip";
 import InterviewStageCard from "@/components/shared/InterviewStageCard";
 import { getTodayString } from "@/utils/dateHelper";
-import { InterviewInfo } from "@/@types/jobTypes";
+import { InterviewInfo } from "@career-sync/shared";
 import { useGlobalModal } from "@/context/GlobalModalContext";
 import CustomDatePicker from "./shared/CustomDatePicker";
 import CustomTimePicker from "./shared/CustomTimePicker";

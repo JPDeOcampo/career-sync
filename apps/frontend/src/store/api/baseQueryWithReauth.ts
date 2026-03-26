@@ -34,7 +34,8 @@ const baseQuery = fetchBaseQuery({
 export const baseQueryWithReauth: BaseQueryFn<
   string | FetchArgs,
   unknown,
-  FetchBaseQueryError
+  FetchBaseQueryError,
+  { skipReauth?: boolean }
 > = async (args, api, extraOptions) => {
   try {
     // To wait for the mutex to be available before even trying the first call
@@ -51,6 +52,10 @@ export const baseQueryWithReauth: BaseQueryFn<
   }
 
   let result = await baseQuery(args, api, extraOptions);
+
+  if (extraOptions?.skipReauth) {
+    return result;
+  }
 
   if (result.error && result.error.status === 401) {
     // To check if the mutex is already locked by another request

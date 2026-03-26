@@ -12,7 +12,7 @@ import {
 import { Plus, User, LogOut } from "lucide-react";
 import { useAppSelector } from "@/hooks/useRedux";
 import DarkModeButton from "./shared/DarkModeButton";
-import { useSingleLogoutMutation } from "@/store/api/authApi";
+import { useLogoutMutation } from "@/store/api/authApi";
 
 interface NavbarProps {
   onAddJob: () => void;
@@ -23,7 +23,7 @@ const Navbar = ({ onAddJob }: NavbarProps) => {
   const auth = useAppSelector((state) => state.auth);
   const user = auth.user;
 
-  const [singleLogout] = useSingleLogoutMutation();
+  const [singleLogout] = useLogoutMutation();
 
   const handleLogout = async () => {
     try {

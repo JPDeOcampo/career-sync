@@ -15,6 +15,7 @@ import {
   Notebook,
 } from "lucide-react";
 import { JobFormData, JobApplication, jobSchema } from "@career-sync/shared";
+import { selectAuth } from "@/store/selectors";
 import { getTodayString } from "@/utils/dateHelper";
 import { useForm, FormProvider } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -193,6 +194,7 @@ const JobModalStepper = ({ currentStep }: { currentStep: number }) => {
 
 const JobModal = ({ isShow, onClose, onSave, selectedJob }: JobModalProps) => {
   const dispatch = useAppDispatch();
+  const { user } = useAppSelector(selectAuth);
   const [reviewJobApplication, setReviewJobApplication] = useState<{
     isToReview: boolean;
     isOnReview: boolean;
@@ -208,6 +210,9 @@ const JobModal = ({ isShow, onClose, onSave, selectedJob }: JobModalProps) => {
     resolver: zodResolver(jobSchema),
     mode: "onChange",
     reValidateMode: "onChange",
+    defaultValues: {
+      userId: user?.userId as string,
+    },
   });
 
   const { reset, handleSubmit, trigger } = methods;
@@ -271,6 +276,7 @@ const JobModal = ({ isShow, onClose, onSave, selectedJob }: JobModalProps) => {
       const result = selectedJob
         ? await updateJob({ id: selectedJob.id, data: jobData }).unwrap()
         : await addJob(jobData).unwrap();
+
       onSave(result.data);
       if (selectedJob) {
         toast.success("Job updated successfully.");

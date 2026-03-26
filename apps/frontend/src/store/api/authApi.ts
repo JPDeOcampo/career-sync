@@ -1,7 +1,7 @@
 import { createApi } from "@reduxjs/toolkit/query/react";
-import { UserType } from "@/@types/userTypes";
-import { logout, setUserId } from "../slices/authSlice";
 import { baseQueryWithReauth } from "./baseQueryWithReauth";
+import { setUserId, logout } from "../slices/authSlice";
+import { UserType } from "@/@types/userTypes";
 
 const path = "/auth";
 
@@ -9,11 +9,13 @@ interface UserResponseType {
   user: UserType;
   accessToken: string;
 }
+
 export const authApi = createApi({
   reducerPath: "authApi",
   baseQuery: baseQueryWithReauth,
   endpoints: (builder) => ({
-    userLogin: builder.mutation<
+    // --- Login ---
+    login: builder.mutation<
       UserResponseType,
       { email: string; password: string }
     >({
@@ -22,10 +24,13 @@ export const authApi = createApi({
         method: "POST",
         body: credentials,
       }),
+      extraOptions: {
+        skipReauth: true,
+      },
     }),
 
-    // --- Register User ---
-    userRegister: builder.mutation<
+    // --- Register ---
+    register: builder.mutation<
       void,
       {
         firstName: string;
@@ -40,10 +45,13 @@ export const authApi = createApi({
         method: "POST",
         body: credentials,
       }),
+      extraOptions: {
+        skipReauth: true,
+      },
     }),
 
     // --- Forgot Password ---
-    userForgotPassword: builder.mutation<
+    forgotPassword: builder.mutation<
       { userId: UserType["userId"]; email: UserType["email"] },
       { email: string }
     >({
@@ -52,63 +60,76 @@ export const authApi = createApi({
         method: "POST",
         body: credentials,
       }),
+      extraOptions: {
+        skipReauth: true,
+      },
       async onQueryStarted(_, { dispatch, queryFulfilled }) {
         try {
           const { data } = await queryFulfilled;
           dispatch(setUserId({ userId: data.userId, email: data.email }));
         } catch (err) {
-          console.log("Refresh token failed", err);
+          console.error("Forgot password failed", err);
           dispatch(logout());
         }
       },
     }),
 
     // --- Refresh Reset Password ---
-    userRefreshResetPassword: builder.mutation<
+    refreshResetPassword: builder.mutation<
       { userId: UserType["userId"]; email: UserType["email"] },
       void
     >({
-      query: (credentials) => ({
+      query: () => ({
         url: `${path}/reset/refresh-reset-password`,
         method: "GET",
-        body: credentials,
       }),
+      extraOptions: {
+        skipReauth: true,
+      },
       async onQueryStarted(_, { dispatch, queryFulfilled }) {
         try {
           const { data } = await queryFulfilled;
           dispatch(setUserId({ userId: data.userId, email: data.email }));
         } catch (err) {
-          console.log("Refresh token failed", err);
+          console.error("Refresh reset password failed", err);
         }
       },
     }),
 
     // --- Verify Reset Password ---
-    userVerifyResetPassword: builder.mutation<
+    verifyResetPassword: builder.mutation<
       void,
-      { userId?: UserType["userId"]; verificationCode: string }
+      { userId: UserType["userId"]; verificationCode: string }
     >({
       query: ({ userId, verificationCode }) => ({
         url: `${path}/reset/verify-reset-password/${userId}`,
         method: "POST",
         body: { verificationCode },
       }),
+      extraOptions: {
+        skipReauth: true,
+      },
     }),
-    userResendResetVerificationCode: builder.mutation<
+
+    // --- Resend Verification Code ---
+    resendResetVerificationCode: builder.mutation<
       void,
-      { userId?: UserType["userId"] }
+      { userId: UserType["userId"] }
     >({
-      query: (userId) => ({
+      query: ({ userId }) => ({
         url: `${path}/reset/resend-reset-verification-code/${userId}`,
         method: "POST",
       }),
+      extraOptions: {
+        skipReauth: true,
+      },
     }),
 
     // --- Reset Password ---
-    userResetPassword: builder.mutation<
+    resetPassword: builder.mutation<
       void,
       {
-        userId?: UserType["userId"];
+        userId: UserType["userId"];
         newPassword: string;
         confirmPassword: string;
       }
@@ -118,9 +139,13 @@ export const authApi = createApi({
         method: "POST",
         body: { newPassword, confirmPassword },
       }),
+      extraOptions: {
+        skipReauth: true,
+      },
     }),
 
-    singleLogout: builder.mutation<void, void>({
+    // --- Logout ---
+    logout: builder.mutation<void, void>({
       query: () => ({
         url: `${path}/single-logout`,
         method: "POST",
@@ -130,7 +155,7 @@ export const authApi = createApi({
           await queryFulfilled;
           dispatch(logout());
         } catch (err) {
-          console.log("Logout failed", err);
+          console.error("Logout failed", err);
         }
       },
     }),
@@ -138,12 +163,12 @@ export const authApi = createApi({
 });
 
 export const {
-  useUserLoginMutation,
-  useUserRegisterMutation,
-  useUserForgotPasswordMutation,
-  useUserVerifyResetPasswordMutation,
-  useUserResendResetVerificationCodeMutation,
-  useUserRefreshResetPasswordMutation,
-  useUserResetPasswordMutation,
-  useSingleLogoutMutation,
+  useLoginMutation,
+  useRegisterMutation,
+  useForgotPasswordMutation,
+  useVerifyResetPasswordMutation,
+  useResendResetVerificationCodeMutation,
+  useRefreshResetPasswordMutation,
+  useResetPasswordMutation,
+  useLogoutMutation,
 } = authApi;

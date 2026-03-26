@@ -6,7 +6,7 @@ import { login } from "@/store/slices/authSlice";
 import Logo from "@/components/shared/Logo";
 import Button from "@/components/shared/Button";
 import { toast } from "sonner";
-import { useUserLoginMutation } from "@/store/api/authApi";
+import { useLoginMutation } from "@/store/api/authApi";
 import useGlobalHooks from "@/hooks/useGlobal";
 import { InputEmail, InputPassword } from "@/components/shared/CustomUserInput";
 import type { FetchBaseQueryError } from "@reduxjs/toolkit/query";
@@ -20,7 +20,7 @@ type LoginFormData = z.infer<typeof loginSchema>;
 const Login = () => {
   const dispatch = useAppDispatch();
   const [showPassword, setShowPassword] = useState(false);
-  const [userLogin, { isLoading }] = useUserLoginMutation();
+  const [userLogin, { isLoading }] = useLoginMutation();
   const { navigate } = useGlobalHooks();
 
   const {

@@ -1,7 +1,6 @@
 import { AppError } from "@/utils/errors/appError.js";
 import { prisma } from "@/lib/prisma.js";
 import { JobApplication } from "@career-sync/shared";
-import { prepareDelete, prepareUpsert } from "@/utils/upsertUtils";
 
 // --- Add Job Logic ---
 export const addJob = async (
@@ -91,9 +90,8 @@ export const addJob = async (
       status,
       priority,
       contact,
-      interviewStages: interviewData.length
-        ? { create: interviewData }
-        : undefined,
+      interviewStages:
+        interviewData.length > 0 ? { create: interviewData } : undefined,
       offer,
       notes,
       user: { connect: { id: userID as string } },
@@ -108,6 +106,11 @@ export const addJob = async (
           connect: { id: coverLetterId },
         },
       }),
+    },
+    include: {
+      interviewStages: true,
+      cv: true,
+      coverLetter: true,
     },
   });
 
@@ -128,7 +131,7 @@ export const getJobs = async (
 
   const skip = (page - 1) * limit;
 
-  const jobs = await prisma.job.findMany({
+  const data = await prisma.job.findMany({
     where: {
       userId: userID,
       ...(status && { status }),
@@ -137,6 +140,8 @@ export const getJobs = async (
 
     include: {
       interviewStages: true,
+      cv: true,
+      coverLetter: true,
     },
 
     orderBy:
@@ -148,6 +153,37 @@ export const getJobs = async (
 
     skip,
     take: limit,
+  });
+
+  const jobs = data.map((doc) => {
+    const cvFilePath = doc.cv?.filePath;
+    const cvFilename = cvFilePath ? cvFilePath.split("/").pop() : null;
+
+    const coverLetterFilePath = doc.coverLetter?.filePath;
+    const coverLetterFilename = coverLetterFilePath
+      ? coverLetterFilePath.split("/").pop()
+      : null;
+
+    return {
+      ...doc,
+      cv: doc.cv
+        ? {
+            ...doc.cv,
+            fileUrl: cvFilename
+              ? `${process.env.BACKEND_URL}/api/v1/document/${doc.userId}/${cvFilename}`
+              : null,
+          }
+        : null,
+
+      coverLetter: doc.coverLetter
+        ? {
+            ...doc.coverLetter,
+            fileUrl: coverLetterFilename
+              ? `${process.env.BACKEND_URL}/api/v1/document/${doc.userId}/${coverLetterFilename}`
+              : null,
+          }
+        : null,
+    };
   });
 
   const totalJobs = await prisma.job.count({
@@ -261,7 +297,10 @@ export const updateJob = async (
   return prisma.job.update({
     where: { id: jobId },
     data: {
-      ...jobFields,
+      ...(() => {
+        const { cv, coverLetter, ...safeJobFields } = jobFields;
+        return safeJobFields;
+      })(),
       applicationDate: data.applicationDate
         ? new Date(data.applicationDate)
         : undefined,
