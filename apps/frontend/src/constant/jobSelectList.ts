@@ -5,7 +5,7 @@ import {
   ApplicationStatus,
   PriorityType,
   InterviewTypes,
-} from "@/@types/jobTypes";
+} from "@career-sync/shared";
 
 export const jobTypes: JobType[] = [
   "Full-time",

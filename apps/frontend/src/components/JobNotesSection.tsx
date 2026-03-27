@@ -1,7 +1,7 @@
 import { useFormContext } from "react-hook-form";
 import { JobFormField } from "@/components/shared/JobFormField";
 
-const JobInterviewSection = () => {
+const JobInterviewSection = ({ isViewOnly }: { isViewOnly?: boolean }) => {
   const { register } = useFormContext();
 
   return (
@@ -10,6 +10,7 @@ const JobInterviewSection = () => {
         label="Notes"
         rows={5}
         as="textarea"
+        isViewOnly={isViewOnly}
         {...register("notes")}
       />
     </div>

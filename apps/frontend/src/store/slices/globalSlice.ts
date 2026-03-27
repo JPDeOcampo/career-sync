@@ -2,7 +2,12 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 
 interface globalState {
-  isJobViewOnly: boolean;
+  viewOnly: {
+    info: boolean;
+    applicationMethod: boolean;
+    interviewStages: boolean;
+    notes: boolean;
+  };
   isJobModalShow: boolean;
   isShowModal: boolean;
   currentStep: number;
@@ -13,7 +18,12 @@ interface globalState {
 }
 
 const initialState: globalState = {
-  isJobViewOnly: false,
+  viewOnly: {
+    info: false,
+    applicationMethod: false,
+    interviewStages: false,
+    notes: false,
+  },
   isJobModalShow: false,
   isShowModal: false,
   currentStep: 0,
@@ -27,8 +37,19 @@ const globalSlice = createSlice({
   name: "global",
   initialState,
   reducers: {
-    setIsJobViewOnly: (state, action: PayloadAction<boolean>) => {
-      state.isJobViewOnly = action.payload;
+    setViewOnly: (
+      state,
+      action: PayloadAction<Partial<typeof state.viewOnly>>,
+    ) => {
+      // If empty object, reset all to false
+      if (Object.keys(action.payload).length === 0) {
+        Object.keys(state.viewOnly).forEach((key) => {
+          state.viewOnly[key as keyof typeof state.viewOnly] = false;
+        });
+      } else {
+        // Otherwise, merge normally
+        Object.assign(state.viewOnly, action.payload);
+      }
     },
     setIsJobModalShow: (state, action: PayloadAction<boolean>) => {
       state.isJobModalShow = action.payload;
@@ -50,7 +71,7 @@ const globalSlice = createSlice({
 });
 
 export const {
-  setIsJobViewOnly,
+  setViewOnly,
   setIsJobModalShow,
   setIsShowModal,
   setCurrentStep,
