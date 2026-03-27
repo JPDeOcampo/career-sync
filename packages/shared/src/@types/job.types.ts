@@ -52,10 +52,14 @@ export type InterviewStages = {
 export type Documents = {
   id: string;
   userId: string;
+  type: string;
   fileUrl: string;
   filePath: string;
   name: string;
-  createdAt: Date;
+  createdAt?: Date;
+  updatedAt?: Date;
+  isUploading?: boolean;
+  progress?: number;
 };
 
 export interface JobApplication {
@@ -77,8 +81,10 @@ export interface JobApplication {
   applicationDate: string;
   status: ApplicationStatus;
   priority: PriorityType;
-  cvId: string;
+  cvId?: string;
+  cv?: Documents;
   coverLetterId?: string;
+  coverLetter?: Documents;
   contact?: string;
 
   // Interview Info

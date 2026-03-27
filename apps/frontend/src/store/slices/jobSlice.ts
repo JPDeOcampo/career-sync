@@ -34,10 +34,13 @@ const jobSlice = createSlice({
     addJob: (state, action: PayloadAction<JobApplication>) => {
       state.jobs.unshift(action.payload);
     },
-    selectJob: (state, action: PayloadAction<JobApplication>) => {
-      state.selectedJob = state.jobs.find(
-        (job) => job.id === action.payload.id,
-      );
+    selectJob: (state, action: PayloadAction<string | undefined>) => {
+      if (!action.payload) {
+        state.selectedJob = undefined;
+        return;
+      }
+
+      state.selectedJob = state.jobs.find((job) => job.id === action.payload);
     },
     updateJob: (state, action: PayloadAction<JobApplication>) => {
       const index = state.jobs.findIndex((job) => job.id === action.payload.id);

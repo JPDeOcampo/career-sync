@@ -24,13 +24,7 @@ const AppContent = ({ Component, pageProps }: AppProps) => {
   const router = useRouter();
   const hideHeader = publicRoutes.includes(router.pathname);
 
-  const {
-    isJobModalShow,
-    selectedJob,
-    handleAddJob,
-    handleSaveJob,
-    handleCloseModal,
-  } = useJobHooks();
+  const { isJobModalShow } = useJobHooks();
 
   return (
     <div
@@ -41,7 +35,7 @@ const AppContent = ({ Component, pageProps }: AppProps) => {
           className="top-0 z-30 w-full border-b border-gray-200 dark:border-gray-700 
       surface sticky"
         >
-          <Navbar onAddJob={handleAddJob} />
+          <Navbar />
           <SubNavbar />
         </header>
       )}
@@ -56,14 +50,7 @@ const AppContent = ({ Component, pageProps }: AppProps) => {
           <Component {...pageProps} />
         </div>
       </main>
-      {isJobModalShow && (
-        <JobModal
-          isShow={isJobModalShow}
-          onClose={handleCloseModal}
-          onSave={handleSaveJob}
-          selectedJob={selectedJob}
-        />
-      )}
+      {isJobModalShow && <JobModal />}
 
       <Toaster position="top-right" richColors />
     </div>

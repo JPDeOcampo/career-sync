@@ -4,7 +4,7 @@ import { motion } from "motion/react";
 import Button from "@/components/shared/Button";
 import { toast } from "sonner";
 import LogoShield from "@/components/shared/LogoShield";
-import { useUserResetPasswordMutation } from "@/store/api/authApi";
+import { useResetPasswordMutation } from "@/store/api/authApi";
 import useGlobalHooks from "@/hooks/useGlobal";
 import useAuthHooks from "@/hooks/useAuth";
 import { InputPassword } from "@/components/shared/CustomUserInput";
@@ -19,7 +19,7 @@ type ResetPasswordFormData = z.infer<typeof resetPasswordSchema>;
 const ResetPassword = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-  const [userResetPassword, { isLoading }] = useUserResetPasswordMutation();
+  const [userResetPassword, { isLoading }] = useResetPasswordMutation();
   const { user, refreshResetPassword } = useAuthHooks();
   const { navigate } = useGlobalHooks();
   const {
@@ -37,7 +37,7 @@ const ResetPassword = () => {
 
     try {
       await userResetPassword({
-        userId: user?.userId,
+        userId: user?.userId as string,
         newPassword: newPassword,
         confirmPassword: confirmPassword,
       }).unwrap();

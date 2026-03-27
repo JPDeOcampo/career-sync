@@ -18,8 +18,20 @@ const documentSlice = createSlice({
     setDocuments: (state, action: PayloadAction<DocumentType[]>) => {
       state.documents = action.payload;
     },
-    addDocument: (state, action: PayloadAction<DocumentType>) => {
-      state.documents.unshift(action.payload);
+    addDocument: (
+      state,
+      action: PayloadAction<DocumentType | DocumentType[]>,
+    ) => {
+      const docs = Array.isArray(action.payload)
+        ? action.payload
+        : [action.payload];
+
+      docs.forEach((doc) => {
+        const exists = state.documents.some((d) => d.id === doc.id);
+        if (!exists) {
+          state.documents.unshift(doc);
+        }
+      });
     },
     setUploadProgress: (state, action) => {
       state.uploadProgress = action.payload;
@@ -55,8 +67,6 @@ const documentSlice = createSlice({
           progress: 100,
         });
       }
-      console.log("markDocumentUploaded", state.documents, action.payload);
-      console.log("Documents:", JSON.parse(JSON.stringify(state.documents)));
     },
 
     removeDocument: (state, action) => {

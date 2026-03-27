@@ -2,17 +2,15 @@
 import * as React from "react";
 import { CheckIcon } from "lucide-react";
 import { cn } from "@/utils/cn";
-import { useAppSelector } from "@/hooks/useRedux";
-import { selectGlobal } from "@/store/selectors";
 import { useFormContext } from "react-hook-form";
-import { JobFormData } from "@/@types/jobTypes";
+import { JobFormData } from "@career-sync/shared";
 
 interface CheckboxProps extends React.InputHTMLAttributes<HTMLInputElement> {
   label?: string;
+  isViewOnly?: boolean;
 }
 const Checkbox = React.forwardRef<HTMLInputElement, CheckboxProps>(
-  ({ className, label, ...props }, ref) => {
-    const { isJobViewOnly } = useAppSelector(selectGlobal);
+  ({ className, label, isViewOnly, ...props }, ref) => {
     const { watch } = useFormContext<JobFormData>();
     const value = watch(props.name as keyof JobFormData);
     const checked = value ? "Yes" : "No";
@@ -37,12 +35,12 @@ const Checkbox = React.forwardRef<HTMLInputElement, CheckboxProps>(
 
     return (
       <div className="flex items-center space-x-2">
-        {isJobViewOnly && (
+        {isViewOnly && (
           <p className="text-sm text-gray-600 dark:text-gray-400">
             {getViewOnlyValue()}
           </p>
         )}
-        {!isJobViewOnly && (
+        {!isViewOnly && (
           <>
             <div
               className={cn(

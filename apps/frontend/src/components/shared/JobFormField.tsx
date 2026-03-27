@@ -1,12 +1,10 @@
-import { useAppSelector } from "@/hooks/useRedux";
-import { selectGlobal } from "@/store/selectors";
 import { useFormContext } from "react-hook-form";
 import { FieldLabel } from "./Label";
 import Input from "./Input";
 import TextArea from "./TextArea";
 import { BaseFormFieldProps } from "@/@types/fieldTypes";
 import { cn } from "@/utils/cn";
-import { JobFormData } from "@/@types/jobTypes";
+import { JobFormData } from "@career-sync/shared";
 import { capitalizeSmart } from "@/utils/stringHelper";
 
 type JobFormFieldProps = BaseFormFieldProps & {
@@ -14,6 +12,7 @@ type JobFormFieldProps = BaseFormFieldProps & {
   rows?: number;
   disabled?: boolean;
   isRequired?: boolean;
+  isViewOnly?: boolean;
   type?: string;
   className?: string;
 };
@@ -27,11 +26,11 @@ const JobFormField = ({
   rows = 3,
   disabled = false,
   isRequired = false,
+  isViewOnly,
   type = "text",
   className,
   ...registerProps
 }: JobFormFieldProps) => {
-  const { isJobViewOnly } = useAppSelector(selectGlobal);
   const { watch, setValue } = useFormContext<JobFormData>();
   const value = watch(
     registerProps.name as keyof JobFormData,
@@ -64,10 +63,10 @@ const JobFormField = ({
         label={label}
         error={error}
         isRequired={isRequired}
-        isViewOnly={isJobViewOnly}
+        isViewOnly={isViewOnly}
       />
 
-      {isJobViewOnly ? (
+      {isViewOnly ? (
         // View Only State: Renders a styled div or p instead of an input
 
         registerProps.name === "jobLink" &&
@@ -114,9 +113,7 @@ const JobFormField = ({
       )}
 
       {/* Only show errors if not in isJobViewOnly mode */}
-      {!isJobViewOnly && error && (
-        <p className="text-red-500 text-sm">{error}</p>
-      )}
+      {!isViewOnly && error && <p className="text-red-500 text-sm">{error}</p>}
     </div>
   );
 };

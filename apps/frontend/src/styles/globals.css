@@ -300,19 +300,23 @@
 
   /* Modal */
   .job-modal-section-header {
-    @apply text-lg font-bold text-gray-900 dark:text-white pb-2 mb-4 border-b border-gray-100 dark:border-gray-700;
+    @apply text-gray-900 dark:text-white pb-2 mb-4 border-b border-gray-200 dark:border-gray-700  flex items-center justify-between;
+  }
+
+  .job-modal-section-header > h3 {
+    @apply text-lg font-bold;
   }
 
   /* Button */
   .btn-primary {
-    @apply flex items-center gap-2 px-6 py-2 bg-blue-600 text-white rounded-xl hover:bg-blue-700 font-semibold shadow-lg shadow-blue-500/30 transition-all;
+    @apply flex items-center gap-2 px-6 py-2 bg-blue-600 text-white rounded-xl hover:bg-blue-700 font-semibold shadow-md transition-all;
   }
 
   .btn-success {
-    @apply flex items-center gap-2 px-6 py-2 bg-green-600 text-white rounded-xl hover:bg-green-700 font-semibold shadow-lg shadow-green-500/30 transition-all;
+    @apply flex items-center gap-2 px-6 py-2 bg-green-600 text-white rounded-xl hover:bg-green-700 font-semibold shadow-md transition-all;
   }
 
   .auth-card {
-    @apply md:bg-white md:dark:bg-gray-800 rounded-2xl md:shadow-xl p-8 w-full max-w-md;
+    @apply md:bg-white md:dark:bg-gray-800 rounded-2xl md:shadow-xl p-8 w-full md:max-w-md;
   }
 }

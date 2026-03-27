@@ -15,8 +15,8 @@ import { ArrowLeft } from "lucide-react";
 import LogoShield from "@/components/shared/LogoShield";
 import { toast } from "sonner";
 import {
-  useUserVerifyResetPasswordMutation,
-  useUserResendResetVerificationCodeMutation,
+  useVerifyResetPasswordMutation,
+  useResendResetVerificationCodeMutation,
 } from "@/store/api/authApi";
 import useAuthHooks from "@/hooks/useAuth";
 import type { FetchBaseQueryError } from "@reduxjs/toolkit/query";
@@ -28,9 +28,9 @@ const VerifyCode = () => {
   const [code, setCode] = useState("");
   const [resendCooldown, setResendCooldown] = useState(0);
   const [userResendResetVerificationCode] =
-    useUserResendResetVerificationCodeMutation();
+    useResendResetVerificationCodeMutation();
   const [userVerifyResetPassword, { isLoading }] =
-    useUserVerifyResetPasswordMutation();
+    useVerifyResetPasswordMutation();
 
   const { user, refreshResetPassword } = useAuthHooks();
 
@@ -53,7 +53,7 @@ const VerifyCode = () => {
 
     try {
       await userVerifyResetPassword({
-        userId: user?.userId,
+        userId: user?.userId as string,
         verificationCode,
       }).unwrap();
       toast.success("Verification successful!");
@@ -78,7 +78,9 @@ const VerifyCode = () => {
   const handleResend = async () => {
     if (resendCooldown > 0) return;
     try {
-      await userResendResetVerificationCode({ userId: user?.userId }).unwrap();
+      await userResendResetVerificationCode({
+        userId: user?.userId as string,
+      }).unwrap();
       toast.success("New verification code sent!");
       setResendCooldown(60); // 60 second cooldown
       setCode("");
