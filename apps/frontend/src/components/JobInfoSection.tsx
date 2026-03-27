@@ -3,11 +3,7 @@ import { JobFormField } from "./shared/JobFormField";
 import { Dropdown, DropdownItem } from "@/components/shared/CustomDropdown";
 import { jobTypes, workSetups } from "@/constant/jobSelectList";
 
-const JobInfoSection = ({
-  isJobViewOnly = false,
-}: {
-  isJobViewOnly?: boolean;
-}) => {
+const JobInfoSection = ({ isViewOnly }: { isViewOnly?: boolean }) => {
   const {
     register,
     control,
@@ -19,12 +15,14 @@ const JobInfoSection = ({
         <JobFormField
           label="Company"
           isRequired
+          isViewOnly={isViewOnly}
           {...register("company")}
           error={errors.company?.message as FieldError["message"]}
         />
         <JobFormField
           label="Role Title"
           isRequired
+          isViewOnly={isViewOnly}
           {...register("roleTitle")}
           error={errors.roleTitle?.message as FieldError["message"]}
         />
@@ -32,6 +30,7 @@ const JobInfoSection = ({
       <JobFormField
         label="Job Description"
         isRequired
+        isViewOnly={isViewOnly}
         as="textarea"
         rows={3}
         {...register("jobDescription")}
@@ -46,7 +45,7 @@ const JobInfoSection = ({
             <Dropdown
               label="Job Type"
               value={field.value}
-              isViewOnly={isJobViewOnly}
+              isViewOnly={isViewOnly}
               align="left"
             >
               {jobTypes.map((t) => (
@@ -69,7 +68,7 @@ const JobInfoSection = ({
             <Dropdown
               label="Work Setup"
               value={field.value}
-              isViewOnly={isJobViewOnly}
+              isViewOnly={isViewOnly}
               align="left"
             >
               {workSetups.map((s) => (
@@ -87,16 +86,19 @@ const JobInfoSection = ({
         <JobFormField
           label="Work Schedule"
           placeholder="e.g., 9am - 5pm"
+          isViewOnly={isViewOnly}
           {...register("workSchedule")}
         />
         <JobFormField
           label="Salary"
           placeholder="e.g. $80k"
+          isViewOnly={isViewOnly}
           {...register("salary")}
         />
         <JobFormField
           label="Location"
           placeholder="e.g. Manila"
+          isViewOnly={isViewOnly}
           {...register("location")}
         />
         <div className="md:col-span-2">
@@ -104,6 +106,7 @@ const JobInfoSection = ({
             label="Job Link"
             type="text"
             placeholder="https://..."
+            isViewOnly={isViewOnly}
             {...register("jobLink")}
           />
         </div>

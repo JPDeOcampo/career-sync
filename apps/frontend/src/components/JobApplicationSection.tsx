@@ -36,11 +36,7 @@ import { isFetchBaseQueryError } from "@/utils/errorGuard";
 import { LoadingSpinner } from "./shared/Loading";
 import { v4 as uuidv4 } from "uuid";
 
-const JobApplicationSection = ({
-  isJobViewOnly = false,
-}: {
-  isJobViewOnly?: boolean;
-}) => {
+const JobApplicationSection = ({ isViewOnly }: { isViewOnly?: boolean }) => {
   const dispatch = useAppDispatch();
   const { documents } = useAppSelector(selectDocuments);
   const { register, control, setValue } = useFormContext();
@@ -119,7 +115,7 @@ const JobApplicationSection = ({
         value={selectedDoc?.name || ""}
         url={selectedDoc?.fileUrl}
         onClick={handleDropdownToggle}
-        isViewOnly={isJobViewOnly}
+        isViewOnly={isViewOnly}
         label={label}
       >
         <div className="pt-2 px-1 mb-10 max-h-28 overflow-auto">
@@ -171,7 +167,7 @@ const JobApplicationSection = ({
             <Dropdown
               label="Select Method"
               value={field.value}
-              isViewOnly={isJobViewOnly}
+              isViewOnly={isViewOnly}
               align="left"
             >
               {applicationMethods.map((m) => (
@@ -194,7 +190,7 @@ const JobApplicationSection = ({
           render={({ field }) => (
             <CustomDatePicker
               value={field.value}
-              isViewOnly={isJobViewOnly}
+              isViewOnly={isViewOnly}
               onChange={field.onChange}
             />
           )}
@@ -209,7 +205,7 @@ const JobApplicationSection = ({
             <Dropdown
               label="Status"
               value={field.value}
-              isViewOnly={isJobViewOnly}
+              isViewOnly={isViewOnly}
               align="left"
             >
               {statuses.map((s) => (
@@ -233,7 +229,7 @@ const JobApplicationSection = ({
             <Dropdown
               label="Priority"
               value={field.value}
-              isViewOnly={isJobViewOnly}
+              isViewOnly={isViewOnly}
               align="left"
             >
               {priorities.map((p) => (
@@ -269,6 +265,7 @@ const JobApplicationSection = ({
         <JobFormField
           label="Contact"
           placeholder="e.g., recruiter@company.com"
+          isViewOnly={isViewOnly}
           {...register("contact")}
         />
 

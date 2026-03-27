@@ -3,7 +3,8 @@ import { addJob, selectJob, updateJob } from "@/store/slices/jobSlice";
 import { JobApplication } from "@career-sync/shared";
 import { useAppDispatch, useAppSelector } from "@/hooks/useRedux";
 import {
-  setIsJobViewOnly,
+  setViewOnly,
+  setReviewJobApplication,
   setIsJobModalShow,
   setIsShowModal,
 } from "@/store/slices/globalSlice";
@@ -13,8 +14,19 @@ import { useGlobalModal } from "@/context/GlobalModalContext";
 
 const useJobHooks = () => {
   const dispatch = useAppDispatch();
-  const { isJobModalShow, isJobViewOnly } = useAppSelector(selectGlobal);
+  const { isJobModalShow, viewOnly } = useAppSelector(selectGlobal);
   const { selectedJob } = useAppSelector(selectJobs);
+  const isViewOnly = Object.values(viewOnly).some((value) => value === true);
+  const viewOnlyKeys = Object.keys(viewOnly) as Array<keyof typeof viewOnly>;
+
+  // Find which fields are editable (false)
+  const editableFields = viewOnlyKeys.filter((key) => viewOnly[key] === false);
+
+  // To check which fields to render
+  // If there is at least one editable field, show only that/those
+  const fieldsToRender =
+    editableFields.length > 0 ? editableFields : viewOnlyKeys;
+
   const { handleGlobalModal } = useGlobalModal();
   const isDefined = <T>(value: T | null | undefined): value is T =>
     value != null;
@@ -39,35 +51,54 @@ const useJobHooks = () => {
     dispatch(selectJob());
   };
 
-  const handleCloseModal = () => {
-    const onClose = () => {
-      dispatch(setIsJobModalShow(false));
-      dispatch(selectJob());
-      dispatch(setIsJobViewOnly(false));
-      dispatch(setIsShowModal(true));
-    };
+  const onResetCloseModal = () => {
+    dispatch(setIsJobModalShow(false));
+    dispatch(selectJob());
+    dispatch(setViewOnly({}));
+    dispatch(setIsShowModal(true));
+    dispatch(setReviewJobApplication({ isToReview: false, isOnReview: false }));
+  };
 
-    if (isJobViewOnly) return onClose();
-
+  const onConfirmModal = () => {
     handleGlobalModal({
       variant: "default",
-      title: "Discard changes",
-      description: "Are you sure you want to discard changes?",
+      title: "Confirm Discard",
+      description:
+        "Closing this form will discard your changes. Do you want to proceed?",
       confirmText: "Discard",
-      onConfirm: onClose,
+      onConfirm: onResetCloseModal,
     });
+  };
+
+  const handleCloseModal = (isDirty: boolean) => {
+    if (!isDirty) {
+      return onResetCloseModal();
+    }
+
+    onConfirmModal();
   };
 
   const handleViewOnly = (job: JobApplication) => {
     dispatch(addDocument([job.cv, job.coverLetter].filter(isDefined)));
     dispatch(selectJob(job.id));
     dispatch(setIsJobModalShow(true));
-    dispatch(setIsJobViewOnly(true));
+    dispatch(
+      setViewOnly({
+        info: true,
+        applicationMethod: true,
+        interviewStages: true,
+        notes: true,
+      }),
+    );
   };
 
   return {
     isJobModalShow,
     selectedJob,
+    isViewOnly,
+    viewOnlyKeys,
+    editableFields,
+    fieldsToRender,
     handleAddJob,
     handleEditJob,
     handleSaveJob,

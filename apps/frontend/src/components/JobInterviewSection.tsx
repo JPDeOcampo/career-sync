@@ -28,7 +28,7 @@ const ItemHeader = ({
   moveDown,
   removedItem,
   items,
-  isJobViewOnly,
+  isViewOnly,
 }: {
   title: string;
   orderId: number;
@@ -37,7 +37,7 @@ const ItemHeader = ({
   moveDown: () => void;
   removedItem: () => void;
   items: InterviewInfo[];
-  isJobViewOnly?: boolean;
+  isViewOnly?: boolean;
 }) => {
   const { handleGlobalModal } = useGlobalModal();
   return (
@@ -56,7 +56,7 @@ const ItemHeader = ({
           </motion.span>
         </AnimatePresence>
       </div>
-      {!isJobViewOnly && (
+      {!isViewOnly && (
         <div className="flex gap-2">
           {index > 0 && (
             <CustomTooltip label="Move Up" position="bottom">
@@ -132,9 +132,9 @@ const AddButton: React.FC<AddButtonProps> = ({
 };
 
 const JobInterviewSection = ({
-  isJobViewOnly = false,
+  isViewOnly = false,
 }: {
-  isJobViewOnly?: boolean;
+  isViewOnly?: boolean;
 }) => {
   const { register, control } = useFormContext();
   const { fields, append, remove, move } = useFieldArray({
@@ -157,12 +157,12 @@ const JobInterviewSection = ({
 
   return (
     <div className="space-y-4">
-      {isJobViewOnly && !hasInterviewStages && <p>No interviews added</p>}
+      {isViewOnly && !hasInterviewStages && <p>No interviews added</p>}
 
       {fields.map((field, index) => (
         <InterviewStageCard
           key={field.id}
-          className={!isJobViewOnly ? "hover:border-primary/30" : ""}
+          className={!isViewOnly ? "hover:border-primary/30" : ""}
         >
           <ItemHeader
             title="Interview"
@@ -172,7 +172,7 @@ const JobInterviewSection = ({
             moveDown={() => index < fields.length - 1 && move(index, index + 1)}
             removedItem={() => remove(index)}
             items={fields as unknown as InterviewInfo[]}
-            isJobViewOnly={isJobViewOnly}
+            isViewOnly={isViewOnly}
           />
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -183,7 +183,7 @@ const JobInterviewSection = ({
                 <Dropdown
                   label={"Type"}
                   value={controllerField.value}
-                  isViewOnly={isJobViewOnly}
+                  isViewOnly={isViewOnly}
                   align="left"
                 >
                   {interviewTypes.map((s) => (
@@ -200,6 +200,7 @@ const JobInterviewSection = ({
 
             <JobFormField
               label="Interviewer"
+              isViewOnly={isViewOnly}
               {...register(`interviewStages.${index}.interviewerName`)}
             />
 
@@ -209,7 +210,7 @@ const JobInterviewSection = ({
               render={({ field }) => (
                 <CustomDatePicker
                   value={field.value}
-                  isViewOnly={isJobViewOnly}
+                  isViewOnly={isViewOnly}
                   onChange={field.onChange}
                 />
               )}
@@ -221,7 +222,7 @@ const JobInterviewSection = ({
               render={({ field }) => (
                 <CustomTimePicker
                   value={field.value}
-                  isViewOnly={isJobViewOnly}
+                  isViewOnly={isViewOnly}
                   onChange={field.onChange}
                 />
               )}
@@ -230,6 +231,7 @@ const JobInterviewSection = ({
             <div className="md:col-span-2">
               <JobFormField
                 label="Comment"
+                isViewOnly={isViewOnly}
                 as="textarea"
                 rows={3}
                 {...register(`interviewStages.${index}.interviewComment`)}
@@ -239,13 +241,14 @@ const JobInterviewSection = ({
         </InterviewStageCard>
       ))}
 
-      {!isJobViewOnly && fields.length <= 4 && (
+      {!isViewOnly && fields.length <= 4 && (
         <AddButton label="Add new Interview" onClick={handleAdd} />
       )}
 
       <Checkbox
         label="Received Offer"
-        disabled={isJobViewOnly}
+        disabled={isViewOnly}
+        isViewOnly={isViewOnly}
         {...register("offer")}
       />
     </div>
