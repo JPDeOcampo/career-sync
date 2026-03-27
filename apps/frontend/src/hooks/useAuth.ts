@@ -1,5 +1,5 @@
 import { useRouter } from "next/router";
-import { useUserRefreshResetPasswordMutation } from "../store/api/authApi";
+import { useRefreshResetPasswordMutation } from "../store/api/authApi";
 import { useAppSelector } from "./useRedux";
 import { selectAuth } from "../store/selectors";
 import { toast } from "sonner";
@@ -11,7 +11,7 @@ const useAuthHooks = () => {
   const [
     userRefreshResetPassword,
     { isLoading: isLoadingRefreshResetPassword },
-  ] = useUserRefreshResetPasswordMutation();
+  ] = useRefreshResetPasswordMutation();
 
   const refreshResetPassword = async () => {
     try {
