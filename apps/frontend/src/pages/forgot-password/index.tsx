@@ -5,7 +5,7 @@ import Logo from "@/components/shared/Logo";
 import Button from "@/components/shared/Button";
 import { ArrowLeft } from "lucide-react";
 import { toast } from "sonner";
-import { useUserForgotPasswordMutation } from "@/store/api/authApi";
+import { useForgotPasswordMutation } from "@/store/api/authApi";
 import { InputEmail } from "@/components/shared/CustomUserInput";
 import { emailSchema } from "@career-sync/shared";
 import { useForm } from "react-hook-form";
@@ -17,7 +17,7 @@ type EmailFormData = z.infer<typeof emailSchema>;
 
 const ForgotPassword = () => {
   const router = useRouter();
-  const [userForgotPassword, { isLoading }] = useUserForgotPasswordMutation();
+  const [userForgotPassword, { isLoading }] = useForgotPasswordMutation();
 
   const {
     register,
