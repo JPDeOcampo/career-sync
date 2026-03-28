@@ -4,6 +4,7 @@ import { jobsApi } from "./api/jobsApi";
 import { documentApi } from "./api/documentApi";
 import authReducer from "./slices/authSlice";
 import jobReducer from "./slices/jobSlice";
+import jobModalReducer from "./slices/jobModalSlice";
 import documentReducer from "./slices/documentSlice";
 import globalReducer from "./slices/globalSlice";
 
@@ -11,6 +12,7 @@ export const store = configureStore({
   reducer: {
     auth: authReducer,
     jobs: jobReducer,
+    jobModal: jobModalReducer,
     global: globalReducer,
     documents: documentReducer,
     [authApi.reducerPath]: authApi.reducer,

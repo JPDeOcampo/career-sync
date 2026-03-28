@@ -6,15 +6,15 @@ import {
   setViewOnly,
   setReviewJobApplication,
   setIsJobModalShow,
-  setIsShowModal,
-} from "@/store/slices/globalSlice";
+} from "@/store/slices/jobModalSlice";
+import { setIsShowModal } from "@/store/slices/globalSlice";
 import { addDocument } from "@/store/slices/documentSlice";
-import { selectGlobal, selectJobs } from "@/store/selectors";
+import { selectJobs, selectJobModal } from "@/store/selectors";
 import { useGlobalModal } from "@/context/GlobalModalContext";
 
 const useJobHooks = () => {
   const dispatch = useAppDispatch();
-  const { isJobModalShow, viewOnly } = useAppSelector(selectGlobal);
+  const { isJobModalShow, viewOnly } = useAppSelector(selectJobModal);
   const { selectedJob } = useAppSelector(selectJobs);
   const isViewOnly = Object.values(viewOnly).some((value) => value === true);
   const viewOnlyKeys = Object.keys(viewOnly) as Array<keyof typeof viewOnly>;
@@ -37,7 +37,7 @@ const useJobHooks = () => {
   };
 
   const handleEditJob = (job: JobApplication) => {
-    dispatch(selectJob(job.id));
+    dispatch(selectJob(job));
     dispatch(setIsJobModalShow(true));
   };
 
@@ -59,14 +59,14 @@ const useJobHooks = () => {
     dispatch(setReviewJobApplication({ isToReview: false, isOnReview: false }));
   };
 
-  const onConfirmModal = () => {
+  const onConfirmModal = (onConfirm?: () => void) => {
     handleGlobalModal({
       variant: "default",
       title: "Confirm Discard",
       description:
         "Closing this form will discard your changes. Do you want to proceed?",
       confirmText: "Discard",
-      onConfirm: onResetCloseModal,
+      onConfirm: onConfirm,
     });
   };
 
@@ -75,12 +75,12 @@ const useJobHooks = () => {
       return onResetCloseModal();
     }
 
-    onConfirmModal();
+    onConfirmModal(onResetCloseModal);
   };
 
   const handleViewOnly = (job: JobApplication) => {
     dispatch(addDocument([job.cv, job.coverLetter].filter(isDefined)));
-    dispatch(selectJob(job.id));
+    dispatch(selectJob(job));
     dispatch(setIsJobModalShow(true));
     dispatch(
       setViewOnly({
@@ -103,6 +103,7 @@ const useJobHooks = () => {
     handleEditJob,
     handleSaveJob,
     handleCloseModal,
+    onConfirmModal,
     handleViewOnly,
   };
 };
