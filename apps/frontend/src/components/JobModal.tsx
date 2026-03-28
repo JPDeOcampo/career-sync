@@ -4,8 +4,8 @@ import { useAppDispatch, useAppSelector } from "@/hooks/useRedux";
 import {
   setViewOnly,
   setReviewJobApplication,
-} from "@/store/slices/globalSlice";
-import { selectGlobal } from "@/store/selectors";
+} from "@/store/slices/jobModalSlice";
+import { selectJobModal } from "@/store/selectors";
 import { motion, AnimatePresence } from "motion/react";
 import {
   X,
@@ -35,7 +35,6 @@ import { toast } from "sonner";
 import useJobHooks from "@/hooks/useJob";
 import { SquarePen } from "lucide-react";
 import CustomTooltip from "@/components/shared/CustomTooltip";
-import { useGlobalModal } from "@/context/GlobalModalContext";
 
 type JobFormKeys = keyof JobFormData;
 
@@ -237,7 +236,7 @@ const JobModal = () => {
   const [addJob, { isLoading: isAdding }] = useAddJobMutation();
   const [updateJob, { isLoading: isUpdating }] = useUpdateJobMutation();
 
-  const { viewOnly, reviewJobApplication } = useAppSelector(selectGlobal);
+  const { viewOnly, reviewJobApplication } = useAppSelector(selectJobModal);
   const {
     isJobModalShow,
     isViewOnly,
@@ -245,10 +244,9 @@ const JobModal = () => {
     fieldsToRender,
     selectedJob,
     handleCloseModal,
+    onConfirmModal,
     handleSaveJob,
   } = useJobHooks();
-
-  const { handleGlobalModal } = useGlobalModal();
 
   const methods = useForm<JobFormData>({
     resolver: zodResolver(jobSchema),
@@ -263,27 +261,31 @@ const JobModal = () => {
 
   const { isDirty } = formState;
 
-  useEffect(() => {
-    const updatedJob = {
-      ...selectedJob,
-      cvId: selectedJob?.cvId || "",
-      coverLetterId: selectedJob?.coverLetterId || "",
-    };
+  const onClose = () => {
+    if (isAdding || isUpdating) return;
+    handleCloseModal(isDirty);
+  };
 
-    if (isJobModalShow) {
-      setCurrentStep(1);
-      reset(updatedJob);
-    }
+  const getStepFromFields = () => {
+    if (fieldsToRender.includes("info")) return 1;
+    if (fieldsToRender.includes("applicationMethod")) return 2;
+    if (fieldsToRender.includes("interviewStages")) return 3;
+    if (fieldsToRender.includes("notes")) return 4;
+    return 0;
+  };
 
-    if (isJobModalShow) document.body.style.overflow = "hidden";
-    else document.body.style.overflow = "unset";
-    return () => {
-      document.body.style.overflow = "unset";
-    };
-  }, [selectedJob, isJobModalShow]);
+  const setAllViewOnly = () => {
+    dispatch(
+      setViewOnly({
+        info: true,
+        applicationMethod: true,
+        interviewStages: true,
+        notes: true,
+      }),
+    );
+  };
 
   const handleNext = async () => {
-    // Validate current step fields before proceeding
     const fieldsToValidate = stepFields[currentStep];
 
     if (!fieldsToValidate) {
@@ -292,53 +294,78 @@ const JobModal = () => {
     }
 
     const isValid = await trigger(fieldsToValidate);
-    if (isValid) {
-      setCurrentStep((prev) => Math.min(prev + 1, STEPS.length));
-      if (currentStep === 3) {
-        dispatch(
-          setReviewJobApplication({
-            isToReview: true,
-            isOnReview: false,
-          }),
-        );
-      }
+
+    if (!isValid) return;
+
+    setCurrentStep((prev) => Math.min(prev + 1, STEPS.length));
+
+    if (currentStep === 3) {
+      dispatch(
+        setReviewJobApplication({
+          isToReview: true,
+          isOnReview: false,
+        }),
+      );
     }
   };
 
-  const handleCancel = () => {
-    if (editableFields.length > 0 && !isDirty) {
-      dispatch(
-        setViewOnly({
-          info: true,
-          applicationMethod: true,
-          interviewStages: true,
-          notes: true,
-        }),
-      );
+  const handleReview = async () => {
+    const step = getStepFromFields();
+    const fieldsToValidate = stepFields[step];
+    const isValid = await trigger(fieldsToValidate);
+
+    if (!isValid) return;
+
+    dispatch(
+      setReviewJobApplication({
+        isToReview: false,
+        isOnReview: true,
+      }),
+    );
+
+    setAllViewOnly();
+  };
+
+  const handleCancel = async () => {
+    const step = getStepFromFields();
+
+    // Case: fields are not dirty and not select job
+    if (editableFields.length > 0 && !isDirty && selectedJob) {
+      setAllViewOnly();
       return;
     }
 
-    if (editableFields.length > 0 && isDirty) {
-      return handleGlobalModal({
-        variant: "default",
-        title: "Discard changes",
-        description: "Are you sure you want to discard changes?",
-        confirmText: "Discard",
-        onConfirm: () => {
-          reset(selectedJob);
-          dispatch(
-            setViewOnly({
-              info: true,
-              applicationMethod: true,
-              interviewStages: true,
-              notes: true,
-            }),
-          );
-        },
-      });
+    // Case: fields are dirty and a job is selected
+    if (editableFields.length > 0 && isDirty && selectedJob) {
+      const onConfirm = () => {
+        reset(selectedJob);
+        setAllViewOnly();
+      };
+      return onConfirmModal(onConfirm);
     }
 
-    handleCloseModal(isDirty);
+    // Case: fields are dirty, no job selected, and not on first step
+    if (
+      editableFields.length > 0 &&
+      currentStep !== 1 &&
+      isDirty &&
+      !selectedJob
+    ) {
+      const fieldsToValidate = stepFields[step];
+      const isValid = await trigger(fieldsToValidate);
+
+      if (isValid) {
+        const onConfirm = () => {
+          dispatch(
+            setReviewJobApplication({ isToReview: false, isOnReview: true }),
+          );
+          setAllViewOnly();
+        };
+        return onConfirmModal(onConfirm);
+      }
+    }
+
+    onClose();
   };
 
   const handleBack = () => {
@@ -406,6 +433,25 @@ const JobModal = () => {
     }
   };
 
+  useEffect(() => {
+    const updatedJob = {
+      ...selectedJob,
+      cvId: selectedJob?.cvId || "",
+      coverLetterId: selectedJob?.coverLetterId || "",
+    };
+
+    if (isJobModalShow) {
+      setCurrentStep(1);
+      reset(updatedJob);
+    }
+
+    if (isJobModalShow) document.body.style.overflow = "hidden";
+    else document.body.style.overflow = "unset";
+    return () => {
+      document.body.style.overflow = "unset";
+    };
+  }, [selectedJob, isJobModalShow]);
+
   if (!isJobModalShow) return null;
 
   return (
@@ -415,7 +461,7 @@ const JobModal = () => {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
-          onClick={() => handleCloseModal(isDirty)}
+          onClick={onClose}
           className="fixed inset-0 bg-black/50 backdrop-blur-sm"
         />
         <motion.div
@@ -428,7 +474,7 @@ const JobModal = () => {
           <div className="px-6 py-4 border-b border-gray-100 dark:border-gray-700 flex items-center justify-between shadow-[0_-4px_6px_rgba(0,0,0,0.05),0_10px_20px_rgba(0,0,0,0.03)]">
             <h2 className="text-xl font-bold text-default">{headerText()}</h2>
             <button
-              onClick={() => handleCloseModal(isDirty)}
+              onClick={onClose}
               className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-full transition-colors"
             >
               <X className="w-5 h-5 text-gray-500" />
@@ -531,24 +577,9 @@ const JobModal = () => {
                 currentStep={currentStep}
                 isJobViewOnly={isViewOnly}
                 isLoading={isAdding || isUpdating}
+                isDirty={isDirty}
                 reviewJob={reviewJobApplication}
-                onReviewJob={() => {
-                  dispatch(
-                    setReviewJobApplication({
-                      isToReview: false,
-                      isOnReview: true,
-                    }),
-                  );
-
-                  dispatch(
-                    setViewOnly({
-                      info: true,
-                      applicationMethod: true,
-                      interviewStages: true,
-                      notes: true,
-                    }),
-                  );
-                }}
+                onReviewJob={handleReview}
                 onClose={handleCancel}
                 handleBack={handleBack}
                 handleNext={handleNext}
@@ -567,6 +598,7 @@ const JobModalFooter = ({
   currentStep,
   isJobViewOnly,
   isLoading,
+  isDirty,
   reviewJob,
   onReviewJob,
   onClose,
@@ -578,6 +610,7 @@ const JobModalFooter = ({
   currentStep: number;
   isJobViewOnly: boolean;
   isLoading: boolean;
+  isDirty: boolean;
   reviewJob: { isToReview: boolean; isOnReview: boolean };
   onReviewJob: () => void;
   onClose: () => void;
@@ -590,11 +623,9 @@ const JobModalFooter = ({
   const isNotOnReview = !reviewJob.isOnReview;
 
   const showCancel =
-    isFirstStep &&
-    (isJobViewOnly ||
-      reviewJob.isToReview ||
-      editableFields.length > 0 ||
-      (isNotOnReview && !selectedJob));
+    (isFirstStep ||
+      (editableFields.length > 0 && editableFields.length !== 4)) &&
+    (isJobViewOnly || reviewJob.isToReview || (isNotOnReview && !selectedJob));
 
   const showClose =
     isJobViewOnly &&
@@ -654,8 +685,7 @@ const JobModalFooter = ({
       >
         {showClose ? "Close" : showCancel ? "Cancel" : "Back"}
       </button>
-
-      <div className="flex gap-3">{actionButton}</div>
+      {isDirty && <div className="flex gap-3">{actionButton}</div>}
     </div>
   );
 };
