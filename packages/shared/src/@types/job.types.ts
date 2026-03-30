@@ -103,6 +103,14 @@ export interface JobFilters {
   dateTo?: string;
 }
 
+export interface JobQueryTypes {
+  sort?: string;
+  status?: string;
+  priority?: string;
+  page?: number;
+  limit?: number;
+}
+
 export interface JobState {
   jobs: JobApplication[];
   recentJobs: JobApplication[] | undefined;
@@ -110,4 +118,5 @@ export interface JobState {
   filters: JobFilters;
   sortBy: "applicationDate" | "company" | "priority";
   sortOrder: "asc" | "desc";
+  jobQuery: JobQueryTypes;
 }

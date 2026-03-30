@@ -1,5 +1,10 @@
 import { store } from "@/store/store";
-import { addJob, selectJob, updateJob } from "@/store/slices/jobSlice";
+import {
+  addJob,
+  selectJob,
+  updateJob,
+  setJobQuery,
+} from "@/store/slices/jobSlice";
 import { JobApplication } from "@career-sync/shared";
 import { useAppDispatch, useAppSelector } from "@/hooks/useRedux";
 import {
@@ -11,6 +16,7 @@ import { setIsShowModal } from "@/store/slices/globalSlice";
 import { addDocument } from "@/store/slices/documentSlice";
 import { selectJobs, selectJobModal } from "@/store/selectors";
 import { useGlobalModal } from "@/context/GlobalModalContext";
+import { JobQueryTypes } from "@career-sync/shared";
 
 const useJobHooks = () => {
   const dispatch = useAppDispatch();
@@ -78,8 +84,9 @@ const useJobHooks = () => {
     onConfirmModal(onResetCloseModal);
   };
 
-  const handleViewOnly = (job: JobApplication) => {
+  const handleViewOnly = (job: JobApplication, jobQuery: JobQueryTypes) => {
     dispatch(addDocument([job.cv, job.coverLetter].filter(isDefined)));
+    dispatch(setJobQuery(jobQuery));
     dispatch(selectJob(job));
     dispatch(setIsJobModalShow(true));
     dispatch(

@@ -18,7 +18,7 @@ import {
   Notebook,
 } from "lucide-react";
 import { JobFormData, JobApplication, jobSchema } from "@career-sync/shared";
-import { selectAuth } from "@/store/selectors";
+import { selectAuth, selectJobs } from "@/store/selectors";
 import { getTodayString } from "@/utils/dateHelper";
 import { useForm, FormProvider } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -35,6 +35,7 @@ import { toast } from "sonner";
 import useJobHooks from "@/hooks/useJob";
 import { SquarePen } from "lucide-react";
 import CustomTooltip from "@/components/shared/CustomTooltip";
+import { setJobQuery } from "@/store/slices/jobSlice";
 
 type JobFormKeys = keyof JobFormData;
 
@@ -231,6 +232,7 @@ const JobModalSectionHeader = ({
 const JobModal = () => {
   const dispatch = useAppDispatch();
   const { user } = useAppSelector(selectAuth);
+  const { jobQuery } = useAppSelector(selectJobs);
   const [currentStep, setCurrentStep] = useState(1);
 
   const [addJob, { isLoading: isAdding }] = useAddJobMutation();
@@ -392,16 +394,23 @@ const JobModal = () => {
       location: capitalizeSmart(data.location),
     } as JobApplication;
 
+    const updatedJobQuery = { ...jobQuery, page: 1 };
+
     try {
       const result = selectedJob
-        ? await updateJob({ id: selectedJob.id, data: jobData }).unwrap()
-        : await addJob(jobData).unwrap();
+        ? await updateJob({
+            id: selectedJob.id,
+            data: jobData,
+            jobQuery,
+          }).unwrap()
+        : await addJob({ data: jobData, jobQuery: updatedJobQuery }).unwrap();
 
       handleSaveJob(result.data);
       if (selectedJob) {
         toast.success("Job updated successfully.");
       } else {
         toast.success("Job added successfully.");
+        dispatch(setJobQuery(updatedJobQuery));
       }
     } catch (error) {
       console.error("Error adding job:", error);
@@ -414,6 +423,7 @@ const JobModal = () => {
       dispatch(
         setReviewJobApplication({ isToReview: false, isOnReview: false }),
       );
+      dispatch(setViewOnly({}));
     }
   };
 

@@ -27,10 +27,12 @@ export const getJobsController = async (req: Request, res: Response) => {
     limit: Number(limit) || 10,
   });
 
-  res.status(200).json({
-    success: true,
-    ...result,
-  });
+  setTimeout(() => {
+    res.status(200).json({
+      success: true,
+      ...result,
+    });
+  }, 1500);
 };
 
 // --- Get Job By Id ---

@@ -22,6 +22,13 @@ const initialState: JobState = {
   filters: initialFilters,
   sortBy: "applicationDate",
   sortOrder: "desc",
+  jobQuery: {
+    sort: "recent",
+    status: undefined,
+    priority: undefined,
+    page: 1,
+    limit: 5,
+  },
 };
 
 const jobSlice = createSlice({
@@ -49,6 +56,12 @@ const jobSlice = createSlice({
       }
     },
 
+    setJobQuery: (
+      state,
+      action: PayloadAction<Partial<JobState["jobQuery"]>>,
+    ) => {
+      state.jobQuery = action.payload;
+    },
     deleteJob: (state, action: PayloadAction<string>) => {
       state.jobs = state.jobs.filter((job) => job.id !== action.payload);
     },
@@ -111,6 +124,7 @@ export const {
   addJob,
   selectJob,
   updateJob,
+  setJobQuery,
   deleteJob,
   updateStatus,
   setPriority,
