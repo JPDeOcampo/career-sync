@@ -2,6 +2,7 @@ import { motion, useMotionValue, useTransform, animate } from "motion/react";
 import { LucideIcon } from "lucide-react";
 import { useEffect } from "react";
 import Skeleton from "@/components/shared/Skeleton";
+import { colorStyles } from "@/lib/colorStyles";
 
 interface StatCardProps {
   title: string;
@@ -33,17 +34,6 @@ const StatCard = ({
     return controls.stop;
   }, [value, count, delay, isLoading]);
 
-  const colorStyles: Record<string, string> = {
-    blue: "bg-blue-50 dark:bg-blue-950/30 text-blue-600 dark:text-blue-400",
-    yellow:
-      "bg-yellow-50 dark:bg-yellow-950/30 text-yellow-600 dark:text-yellow-400",
-    green:
-      "bg-green-50 dark:bg-green-950/30 text-green-600 dark:text-green-400",
-    red: "bg-red-50 dark:bg-red-950/30 text-red-600 dark:text-red-400",
-    purple:
-      "bg-purple-50 dark:bg-purple-950/30 text-purple-600 dark:text-purple-400",
-  };
-
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
@@ -65,7 +55,9 @@ const StatCard = ({
           )}
         </div>
         <div className={`p-3 rounded-xl ${colorStyles[color]}`}>
-          <Icon className="w-6 h-6" />
+          <Icon
+            className={`w-6 h-6 ${title === "High Priority" ? "fill-yellow-500" : ""}`}
+          />
         </div>
       </div>
     </motion.div>

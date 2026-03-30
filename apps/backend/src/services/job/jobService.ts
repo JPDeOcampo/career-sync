@@ -1,6 +1,7 @@
 import { AppError } from "@/utils/errors/appError.js";
 import { prisma } from "@/lib/prisma.js";
 import { JobApplication } from "@career-sync/shared";
+import { getRecentDate } from "@career-sync/shared";
 
 // --- Add Job Logic ---
 export const addJob = async (
@@ -131,11 +132,16 @@ export const getJobs = async (
 
   const skip = (page - 1) * limit;
 
+  const recentApplicationDate = getRecentDate(7);
+
   const data = await prisma.job.findMany({
     where: {
       userId: userID,
       ...(status && { status }),
       ...(priority && { priority }),
+      ...(sort === "recent"
+        ? { applicationDate: { gte: recentApplicationDate } }
+        : {}),
     },
 
     include: {
@@ -191,11 +197,56 @@ export const getJobs = async (
       userId: userID,
       ...(status && { status }),
       ...(priority && { priority }),
+      ...(sort === "recent"
+        ? { applicationDate: { gte: recentApplicationDate } }
+        : {}),
     },
+  });
+
+  const statsByStatus = await prisma.job.groupBy({
+    by: ["status"],
+    where: {
+      userId: userID,
+    },
+    _count: {
+      status: true,
+    },
+  });
+
+  const highPriorityCount = await prisma.job.count({
+    where: {
+      userId: userID,
+      priority: "High",
+    },
+  });
+
+  const stats = {
+    total: 0,
+    applied: 0,
+    underReview: 0,
+    interviews: 0,
+    offers: 0,
+    rejected: 0,
+    withdrawn: 0,
+    highPriority: highPriorityCount,
+  };
+
+  statsByStatus.forEach((item) => {
+    const count = item._count.status;
+    stats.total += count;
+
+    if (item.status === "Applied") stats.applied = count;
+    if (item.status === "Under Review") stats.underReview = count;
+    if (item.status === "Interview") stats.interviews = count;
+    if (item.status === "Offer") stats.offers = count;
+
+    if (item.status === "Rejected") stats.rejected = count;
+    if (item.status === "Withdrawn") stats.withdrawn = count;
   });
 
   return {
     jobs,
+    stats,
     pagination: {
       total: totalJobs,
       page,
