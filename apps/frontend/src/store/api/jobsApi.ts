@@ -213,9 +213,8 @@ export const jobsApi = createApi({
           await queryFulfilled;
 
           let currentPage = 1;
-          let itemToPullFromNextPage: JobApplication | undefined = undefined;
+          let nextItemToPull: JobApplication | undefined = undefined;
           const limit = jobQuery.limit || 5;
-          let foundDeletionPage = false;
 
           while (true) {
             const pageQuery = { ...jobQuery, page: currentPage };
@@ -233,23 +232,21 @@ export const jobsApi = createApi({
 
             // If the ID isn't on this page AND haven't started pulling from a previous deletion,
             // Skip to the next page to find where the item actually was.
-            if (indexOnThisPage === -1 && !itemToPullFromNextPage) {
+            if (indexOnThisPage === -1 && !nextItemToPull) {
               currentPage++;
               continue;
             }
 
             // Capture the item to fill the gap in this page (from the NEXT page's start)
             const nextPageQuery = { ...jobQuery, page: currentPage + 1 };
-            const nextCache = jobsApi.endpoints.getJobs.select(nextPageQuery)(
-              getState() as any,
-            );
+            const nextCache =
+              jobsApi.endpoints.getJobs.select(nextPageQuery)(getState());
 
-            let nextItem: JobApplication | undefined = undefined;
+            let fetchedNextItem: JobApplication | undefined = undefined;
             if (nextCache.data && nextCache.data.jobs.length > 0) {
-              nextItem = current(nextCache.data.jobs[0]);
+              fetchedNextItem = current(nextCache.data.jobs[0]);
             }
 
-            // Perform the update on the current page
             dispatch(
               jobsApi.util.updateQueryData("getJobs", pageQuery, (draft) => {
                 let deletedJob: JobApplication | null = null;
@@ -259,12 +256,11 @@ export const jobsApi = createApi({
                 if (localIndex !== -1) {
                   deletedJob = current(draft.jobs[localIndex]);
                   draft.jobs.splice(localIndex, 1);
-                  foundDeletionPage = true;
                 }
 
                 // If have an item carried over from the NEXT page, push it to the end of THIS page
-                if (nextItem) {
-                  draft.jobs.push(nextItem);
+                if (fetchedNextItem) {
+                  draft.jobs.push(fetchedNextItem);
                 }
 
                 // Pass the deletedJob to decrement stats if it was found on this page
@@ -273,11 +269,11 @@ export const jobsApi = createApi({
             );
 
             // Move to next iteration
-            itemToPullFromNextPage = nextItem;
+            nextItemToPull = fetchedNextItem;
             currentPage++;
 
             // Stop the loop if there's nothing left to "pull" forward
-            if (!itemToPullFromNextPage) break;
+            if (!nextItemToPull) break;
           }
         } catch (err) {
           console.error("Delete waterfall failed:", err);
