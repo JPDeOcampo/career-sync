@@ -70,7 +70,7 @@ const Pagination = ({
   return (
     <div
       className={cn(
-        "flex flex-wrap items-center gap-4 py-4 px-2",
+        "flex flex-wrap items-center gap-4 py-4 px-4 md:px-6",
         alignClasses[align],
       )}
     >

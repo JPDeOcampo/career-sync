@@ -6,6 +6,64 @@ import { current } from "@reduxjs/toolkit";
 
 const path = "/jobs";
 
+interface JobsResponse {
+  jobs: JobApplication[];
+  stats: {
+    total: number;
+    interviews: number;
+    offers: number;
+    rejected: number;
+    applied: number;
+    highPriority: number;
+  };
+  pagination?: { page: number; limit: number; totalPages: number };
+}
+
+const updateJobStats = (
+  draft: JobsResponse,
+  oldJob: JobApplication | null,
+  newJob: JobApplication | null,
+  limit?: number,
+) => {
+  if (!draft.stats) return;
+
+  const applyDelta = (job: JobApplication, delta: 1 | -1) => {
+    const status = job.status?.toLowerCase();
+    switch (status) {
+      case "interview":
+        draft.stats!.interviews += delta;
+        break;
+      case "offer":
+        draft.stats!.offers += delta;
+        break;
+      case "rejected":
+        draft.stats!.rejected += delta;
+        break;
+      case "applied":
+        draft.stats!.applied += delta;
+        break;
+    }
+
+    if (job.priority?.toLowerCase() === "high") {
+      draft.stats!.highPriority += delta;
+    }
+  };
+
+  if (oldJob) {
+    applyDelta(oldJob, -1);
+    draft.stats.total -= 1;
+  }
+
+  if (newJob) {
+    applyDelta(newJob, 1);
+    draft.stats.total += 1;
+  }
+
+  if (draft.pagination && limit) {
+    draft.pagination.totalPages = Math.ceil(draft.stats.total / limit);
+  }
+};
+
 export const jobsApi = createApi({
   reducerPath: "jobsApi",
   baseQuery: baseQueryWithReauth,
@@ -13,19 +71,7 @@ export const jobsApi = createApi({
   endpoints: (builder) => ({
     // --- GET JOBS ---
     getJobs: builder.query<
-      {
-        jobs: JobApplication[];
-        stats: {
-          total: number;
-          interviews: number;
-          offers: number;
-          rejected: number;
-          applied: number;
-          highPriority: number;
-        };
-
-        pagination?: { page: number; limit: number; totalPages: number };
-      },
+      JobsResponse,
       {
         sort?: string;
         status?: string;
@@ -40,18 +86,7 @@ export const jobsApi = createApi({
         params: { sort, status, priority, page, limit },
       }),
       // providesTags: (result) => [{ type: "Jobs", id: "LIST" }],
-      transformResponse: (response: {
-        jobs: JobApplication[];
-        stats: {
-          total: number;
-          interviews: number;
-          offers: number;
-          rejected: number;
-          applied: number;
-          highPriority: number;
-        };
-        pagination: { page: number; limit: number; totalPages: number };
-      }) => ({
+      transformResponse: (response: JobsResponse) => ({
         jobs: response.jobs.map((job) => ({
           ...job,
           applicationDate: job.applicationDate
@@ -82,7 +117,8 @@ export const jobsApi = createApi({
       ) {
         try {
           const { data: response } = await queryFulfilled;
-          let movingItem: JobApplication | undefined = response.data;
+          const addedJob = response.data;
+          let movingItem: JobApplication | undefined = addedJob;
           let currentPage = 1;
           const limit = jobQuery.limit || 5;
 
@@ -97,37 +133,18 @@ export const jobsApi = createApi({
 
             dispatch(
               jobsApi.util.updateQueryData("getJobs", pageQuery, (draft) => {
-                // Add the moving item to the top of the current page
                 draft.jobs.unshift(movingItem!);
-
                 if (draft.jobs.length > limit) {
-                  // Get a plain JS copy of the item before it leaves this closure
-                  const poppedItem = draft.jobs.pop();
-                  if (poppedItem) {
-                    // Use current() to strip the Immer proxy
-                    nextMovingItem = current(poppedItem);
-                  }
+                  const popped = draft.jobs.pop();
+                  if (popped) nextMovingItem = current(popped);
                 }
 
-                // Update Stats & Pagination (using the original newJob data)
-                if (draft.stats) {
-                  draft.stats.total += 1;
-                  const status = movingItem?.status?.toLowerCase();
-                  if (status === "interview") draft.stats.interviews += 1;
-                  else if (status === "offer") draft.stats.offers += 1;
-                  else if (status === "rejected") draft.stats.rejected += 1;
-                  else if (status === "applied") draft.stats.applied += 1;
-
-                  if (movingItem?.priority?.toLowerCase() === "high") {
-                    draft.stats.highPriority += 1;
-                  }
-                }
-
-                if (draft.pagination) {
-                  draft.pagination.totalPages = Math.ceil(
-                    draft.stats.total / limit,
-                  );
-                }
+                /** * Update Stats
+                 * Only pass addedJob to 'newJob' parameter.
+                 * DO NOT pass 'popped' to 'oldJob' because the job isn't deleted,
+                 * it's just moving to another page. The global total remains +1.
+                 */
+                updateJobStats(draft, null, addedJob, limit);
               }),
             );
 
@@ -153,20 +170,117 @@ export const jobsApi = createApi({
 
       // invalidatesTags: [{ type: "Jobs", id: "LIST" }],
 
+      // --- UPDATE JOB ---
       async onQueryStarted({ id, jobQuery }, { dispatch, queryFulfilled }) {
         try {
-          const { data } = await queryFulfilled;
+          const { data: response } = await queryFulfilled;
+          const updatedJob = response.data;
 
           dispatch(
             jobsApi.util.updateQueryData("getJobs", jobQuery, (draft) => {
               const index = draft.jobs.findIndex((j) => j.id === id);
               if (index !== -1) {
-                draft.jobs[index] = data.data;
+                const oldJob = current(draft.jobs[index]);
+                draft.jobs[index] = updatedJob;
+
+                // updateJobStats handles the -1 for old and +1 for new automatically
+                updateJobStats(draft, oldJob, updatedJob);
+              } else {
+                // If the job wasn't on this specific page, update the stats
+                // because the stats are global/shared across headers
+                updateJobStats(draft, null, updatedJob);
+                // If oldJob isn't in this cache, it need the old status from somewhere else to do the delta.
               }
             }),
           );
-        } catch {
-          console.error("Update job failed");
+        } catch (err) {
+          console.error("Update job failed", err);
+        }
+      },
+    }),
+
+    // --- DELETE JOB ---
+    deleteJob: builder.mutation<void, { id: string; jobQuery: JobQueryTypes }>({
+      query: ({ id }) => ({
+        url: `${path}/${id}`,
+        method: "DELETE",
+      }),
+      async onQueryStarted(
+        { id, jobQuery },
+        { dispatch, queryFulfilled, getState },
+      ) {
+        try {
+          await queryFulfilled;
+
+          let currentPage = 1;
+          let itemToPullFromNextPage: JobApplication | undefined = undefined;
+          const limit = jobQuery.limit || 5;
+          let foundDeletionPage = false;
+
+          while (true) {
+            const pageQuery = { ...jobQuery, page: currentPage };
+            const cacheState = jobsApi.endpoints.getJobs.select(pageQuery)(
+              getState() as any,
+            );
+
+            // Stop if the page isn't cached
+            if (!cacheState.data) break;
+
+            const jobsOnThisPage = cacheState.data.jobs;
+            const indexOnThisPage = jobsOnThisPage.findIndex(
+              (j) => j.id === id,
+            );
+
+            // If the ID isn't on this page AND haven't started pulling from a previous deletion,
+            // Skip to the next page to find where the item actually was.
+            if (indexOnThisPage === -1 && !itemToPullFromNextPage) {
+              currentPage++;
+              continue;
+            }
+
+            // Capture the item to fill the gap in this page (from the NEXT page's start)
+            const nextPageQuery = { ...jobQuery, page: currentPage + 1 };
+            const nextCache = jobsApi.endpoints.getJobs.select(nextPageQuery)(
+              getState() as any,
+            );
+
+            let nextItem: JobApplication | undefined = undefined;
+            if (nextCache.data && nextCache.data.jobs.length > 0) {
+              nextItem = current(nextCache.data.jobs[0]);
+            }
+
+            // Perform the update on the current page
+            dispatch(
+              jobsApi.util.updateQueryData("getJobs", pageQuery, (draft) => {
+                let deletedJob: JobApplication | null = null;
+
+                // If the target is here, remove it
+                const localIndex = draft.jobs.findIndex((j) => j.id === id);
+                if (localIndex !== -1) {
+                  deletedJob = current(draft.jobs[localIndex]);
+                  draft.jobs.splice(localIndex, 1);
+                  foundDeletionPage = true;
+                }
+
+                // If have an item carried over from the NEXT page, push it to the end of THIS page
+                if (nextItem) {
+                  draft.jobs.push(nextItem);
+                }
+
+                // Pass the deletedJob to decrement stats if it was found on this page
+                updateJobStats(draft, deletedJob, null, limit);
+              }),
+            );
+
+            // Move to next iteration
+            itemToPullFromNextPage = nextItem;
+            currentPage++;
+
+            // Stop the loop if there's nothing left to "pull" forward
+            if (!itemToPullFromNextPage) break;
+          }
+        } catch (err) {
+          console.error("Delete waterfall failed:", err);
         }
       },
     }),
