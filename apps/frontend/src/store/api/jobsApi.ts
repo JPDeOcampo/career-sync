@@ -218,9 +218,8 @@ export const jobsApi = createApi({
 
           while (true) {
             const pageQuery = { ...jobQuery, page: currentPage };
-            const cacheState = jobsApi.endpoints.getJobs.select(pageQuery)(
-              getState() as any,
-            );
+            const cacheState =
+              jobsApi.endpoints.getJobs.select(pageQuery)(getState());
 
             // Stop if the page isn't cached
             if (!cacheState.data) break;
