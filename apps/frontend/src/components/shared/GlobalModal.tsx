@@ -5,6 +5,7 @@ import { motion, AnimatePresence } from "motion/react";
 import { X } from "lucide-react";
 import CustomTooltip from "./CustomTooltip";
 import { cn } from "@/utils/cn";
+import { LoadingSpinner } from "./Loading";
 
 const GlobalModal = ({
   isShow,
@@ -17,6 +18,7 @@ const GlobalModal = ({
   children,
   cancelText = "Cancel",
   confirmText = "Confirm",
+  isLoading = false,
 }: {
   isShow: boolean;
   title?: string;
@@ -28,8 +30,10 @@ const GlobalModal = ({
   children?: React.ReactNode;
   cancelText?: string;
   confirmText?: string;
+  isLoading?: boolean;
 }) => {
   const handleOnClose = () => {
+    if (isLoading) return;
     if (onClose) onClose();
   };
 
@@ -105,6 +109,7 @@ const GlobalModal = ({
                   className="rounded-md bg-red-600 px-4 py-2 text-sm font-medium text-white hover:bg-red-700 cursor-pointer"
                 >
                   {confirmText}
+                  {isLoading && <LoadingSpinner />}
                 </button>
               </div>
             </>

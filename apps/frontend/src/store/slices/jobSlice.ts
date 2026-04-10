@@ -18,17 +18,12 @@ const initialFilters: JobFilters = {
 const initialState: JobState = {
   jobs: [],
   recentJobs: [],
+  selectedItems: [],
   selectedJob: undefined,
   filters: initialFilters,
   sortBy: "applicationDate",
   sortOrder: "desc",
-  jobQuery: {
-    sort: "recent",
-    status: undefined,
-    priority: undefined,
-    page: 1,
-    limit: 5,
-  },
+  jobQuery: {},
 };
 
 const jobSlice = createSlice({
@@ -40,6 +35,28 @@ const jobSlice = createSlice({
     },
     addJob: (state, action: PayloadAction<JobApplication>) => {
       state.jobs.unshift(action.payload);
+    },
+    setSelectedAllItems: (state, action: PayloadAction<string[]>) => {
+      // state.selectedItems = action.payload;
+      action.payload.forEach((id) => {
+        if (!state.selectedItems.includes(id)) {
+          state.selectedItems.push(id);
+        }
+      });
+    },
+    deselectAllItems: (state, action: PayloadAction<string[]>) => {
+      state.selectedItems = state.selectedItems.filter(
+        (id) => !action.payload.includes(id),
+      );
+    },
+    setSelectedItem: (state, action: PayloadAction<string>) => {
+      const id = action.payload;
+
+      if (state.selectedItems.includes(id)) {
+        state.selectedItems = state.selectedItems.filter((item) => item !== id);
+      } else {
+        state.selectedItems.push(id);
+      }
     },
     selectJob: (state, action: PayloadAction<JobApplication | undefined>) => {
       if (!action.payload) {
@@ -55,12 +72,23 @@ const jobSlice = createSlice({
         state.jobs[index] = action.payload;
       }
     },
+    setJobQuery: (state, action) => {
+      const { key, data } = action.payload;
 
-    setJobQuery: (
-      state,
-      action: PayloadAction<Partial<JobState["jobQuery"]>>,
-    ) => {
-      state.jobQuery = action.payload;
+      if (!state.jobQuery[key]) {
+        state.jobQuery[key] = {
+          sort: "recent",
+          status: "All",
+          priority: "All",
+          page: 1,
+          limit: 5,
+        };
+      }
+
+      state.jobQuery[key] = {
+        ...state.jobQuery[key],
+        ...data,
+      };
     },
     deleteJob: (state, action: PayloadAction<string>) => {
       state.jobs = state.jobs.filter((job) => job.id !== action.payload);
@@ -122,6 +150,9 @@ const jobSlice = createSlice({
 export const {
   setJobs,
   addJob,
+  setSelectedAllItems,
+  deselectAllItems,
+  setSelectedItem,
   selectJob,
   updateJob,
   setJobQuery,

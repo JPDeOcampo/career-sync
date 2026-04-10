@@ -9,6 +9,7 @@ type GlobalModalOptions = {
   className?: string;
   cancelText?: string;
   confirmText?: string;
+  isLoading?: boolean;
   children?: React.ReactNode;
   onConfirm?: () => void;
 };
@@ -44,6 +45,7 @@ export const GlobalModalProvider = ({
         className={globalModal?.className}
         cancelText={globalModal?.cancelText}
         confirmText={globalModal?.confirmText}
+        isLoading={globalModal?.isLoading}
         onConfirm={() => {
           globalModal?.onConfirm?.();
         }}

@@ -1,8 +1,10 @@
 import { cn } from "@/utils/cn";
 import { ChevronRight, ChevronLeft } from "lucide-react";
+import { motion } from "motion/react";
 
 type PaginationProps = {
   currentPage: number;
+  currentItems?: number;
   totalPages: number;
   onPageChange: (page: number) => void;
   onLimitChange?: (limit: number) => void;
@@ -13,6 +15,7 @@ type PaginationProps = {
 
 const Pagination = ({
   currentPage,
+  currentItems,
   totalPages,
   onPageChange,
   onLimitChange,
@@ -58,6 +61,7 @@ const Pagination = ({
     start: "justify-center md:justify-start",
     center: "justify-center",
     end: "justify-center md:justify-end",
+    between: "justify-between",
   };
 
   // Modern UI Classes with responsive sizes
@@ -68,12 +72,21 @@ const Pagination = ({
   const btnActive = "bg-blue-600 text-white shadow-sm hover:bg-blue-700";
 
   return (
-    <div
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.5, delay: 0.5 }}
       className={cn(
         "flex flex-wrap items-center gap-4 py-4 px-4 md:px-6",
         alignClasses[align],
       )}
     >
+      {currentItems !== undefined && (
+        <div className="text-sm text-gray-600 dark:text-gray-400">
+          Showing {currentItems} of {totalPages} applications
+        </div>
+      )}
+
       {/* Limit Selector */}
       {onLimitChange && (
         <div className="flex items-center gap-2 mr-auto text-muted-foreground">
@@ -156,7 +169,7 @@ const Pagination = ({
           <ChevronRight className="h-4 w-4" />
         </button>
       </nav>
-    </div>
+    </motion.div>
   );
 };
 

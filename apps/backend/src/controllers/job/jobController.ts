@@ -17,11 +17,12 @@ export const createJobController = async (req: Request, res: Response) => {
 export const getJobsController = async (req: Request, res: Response) => {
   const userID = req.user?.id as string;
 
-  const { sort, status, priority, page, limit } = req.query;
+  const { sort, status, search, priority, page, limit } = req.query;
 
   const result = await jobService.getJobs(userID, {
     sort: sort as string,
     status: status as string,
+    search: search as string,
     priority: priority as string,
     page: Number(page) || 1,
     limit: Number(limit) || 10,
@@ -64,10 +65,12 @@ export const updateJobController = async (req: Request, res: Response) => {
 
 // --- Delete Job ---
 export const deleteJobController = async (req: Request, res: Response) => {
-  const { id } = req.params;
+  const { ids } = req.body;
   const userID = req.user?.id as string;
 
-  const result = await jobService.deleteJob(id, userID);
+  const referenceId = ids;
+
+  const result = await jobService.deleteJob(referenceId, userID);
 
   res.status(200).json({
     success: true,

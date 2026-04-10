@@ -19,6 +19,7 @@ export type ApplicationMethod =
   | "Other";
 
 export type ApplicationStatus =
+  | "All"
   | "Applied"
   | "Under Review"
   | "Interview"
@@ -93,12 +94,15 @@ export interface JobApplication {
 
   // Extra
   notes?: string;
+
+  createdAt: string;
+  updatedAt: string;
 }
 
 export interface JobFilters {
   search: string;
-  status: ApplicationStatus | "All";
-  priority: PriorityType | "All";
+  status: ApplicationStatus | string | undefined;
+  priority: PriorityType | string | undefined;
   dateFrom?: string;
   dateTo?: string;
 }
@@ -107,6 +111,7 @@ export interface JobQueryTypes {
   sort?: string;
   status?: string;
   priority?: string;
+  search?: string;
   page?: number;
   limit?: number;
 }
@@ -114,9 +119,12 @@ export interface JobQueryTypes {
 export interface JobState {
   jobs: JobApplication[];
   recentJobs: JobApplication[] | undefined;
+  selectedItems: string[];
   selectedJob: JobApplication | undefined;
   filters: JobFilters;
   sortBy: "applicationDate" | "company" | "priority";
   sortOrder: "asc" | "desc";
-  jobQuery: JobQueryTypes;
+  jobQuery: {
+    [key: string]: Partial<JobQueryTypes>;
+  };
 }
