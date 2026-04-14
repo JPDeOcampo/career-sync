@@ -45,7 +45,7 @@ export const Checkbox = React.forwardRef<HTMLInputElement, CheckboxProps>(
     {
       className,
       label,
-      labelClassName = "text-sm",
+      labelClassName = "text-sm text-gray-600 dark:text-gray-400",
       variantSize = "md",
       state,
       ...props
@@ -90,10 +90,7 @@ export const Checkbox = React.forwardRef<HTMLInputElement, CheckboxProps>(
         {label && (
           <label
             htmlFor={props.name}
-            className={cn(
-              "text-gray-600 dark:text-gray-400 cursor-pointer",
-              labelClassName,
-            )}
+            className={cn(" cursor-pointer", labelClassName)}
           >
             {label}
           </label>

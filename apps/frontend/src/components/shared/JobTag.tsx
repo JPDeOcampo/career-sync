@@ -22,7 +22,7 @@ const priorityStyles: Record<
     icon: AlertCircle,
   },
   Low: {
-    class: "bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-400",
+    class: "bg-gray-100 text-gray-700 dark:bg-gray-700 dark:text-gray-400",
     icon: Circle,
   },
 };
@@ -30,7 +30,7 @@ const priorityStyles: Record<
 export const JobTagStatus = ({ status }: { status: string }) => {
   const statusColorMap: Record<string, string> = {
     Applied: "blue",
-    Interview: "orange",
+    Interview: "yellow",
     Offer: "green",
     Rejected: "red",
     "Under Review": "purple",

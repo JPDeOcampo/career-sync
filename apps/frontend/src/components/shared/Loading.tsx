@@ -1,11 +1,19 @@
 import { motion } from "motion/react";
+import { cn } from "@/utils/cn";
 
-export const LoadingSpinner = () => {
+export const LoadingSpinner = ({
+  className = "w-5 h-5",
+}: {
+  className?: string;
+}) => {
   return (
     <motion.div
       animate={{ rotate: 360 }}
       transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
-      className="w-5 h-5 border-2 border-white border-t-transparent rounded-full"
+      className={cn(
+        "border-2 border-white border-t-transparent rounded-full",
+        className,
+      )}
     />
   );
 };

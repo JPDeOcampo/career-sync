@@ -12,7 +12,7 @@ const usePaginationHooks = () => {
   const dispatch = useAppDispatch();
   const { pages } = useAppSelector(selectPagination);
 
-  const handleNextPage = ({ pages, sort }: PaginationState) => {
+  const onPaginationAction = ({ pages, sort }: PaginationState) => {
     const [[key, value]] = Object.entries(pages);
     const nextPage = value.page;
     dispatch(setPage({ key, value: nextPage }));
@@ -29,7 +29,7 @@ const usePaginationHooks = () => {
 
   return {
     pages,
-    handleNextPage,
+    onPaginationAction,
   };
 };
 

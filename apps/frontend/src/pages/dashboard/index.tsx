@@ -39,7 +39,7 @@ const Dashboard = () => {
 
   const { handleViewOnly } = useJobHooks();
 
-  const { pages, handleNextPage } = usePaginationHooks();
+  const { pages, onPaginationAction } = usePaginationHooks();
 
   const stats = {
     total: data?.stats?.total || 0,
@@ -137,7 +137,7 @@ const Dashboard = () => {
                 initial={{ opacity: 0, x: -20 }}
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ duration: 0.2, delay: 0.05 + index * 0.1 }}
-                className="px-6 py-4 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors cursor-pointer"
+                className="px-4 py-4 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors cursor-pointer"
                 onClick={() => handleViewOnly(job, getJobsQuery)}
               >
                 <div className="flex items-center justify-between">
@@ -178,7 +178,10 @@ const Dashboard = () => {
           currentPage={pages.dashboard || 1}
           totalPages={totalPages || 1}
           onPageChange={(page) =>
-            handleNextPage({ pages: { dashboard: { page } }, sort: "recent" })
+            onPaginationAction({
+              pages: { dashboard: { page } },
+              sort: "recent",
+            })
           }
         />
       )}

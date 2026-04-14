@@ -53,12 +53,6 @@ const useJobHooks = () => {
   const handleAddJob = () => {
     dispatch(selectJob());
     dispatch(setIsJobModalShow(true));
-    // dispatch(
-    //   setJobQuery({
-    //     key: pathname.replace("/", ""),
-    //     data: jobQuery,
-    //   }),
-    // );
   };
 
   const handleEditJob = (job: JobApplication) => {
@@ -81,6 +75,7 @@ const useJobHooks = () => {
     dispatch(selectJob());
     dispatch(setViewOnly({}));
     dispatch(setReviewJobApplication({ isToReview: false, isOnReview: false }));
+    handleGlobalModal({});
   };
 
   const onConfirmModal = (onConfirm?: () => void) => {

@@ -22,7 +22,7 @@ const GlobalModal = ({
 }: {
   isShow: boolean;
   title?: string;
-  description?: string;
+  description?: string | React.ReactNode;
   variant?: "default" | "custom";
   onConfirm: () => void;
   onClose: () => void;
@@ -33,7 +33,6 @@ const GlobalModal = ({
   isLoading?: boolean;
 }) => {
   const handleOnClose = () => {
-    if (isLoading) return;
     if (onClose) onClose();
   };
 
@@ -77,7 +76,7 @@ const GlobalModal = ({
             <CustomTooltip label="Close" position="bottom">
               <button
                 onClick={handleOnClose}
-                className="hidden md:flex p-2 text-foreground/80 hover:text-foreground cursor-pointer"
+                className="flex p-2 text-foreground/80 hover:text-foreground cursor-pointer"
               >
                 <X size={20} />
               </button>
@@ -87,15 +86,16 @@ const GlobalModal = ({
           {variant === "default" && (
             <>
               <h2 className="text-lg font-semibold text-default">{title}</h2>
-
+              {/* 
               <div
                 className="mt-2"
                 dangerouslySetInnerHTML={{ __html: description || "" }}
-              />
+              /> */}
+              <div className="mt-2">{description}</div>
 
               <div className="mt-8 flex justify-end gap-3">
                 <button
-                  onClick={onClose}
+                  onClick={handleOnClose}
                   className="px-4 py-2 text-sm font-medium text-cancel cursor-pointer"
                 >
                   {cancelText}
@@ -104,12 +104,11 @@ const GlobalModal = ({
                 <button
                   onClick={() => {
                     onConfirm?.();
-                    handleOnClose();
                   }}
-                  className="rounded-md bg-red-600 px-4 py-2 text-sm font-medium text-white hover:bg-red-700 cursor-pointer"
+                  className="flex justify-center items-center gap-2 rounded-md bg-red-600 px-4 py-2 text-sm font-medium text-white hover:bg-red-700 cursor-pointer"
                 >
                   {confirmText}
-                  {isLoading && <LoadingSpinner />}
+                  {isLoading && <LoadingSpinner className="w-4 h-4" />}
                 </button>
               </div>
             </>

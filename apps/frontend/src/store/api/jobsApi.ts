@@ -67,7 +67,7 @@ const updateJobStats = (
 export const jobsApi = createApi({
   reducerPath: "jobsApi",
   baseQuery: baseQueryWithReauth,
-  // tagTypes: ["Jobs"],
+  tagTypes: ["Jobs"],
   endpoints: (builder) => ({
     // --- GET JOBS ---
     getJobs: builder.query<JobsResponse, JobQueryTypes>({
@@ -76,13 +76,13 @@ export const jobsApi = createApi({
         method: "GET",
         params: { sort, status, search, priority, page, limit },
       }),
-      // providesTags: (result) => [{ type: "Jobs", id: "LIST" }],
+      providesTags: () => [{ type: "Jobs", id: "LIST" }],
       transformResponse: (response: JobsResponse) => ({
         jobs: response.jobs.map((job) => ({
           ...job,
-          applicationDate: job.applicationDate
-            ? formatDate(job.applicationDate, "yyyy-MM-dd")
-            : "",
+          applicationDate: job.applicationDate,
+          // ? formatDate(job.applicationDate, "yyyy-MM-dd")
+          // : "",
           interviewStages:
             job.interviewStages?.map((stage) => ({
               ...stage,
@@ -457,107 +457,13 @@ export const jobsApi = createApi({
     }),
 
     // --- DELETE JOB ---
-    deleteJob: builder.mutation<
-      void,
-      { ids: string[]; jobQuery: JobQueryTypes }
-    >({
+    deleteJob: builder.mutation<void, { ids: string[] }>({
       query: ({ ids }) => ({
         url: `${path}`,
         method: "DELETE",
         body: { ids },
       }),
-      async onQueryStarted(
-        { ids: deletedIds, jobQuery },
-        { dispatch, queryFulfilled, getState },
-      ) {
-        try {
-          await queryFulfilled;
-
-          const limit = jobQuery.limit || 5;
-
-          // Check the page where the first deleted item exists
-          let startPage = 1;
-          let found = false;
-
-          while (true) {
-            const pageQuery = { ...jobQuery, page: startPage };
-            const cacheState =
-              jobsApi.endpoints.getJobs.select(pageQuery)(getState());
-
-            if (!cacheState.data) break; // stop if page not cached
-
-            if (cacheState.data.jobs.some((j) => deletedIds.includes(j.id))) {
-              found = true;
-              break;
-            }
-
-            startPage++;
-          }
-
-          if (!found) return; // nothing to delete in cached pages
-
-          // 2Waterfall deletion from startPage onward
-          let currentPage = startPage;
-
-          while (true) {
-            const pageQuery = { ...jobQuery, page: currentPage };
-            const cacheState =
-              jobsApi.endpoints.getJobs.select(pageQuery)(getState());
-
-            if (!cacheState.data) break; // no cached page
-
-            const draftJobs = cacheState.data.jobs;
-
-            // Determine how many slots are empty after deletion
-            const deletedOnPage = draftJobs.filter((j) =>
-              deletedIds.includes(j.id),
-            ).length;
-            const slotsToFill = deletedOnPage;
-
-            // Stop if nothing to delete and not the first affected page
-            if (slotsToFill === 0 && currentPage > startPage) break;
-
-            // Pull items from next page
-            const nextPageQuery = { ...jobQuery, page: currentPage + 1 };
-            const nextCache =
-              jobsApi.endpoints.getJobs.select(nextPageQuery)(getState());
-
-            const pulledItems: JobApplication[] = [];
-            if (nextCache?.data?.jobs?.length) {
-              pulledItems.push(
-                ...nextCache.data.jobs
-                  .slice(0, slotsToFill)
-                  .map((j) => structuredClone(j) as JobApplication),
-              );
-            }
-
-            dispatch(
-              jobsApi.util.updateQueryData("getJobs", pageQuery, (draft) => {
-                // Remove deleted items on this page
-                draft.jobs = draft.jobs.filter(
-                  (j) => !deletedIds.includes(j.id),
-                );
-
-                // Add pulled items to fill the page
-                pulledItems.forEach((item) => {
-                  const exists = draft.jobs.some((j) => j.id === item.id);
-                  if (!exists) draft.jobs.push(item);
-                });
-
-                // Update stats for UI
-                updateJobStats(draft, null, null, limit);
-              }),
-            );
-
-            currentPage++;
-
-            // Stop if nothing left to pull
-            if (!pulledItems.length) break;
-          }
-        } catch (err) {
-          console.error("Delete waterfall failed:", err);
-        }
-      },
+      invalidatesTags: [{ type: "Jobs", id: "LIST" }],
     }),
   }),
 });
