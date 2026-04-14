@@ -67,31 +67,22 @@ const updateJobStats = (
 export const jobsApi = createApi({
   reducerPath: "jobsApi",
   baseQuery: baseQueryWithReauth,
-  // tagTypes: ["Jobs"],
+  tagTypes: ["Jobs"],
   endpoints: (builder) => ({
     // --- GET JOBS ---
-    getJobs: builder.query<
-      JobsResponse,
-      {
-        sort?: string;
-        status?: string;
-        priority?: string;
-        page?: number;
-        limit?: number;
-      }
-    >({
-      query: ({ sort, status, priority, page = 1, limit = 5 }) => ({
+    getJobs: builder.query<JobsResponse, JobQueryTypes>({
+      query: ({ sort, status, search, priority, page = 1, limit = 5 }) => ({
         url: path,
         method: "GET",
-        params: { sort, status, priority, page, limit },
+        params: { sort, status, search, priority, page, limit },
       }),
-      // providesTags: (result) => [{ type: "Jobs", id: "LIST" }],
+      providesTags: () => [{ type: "Jobs", id: "LIST" }],
       transformResponse: (response: JobsResponse) => ({
         jobs: response.jobs.map((job) => ({
           ...job,
-          applicationDate: job.applicationDate
-            ? formatDate(job.applicationDate, "yyyy-MM-dd")
-            : "",
+          applicationDate: job.applicationDate,
+          // ? formatDate(job.applicationDate, "yyyy-MM-dd")
+          // : "",
           interviewStages:
             job.interviewStages?.map((stage) => ({
               ...stage,
@@ -108,51 +99,231 @@ export const jobsApi = createApi({
     // --- ADD JOB ---
     addJob: builder.mutation<
       { data: JobApplication },
-      { data: JobApplication; jobQuery: JobQueryTypes }
+      { data: JobApplication }
     >({
       query: ({ data }) => ({ url: path, method: "POST", body: data }),
-      async onQueryStarted(
-        { jobQuery },
-        { dispatch, queryFulfilled, getState },
-      ) {
+      // async onQueryStarted(
+      //   { jobQuery },
+      //   { dispatch, queryFulfilled, getState },
+      // ) {
+      //   try {
+      //     const { data: response } = await queryFulfilled;
+      //     const addedJob = response.data;
+      //     let movingItem: JobApplication | undefined = addedJob;
+      //     let currentPage = 1;
+      //     const limit = jobQuery.limit || 5;
+
+      //     while (movingItem) {
+      //       const pageQuery = { ...jobQuery, page: currentPage };
+      //       const cacheState =
+      //         jobsApi.endpoints.getJobs.select(pageQuery)(getState());
+
+      //       if (!cacheState.data) break;
+
+      //       let nextMovingItem: JobApplication | undefined = undefined;
+
+      //       dispatch(
+      //         jobsApi.util.updateQueryData("getJobs", pageQuery, (draft) => {
+      //           draft.jobs.unshift(movingItem!);
+      //           if (draft.jobs.length > limit) {
+      //             const popped = draft.jobs.pop();
+      //             if (popped) nextMovingItem = current(popped);
+      //           }
+
+      //           /** * Update Stats
+      //            * Only pass addedJob to 'newJob' parameter.
+      //            * DO NOT pass 'popped' to 'oldJob' because the job isn't deleted,
+      //            * it's just moving to another page. The global total remains +1.
+      //            */
+      //           updateJobStats(draft, null, addedJob, limit);
+      //         }),
+      //       );
+
+      //       movingItem = nextMovingItem;
+      //       currentPage++;
+      //     }
+      //   } catch (err) {
+      //     console.error("Waterfall update failed:", err);
+      //   }
+      // },
+      // async onQueryStarted(_, { dispatch, queryFulfilled, getState }) {
+      //   try {
+      //     const { data: response } = await queryFulfilled;
+      //     const addedJob = response.data;
+
+      //     const state = getState();
+      //     const queries = state[jobsApi.reducerPath].queries;
+
+      //     // --- TYPE GUARD ---
+      //     const isGetJobsQuery = (
+      //       q: unknown,
+      //     ): q is {
+      //       endpointName: "getJobs";
+      //       originalArgs: JobQueryTypes;
+      //     } => {
+      //       return (
+      //         typeof q === "object" &&
+      //         q !== null &&
+      //         "endpointName" in q &&
+      //         (q as { endpointName?: string }).endpointName === "getJobs" &&
+      //         "originalArgs" in q
+      //       );
+      //     };
+
+      //     // --- FILTER FUNCTION ---
+      //     const matchesQuery = (
+      //       job: JobApplication,
+      //       query: JobQueryTypes,
+      //     ): boolean => {
+      //       if (query.status && job.status !== query.status) return false;
+      //       if (query.priority && job.priority !== query.priority) return false;
+
+      //       if (query.search) {
+      //         const search = query.search.toLowerCase();
+      //         const target = `${job.roleTitle} ${job.company}`.toLowerCase();
+      //         if (!target.includes(search)) return false;
+      //       }
+
+      //       return true;
+      //     };
+
+      //     // --- GROUP QUERIES BY FILTER (excluding page) ---
+      //     const grouped = new Map<string, JobQueryTypes[]>();
+
+      //     Object.values(queries).forEach((q) => {
+      //       if (!isGetJobsQuery(q)) return;
+
+      //       const { page = 1, ...rest } = q.originalArgs;
+
+      //       const key = JSON.stringify(rest);
+
+      //       if (!grouped.has(key)) {
+      //         grouped.set(key, []);
+      //       }
+
+      //       grouped.get(key)!.push(q.originalArgs);
+      //     });
+
+      //     // --- PROCESS EACH FILTER GROUP ---
+      //     grouped.forEach((queryList) => {
+      //       // sort pages (1 → N)
+      //       const sortedQueries = queryList.sort(
+      //         (a, b) => (a.page ?? 1) - (b.page ?? 1),
+      //       );
+
+      //       const baseQuery = sortedQueries[0];
+
+      //       // skip if doesn't match filter
+      //       if (!matchesQuery(addedJob, baseQuery)) return;
+
+      //       let movingItem: JobApplication | undefined = addedJob;
+
+      //       for (let i = 0; i < sortedQueries.length && movingItem; i++) {
+      //         const pageQuery = sortedQueries[i];
+      //         const limit = pageQuery.limit ?? 5;
+
+      //         let nextMovingItem: JobApplication | undefined;
+
+      //         dispatch(
+      //           jobsApi.util.updateQueryData("getJobs", pageQuery, (draft) => {
+      //             draft.jobs.unshift(movingItem!);
+
+      //             if (draft.jobs.length > limit) {
+      //               const popped = draft.jobs.pop();
+      //               if (popped) nextMovingItem = popped;
+      //             }
+
+      //             updateJobStats(draft, null, addedJob, limit);
+      //           }),
+      //         );
+
+      //         movingItem = nextMovingItem;
+      //       }
+      //     });
+      //   } catch (err) {
+      //     console.error("Add job waterfall failed:", err);
+      //   }
+      // },
+      async onQueryStarted(_, { dispatch, queryFulfilled, getState }) {
         try {
           const { data: response } = await queryFulfilled;
           const addedJob = response.data;
-          let movingItem: JobApplication | undefined = addedJob;
-          let currentPage = 1;
-          const limit = jobQuery.limit || 5;
 
-          while (movingItem) {
-            const pageQuery = { ...jobQuery, page: currentPage };
-            const cacheState =
-              jobsApi.endpoints.getJobs.select(pageQuery)(getState());
+          const state = getState();
+          const queries = state[jobsApi.reducerPath].queries;
 
-            if (!cacheState.data) break;
+          // Type guard for getJobs queries
+          const isGetJobsQuery = (
+            q: unknown,
+          ): q is { endpointName: "getJobs"; originalArgs: JobQueryTypes } =>
+            typeof q === "object" &&
+            q !== null &&
+            "endpointName" in q &&
+            (q as { endpointName?: string }).endpointName === "getJobs" &&
+            "originalArgs" in q;
 
-            let nextMovingItem: JobApplication | undefined = undefined;
+          // Filter matching function
+          const matchesQuery = (job: JobApplication, query: JobQueryTypes) => {
+            if (query.status && job.status !== query.status) return false;
+            if (query.priority && job.priority !== query.priority) return false;
+            return true;
+          };
 
-            dispatch(
-              jobsApi.util.updateQueryData("getJobs", pageQuery, (draft) => {
-                draft.jobs.unshift(movingItem!);
-                if (draft.jobs.length > limit) {
-                  const popped = draft.jobs.pop();
-                  if (popped) nextMovingItem = current(popped);
-                }
+          // Iterate all cached getJobs queries
+          Object.values(queries).forEach((q) => {
+            if (!isGetJobsQuery(q)) return;
 
-                /** * Update Stats
-                 * Only pass addedJob to 'newJob' parameter.
-                 * DO NOT pass 'popped' to 'oldJob' because the job isn't deleted,
-                 * it's just moving to another page. The global total remains +1.
-                 */
-                updateJobStats(draft, null, addedJob, limit);
-              }),
-            );
+            const args = q.originalArgs;
+            const limit = args.limit ?? 5;
 
-            movingItem = nextMovingItem;
-            currentPage++;
-          }
+            // Determine if job should be inserted
+            const isAllPage =
+              (!args.status || args.status === "All") &&
+              (!args.priority || args.priority === "All");
+            const shouldInsert = isAllPage || matchesQuery(addedJob, args);
+
+            if (!shouldInsert) return; // skip caches that don't match
+
+            let movingItem: JobApplication | undefined = addedJob;
+            let currentPage = 1;
+
+            // Waterfall insertion
+            while (movingItem) {
+              const pageQuery = { ...args, page: currentPage };
+              const cacheState =
+                jobsApi.endpoints.getJobs.select(pageQuery)(state);
+
+              if (!cacheState.data) break;
+
+              let nextMovingItem: JobApplication | undefined;
+
+              dispatch(
+                jobsApi.util.updateQueryData("getJobs", pageQuery, (draft) => {
+                  const alreadyExists = draft.jobs.some(
+                    (job) => job.id === movingItem!.id,
+                  );
+
+                  if (alreadyExists) return;
+                  // Insert at the top
+                  draft.jobs.unshift(movingItem!);
+
+                  // Waterfall: push overflow to next page
+                  if (draft.jobs.length > limit) {
+                    const popped = draft.jobs.pop();
+                    if (popped) nextMovingItem = current(popped);
+                  }
+
+                  // Update stats only for the new job
+                  updateJobStats(draft, null, addedJob, limit);
+                }),
+              );
+
+              movingItem = nextMovingItem;
+              currentPage++;
+            }
+          });
         } catch (err) {
-          console.error("Waterfall update failed:", err);
+          console.error("Add job waterfall failed:", err);
         }
       },
     }),
@@ -160,7 +331,7 @@ export const jobsApi = createApi({
     // --- UPDATE JOB ---
     updateJob: builder.mutation<
       { data: JobApplication },
-      { id: string; data: JobApplication; jobQuery: JobQueryTypes }
+      { id: string; data: JobApplication }
     >({
       query: ({ id, data }) => ({
         url: `${path}/${id}`,
@@ -171,28 +342,114 @@ export const jobsApi = createApi({
       // invalidatesTags: [{ type: "Jobs", id: "LIST" }],
 
       // --- UPDATE JOB ---
-      async onQueryStarted({ id, jobQuery }, { dispatch, queryFulfilled }) {
+      // async onQueryStarted({ id, jobQuery }, { dispatch, queryFulfilled }) {
+      //   try {
+      //     const { data: response } = await queryFulfilled;
+      //     const updatedJob = response.data;
+      //     dispatch(
+      //       jobsApi.util.updateQueryData("getJobs", jobQuery, (draft) => {
+      //         const index = draft.jobs.findIndex((j) => j.id === id);
+      //         const oldJob = index !== -1 ? draft.jobs[index] : null;
+      //         console.log("OLD JOB", oldJob);
+      //         console.log("UPDATED JOB", updatedJob);
+      //         if (index !== -1) {
+      //           draft.jobs[index] = updatedJob;
+      //         }
+      //         updateJobStats(draft, oldJob, updatedJob);
+      //       }),
+      //     );
+      //   } catch (err) {
+      //     console.error("Update job failed", err);
+      //   }
+      // },
+      async onQueryStarted({ id }, { dispatch, getState, queryFulfilled }) {
         try {
           const { data: response } = await queryFulfilled;
           const updatedJob = response.data;
 
-          dispatch(
-            jobsApi.util.updateQueryData("getJobs", jobQuery, (draft) => {
-              const index = draft.jobs.findIndex((j) => j.id === id);
-              if (index !== -1) {
-                const oldJob = current(draft.jobs[index]);
-                draft.jobs[index] = updatedJob;
+          const state = getState();
 
-                // updateJobStats handles the -1 for old and +1 for new automatically
+          const queries = state[jobsApi.reducerPath].queries;
+
+          Object.values(queries).forEach((q) => {
+            if (q?.endpointName !== "getJobs" || !q.originalArgs) return;
+
+            const args = q.originalArgs as JobQueryTypes;
+
+            dispatch(
+              jobsApi.util.updateQueryData("getJobs", args, (draft) => {
+                const index = draft.jobs.findIndex((j) => j.id === id);
+                const oldJob = index !== -1 ? draft.jobs[index] : null;
+
+                // --- FILTER LOGIC ---
+                const matchesQuery = (
+                  job: JobApplication,
+                  query: JobQueryTypes,
+                ): boolean => {
+                  if (
+                    query.status &&
+                    job.status !== query.status &&
+                    query.status !== "All"
+                  )
+                    return false;
+                  if (
+                    query.priority &&
+                    job.priority !== query.priority &&
+                    query.priority !== "All"
+                  )
+                    return false;
+
+                  if (query.search) {
+                    const search = query.search.toLowerCase();
+                    const target =
+                      `${job.roleTitle} ${job.company}`.toLowerCase();
+                    if (!target.includes(search)) return false;
+                  }
+
+                  return true;
+                };
+
+                const shouldExist = matchesQuery(updatedJob, args);
+
+                // --- UPDATE / REMOVE / ADD ---
+                if (index !== -1) {
+                  if (shouldExist) {
+                    draft.jobs[index] = updatedJob;
+                  } else {
+                    draft.jobs.splice(index, 1);
+                  }
+                } else if (shouldExist) {
+                  const exists = draft.jobs.some((j) => j.id === updatedJob.id);
+                  if (!exists) {
+                    draft.jobs.unshift(updatedJob);
+                  }
+                }
+
+                // --- SORT ---
+                if (args.sort === "oldest") {
+                  draft.jobs.sort(
+                    (a, b) =>
+                      new Date(a.createdAt).getTime() -
+                      new Date(b.createdAt).getTime(),
+                  );
+                } else {
+                  draft.jobs.sort(
+                    (a, b) =>
+                      new Date(b.createdAt).getTime() -
+                      new Date(a.createdAt).getTime(),
+                  );
+                }
+
+                // --- PAGINATION LIMIT ---
+                if (args.limit && draft.jobs.length > args.limit) {
+                  draft.jobs.pop();
+                }
+
+                // --- STATS ---
                 updateJobStats(draft, oldJob, updatedJob);
-              } else {
-                // If the job wasn't on this specific page, update the stats
-                // because the stats are global/shared across headers
-                updateJobStats(draft, null, updatedJob);
-                // If oldJob isn't in this cache, it need the old status from somewhere else to do the delta.
-              }
-            }),
-          );
+              }),
+            );
+          });
         } catch (err) {
           console.error("Update job failed", err);
         }
@@ -200,87 +457,20 @@ export const jobsApi = createApi({
     }),
 
     // --- DELETE JOB ---
-    deleteJob: builder.mutation<void, { id: string; jobQuery: JobQueryTypes }>({
-      query: ({ id }) => ({
-        url: `${path}/${id}`,
+    deleteJob: builder.mutation<void, { ids: string[] }>({
+      query: ({ ids }) => ({
+        url: `${path}`,
         method: "DELETE",
+        body: { ids },
       }),
-      async onQueryStarted(
-        { id, jobQuery },
-        { dispatch, queryFulfilled, getState },
-      ) {
-        try {
-          await queryFulfilled;
-
-          let currentPage = 1;
-          let nextItemToPull: JobApplication | undefined = undefined;
-          const limit = jobQuery.limit || 5;
-
-          while (true) {
-            const pageQuery = { ...jobQuery, page: currentPage };
-            const cacheState =
-              jobsApi.endpoints.getJobs.select(pageQuery)(getState());
-
-            // Stop if the page isn't cached
-            if (!cacheState.data) break;
-
-            const jobsOnThisPage = cacheState.data.jobs;
-            const indexOnThisPage = jobsOnThisPage.findIndex(
-              (j) => j.id === id,
-            );
-
-            // If the ID isn't on this page AND haven't started pulling from a previous deletion,
-            // Skip to the next page to find where the item actually was.
-            if (indexOnThisPage === -1 && !nextItemToPull) {
-              currentPage++;
-              continue;
-            }
-
-            // Capture the item to fill the gap in this page (from the NEXT page's start)
-            const nextPageQuery = { ...jobQuery, page: currentPage + 1 };
-            const nextCache =
-              jobsApi.endpoints.getJobs.select(nextPageQuery)(getState());
-
-            let fetchedNextItem: JobApplication | undefined = undefined;
-            if (nextCache.data && nextCache.data.jobs.length > 0) {
-              fetchedNextItem = current(nextCache.data.jobs[0]);
-            }
-
-            dispatch(
-              jobsApi.util.updateQueryData("getJobs", pageQuery, (draft) => {
-                let deletedJob: JobApplication | null = null;
-
-                // If the target is here, remove it
-                const localIndex = draft.jobs.findIndex((j) => j.id === id);
-                if (localIndex !== -1) {
-                  deletedJob = current(draft.jobs[localIndex]);
-                  draft.jobs.splice(localIndex, 1);
-                }
-
-                // If have an item carried over from the NEXT page, push it to the end of THIS page
-                if (fetchedNextItem) {
-                  draft.jobs.push(fetchedNextItem);
-                }
-
-                // Pass the deletedJob to decrement stats if it was found on this page
-                updateJobStats(draft, deletedJob, null, limit);
-              }),
-            );
-
-            // Move to next iteration
-            nextItemToPull = fetchedNextItem;
-            currentPage++;
-
-            // Stop the loop if there's nothing left to "pull" forward
-            if (!nextItemToPull) break;
-          }
-        } catch (err) {
-          console.error("Delete waterfall failed:", err);
-        }
-      },
+      invalidatesTags: [{ type: "Jobs", id: "LIST" }],
     }),
   }),
 });
 
-export const { useGetJobsQuery, useAddJobMutation, useUpdateJobMutation } =
-  jobsApi;
+export const {
+  useGetJobsQuery,
+  useAddJobMutation,
+  useUpdateJobMutation,
+  useDeleteJobMutation,
+} = jobsApi;

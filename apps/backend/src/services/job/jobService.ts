@@ -123,52 +123,80 @@ export const getJobs = async (
   filters: {
     sort?: string;
     status?: string;
+    search?: string;
     priority?: string;
     page?: number;
     limit?: number;
   },
 ) => {
-  const { sort, status, priority, page = 1, limit = 10 } = filters;
+  const { sort, status, search, priority, page = 1, limit = 10 } = filters;
 
   const skip = (page - 1) * limit;
-
   const recentApplicationDate = getRecentDate(7);
 
-  const data = await prisma.job.findMany({
-    where: {
-      userId: userID,
-      ...(status && { status }),
-      ...(priority && { priority }),
-      ...(sort === "recent"
-        ? { applicationDate: { gte: recentApplicationDate } }
-        : {}),
-    },
+  const isValid = (val?: string) =>
+    val && val !== "All" && val !== "N/A" && val.trim() !== "";
 
-    include: {
-      interviewStages: true,
-      cv: true,
-      coverLetter: true,
-    },
+  const getFilename = (path?: string | null) =>
+    path ? path.split("/").pop() : null;
 
-    orderBy:
-      sort === "recent"
-        ? { createdAt: "desc" }
-        : sort === "oldest"
-          ? { createdAt: "asc" }
-          : undefined,
+  const where = {
+    userId: userID,
+    ...(isValid(status) && { status }),
+    ...(isValid(priority) && { priority }),
 
-    skip,
-    take: limit,
-  });
+    ...(isValid(search) && {
+      OR: [
+        { roleTitle: { contains: search, mode: "insensitive" as const } },
+        { company: { contains: search, mode: "insensitive" as const } },
+        { location: { contains: search, mode: "insensitive" as const } },
+      ],
+    }),
+
+    ...(sort === "recent" && {
+      applicationDate: { gte: recentApplicationDate },
+    }),
+  };
+
+  const orderBy =
+    sort === "oldest"
+      ? [{ createdAt: "asc" as const }]
+      : [{ createdAt: "desc" as const }];
+
+  const [data, totalJobs, statsByStatus, highPriorityCount] = await Promise.all(
+    [
+      prisma.job.findMany({
+        where,
+        include: {
+          interviewStages: true,
+          cv: true,
+          coverLetter: true,
+        },
+        orderBy,
+        skip,
+        take: limit,
+      }),
+
+      prisma.job.count({ where }),
+
+      prisma.job.groupBy({
+        by: ["status"],
+        where: { userId: userID },
+        _count: { status: true },
+      }),
+
+      prisma.job.count({
+        where: {
+          userId: userID,
+          priority: "High",
+        },
+      }),
+    ],
+  );
 
   const jobs = data.map((doc) => {
-    const cvFilePath = doc.cv?.filePath;
-    const cvFilename = cvFilePath ? cvFilePath.split("/").pop() : null;
-
-    const coverLetterFilePath = doc.coverLetter?.filePath;
-    const coverLetterFilename = coverLetterFilePath
-      ? coverLetterFilePath.split("/").pop()
-      : null;
+    const cvFilename = getFilename(doc.cv?.filePath);
+    const coverLetterFilename = getFilename(doc.coverLetter?.filePath);
 
     return {
       ...doc,
@@ -192,34 +220,6 @@ export const getJobs = async (
     };
   });
 
-  const totalJobs = await prisma.job.count({
-    where: {
-      userId: userID,
-      ...(status && { status }),
-      ...(priority && { priority }),
-      ...(sort === "recent"
-        ? { applicationDate: { gte: recentApplicationDate } }
-        : {}),
-    },
-  });
-
-  const statsByStatus = await prisma.job.groupBy({
-    by: ["status"],
-    where: {
-      userId: userID,
-    },
-    _count: {
-      status: true,
-    },
-  });
-
-  const highPriorityCount = await prisma.job.count({
-    where: {
-      userId: userID,
-      priority: "High",
-    },
-  });
-
   const stats = {
     total: 0,
     applied: 0,
@@ -231,17 +231,16 @@ export const getJobs = async (
     highPriority: highPriorityCount,
   };
 
-  statsByStatus.forEach((item) => {
-    const count = item._count.status;
+  statsByStatus.forEach(({ status, _count }) => {
+    const count = _count.status;
     stats.total += count;
 
-    if (item.status === "Applied") stats.applied = count;
-    if (item.status === "Under Review") stats.underReview = count;
-    if (item.status === "Interview") stats.interviews = count;
-    if (item.status === "Offer") stats.offers = count;
-
-    if (item.status === "Rejected") stats.rejected = count;
-    if (item.status === "Withdrawn") stats.withdrawn = count;
+    if (status === "Applied") stats.applied = count;
+    if (status === "Under Review") stats.underReview = count;
+    if (status === "Interview") stats.interviews = count;
+    if (status === "Offer") stats.offers = count;
+    if (status === "Rejected") stats.rejected = count;
+    if (status === "Withdrawn") stats.withdrawn = count;
   });
 
   return {
@@ -371,22 +370,31 @@ export const deleteJob = async (
   referenceId: string | string[],
   userID: string,
 ) => {
-  const existingJob = await prisma.job.findFirst({
+  const ids = Array.isArray(referenceId) ? referenceId : [referenceId];
+
+  // To check if jobs exist and belong to user
+  const existingJobs = await prisma.job.findMany({
     where: {
-      id: referenceId as unknown as string,
+      id: { in: ids },
       userId: userID,
     },
   });
 
-  if (!existingJob) {
-    throw new AppError("Job not found", 404);
+  if (existingJobs.length === 0) {
+    throw new AppError("No jobs found", 404);
   }
 
-  await prisma.job.delete({
+  // To ensure ALL requested IDs exist
+  if (existingJobs.length !== ids.length) {
+    throw new AppError("Some jobs not found or unauthorized", 404);
+  }
+
+  await prisma.job.deleteMany({
     where: {
-      id: referenceId as unknown as string,
+      id: { in: ids },
+      userId: userID,
     },
   });
 
-  return { message: "Job deleted successfully" };
+  return { message: "Job(s) deleted successfully" };
 };

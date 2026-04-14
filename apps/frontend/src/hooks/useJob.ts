@@ -12,16 +12,17 @@ import {
   setReviewJobApplication,
   setIsJobModalShow,
 } from "@/store/slices/jobModalSlice";
-import { setIsShowModal } from "@/store/slices/globalSlice";
 import { addDocument } from "@/store/slices/documentSlice";
 import { selectJobs, selectJobModal } from "@/store/selectors";
 import { useGlobalModal } from "@/context/GlobalModalContext";
 import { JobQueryTypes } from "@career-sync/shared";
+import { usePathname } from "next/navigation";
 
 const useJobHooks = () => {
   const dispatch = useAppDispatch();
+  const pathname = usePathname();
   const { isJobModalShow, viewOnly } = useAppSelector(selectJobModal);
-  const { selectedJob } = useAppSelector(selectJobs);
+  const { selectedJob, jobQuery } = useAppSelector(selectJobs);
   const isViewOnly = Object.values(viewOnly).some((value) => value === true);
   const viewOnlyKeys = Object.keys(viewOnly) as Array<keyof typeof viewOnly>;
 
@@ -36,6 +37,18 @@ const useJobHooks = () => {
   const { handleGlobalModal } = useGlobalModal();
   const isDefined = <T>(value: T | null | undefined): value is T =>
     value != null;
+
+  const jobQueryBuilder = (key: string, overrides?: Partial<JobQueryTypes>) => {
+    const base = jobQuery[key] ?? {
+      page: 1,
+      limit: 5,
+      sort: "",
+      status: "All",
+      search: "",
+      priority: "All",
+    };
+    return { ...base, ...overrides };
+  };
 
   const handleAddJob = () => {
     dispatch(selectJob());
@@ -61,8 +74,8 @@ const useJobHooks = () => {
     dispatch(setIsJobModalShow(false));
     dispatch(selectJob());
     dispatch(setViewOnly({}));
-    dispatch(setIsShowModal(true));
     dispatch(setReviewJobApplication({ isToReview: false, isOnReview: false }));
+    handleGlobalModal({});
   };
 
   const onConfirmModal = (onConfirm?: () => void) => {
@@ -86,7 +99,12 @@ const useJobHooks = () => {
 
   const handleViewOnly = (job: JobApplication, jobQuery: JobQueryTypes) => {
     dispatch(addDocument([job.cv, job.coverLetter].filter(isDefined)));
-    dispatch(setJobQuery(jobQuery));
+    dispatch(
+      setJobQuery({
+        key: pathname.replace("/", ""),
+        data: jobQuery,
+      }),
+    );
     dispatch(selectJob(job));
     dispatch(setIsJobModalShow(true));
     dispatch(
@@ -106,6 +124,7 @@ const useJobHooks = () => {
     viewOnlyKeys,
     editableFields,
     fieldsToRender,
+    jobQueryBuilder,
     handleAddJob,
     handleEditJob,
     handleSaveJob,

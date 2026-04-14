@@ -38,6 +38,6 @@ router.patch(
   asyncHandler(updateJobController),
 );
 
-router.delete("/:id", protect, authLimiter, asyncHandler(deleteJobController));
+router.delete("/", protect, authLimiter, asyncHandler(deleteJobController));
 
 export default router;

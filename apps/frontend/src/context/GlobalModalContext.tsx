@@ -4,11 +4,12 @@ import GlobalModal from "@/components/shared/GlobalModal";
 
 type GlobalModalOptions = {
   title?: string;
-  description?: string;
+  description?: string | React.ReactNode;
   variant?: "default" | "custom";
   className?: string;
   cancelText?: string;
   confirmText?: string;
+  isLoading?: boolean;
   children?: React.ReactNode;
   onConfirm?: () => void;
 };
@@ -26,11 +27,25 @@ export const GlobalModalProvider = ({
 }) => {
   const [globalModal, setGlobalModal] = useState<GlobalModalOptions | null>();
 
-  const handleGlobalModal = (options: GlobalModalOptions) => {
-    setGlobalModal(options);
-  };
+  const handleGlobalModal = (options: GlobalModalOptions | null) => {
+    setGlobalModal((prev) => {
+      // If null or empty object → reset modal
+      if (!options || Object.keys(options).length === 0) {
+        return null;
+      }
 
-  const handleGlobalModalClose = () => setGlobalModal(null);
+      // If there's an existing modal → merge
+      if (prev) {
+        return {
+          ...prev,
+          ...options,
+        };
+      }
+
+      // Otherwise → create new modal
+      return options;
+    });
+  };
 
   return (
     <GlobalModalContext.Provider value={{ handleGlobalModal }}>
@@ -44,10 +59,11 @@ export const GlobalModalProvider = ({
         className={globalModal?.className}
         cancelText={globalModal?.cancelText}
         confirmText={globalModal?.confirmText}
+        isLoading={globalModal?.isLoading}
         onConfirm={() => {
           globalModal?.onConfirm?.();
         }}
-        onClose={handleGlobalModalClose}
+        onClose={() => handleGlobalModal({})}
       >
         {globalModal?.children}
       </GlobalModal>

@@ -4,12 +4,10 @@ import { Briefcase, Calendar, Gift, XCircle, Star } from "lucide-react";
 import { JobTagStatus, JobTagPriorityIcon } from "@/components/shared/JobTag";
 import useJobHooks from "@/hooks/useJob";
 import { useGetJobsQuery } from "@/store/api/jobsApi";
-import { useAppSelector, useAppDispatch } from "@/hooks/useRedux";
-import { selectJobs } from "@/store/selectors";
-import { setJobQuery } from "@/store/slices/jobSlice";
 import Skeleton from "@/components/shared/Skeleton";
 import { EmptyState, ErrorState } from "@/components/shared/Placeholder";
 import Pagination from "@/components/shared/Pagination";
+import usePaginationHooks from "@/hooks/usePagination";
 
 const JobRowSkeleton = () => (
   <div className="px-6 py-4 flex items-center justify-between">
@@ -29,16 +27,19 @@ const JobRowSkeleton = () => (
 );
 
 const Dashboard = () => {
-  const dispatch = useAppDispatch();
-  const { jobQuery } = useAppSelector(selectJobs);
-  const { data, isFetching, isError } = useGetJobsQuery(jobQuery);
-  console.log("Dashboard data:", data);
+  const { jobQueryBuilder } = useJobHooks();
+  const getJobsQuery = jobQueryBuilder("dashboard", { sort: "recent" });
+
+  const { data, isFetching, isError } = useGetJobsQuery(getJobsQuery);
+
   const recentJobs = data?.jobs || [];
   const totalPages = data?.pagination?.totalPages;
   const hasRecentJobs = recentJobs && recentJobs?.length > 0;
   const isLoadingJobs = isFetching && !isError && recentJobs?.length === 0;
 
   const { handleViewOnly } = useJobHooks();
+
+  const { pages, onPaginationAction } = usePaginationHooks();
 
   const stats = {
     total: data?.stats?.total || 0,
@@ -136,8 +137,8 @@ const Dashboard = () => {
                 initial={{ opacity: 0, x: -20 }}
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ duration: 0.2, delay: 0.05 + index * 0.1 }}
-                className="px-6 py-4 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors cursor-pointer"
-                onClick={() => handleViewOnly(job, jobQuery)}
+                className="px-4 py-4 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors cursor-pointer"
+                onClick={() => handleViewOnly(job, getJobsQuery)}
               >
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-4">
@@ -163,16 +164,6 @@ const Dashboard = () => {
           </div>
         )}
 
-        {hasRecentJobs && !isError && !isFetching && (
-          <Pagination
-            currentPage={jobQuery.page || 1}
-            totalPages={totalPages || 1}
-            onPageChange={(page) =>
-              dispatch(setJobQuery({ ...jobQuery, page }))
-            }
-          />
-        )}
-
         {/* No Data State */}
         {!isFetching && !isError && recentJobs?.length === 0 && (
           <EmptyState
@@ -181,6 +172,19 @@ const Dashboard = () => {
           />
         )}
       </motion.div>
+
+      {hasRecentJobs && !isError && !isFetching && (
+        <Pagination
+          currentPage={pages.dashboard || 1}
+          totalPages={totalPages || 1}
+          onPageChange={(page) =>
+            onPaginationAction({
+              pages: { dashboard: { page } },
+              sort: "recent",
+            })
+          }
+        />
+      )}
     </div>
   );
 };

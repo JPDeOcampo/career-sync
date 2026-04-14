@@ -6,14 +6,14 @@ import authReducer from "./slices/authSlice";
 import jobReducer from "./slices/jobSlice";
 import jobModalReducer from "./slices/jobModalSlice";
 import documentReducer from "./slices/documentSlice";
-import globalReducer from "./slices/globalSlice";
+import paginationReducer from "./slices/paginationSlice";
 
 export const store = configureStore({
   reducer: {
     auth: authReducer,
     jobs: jobReducer,
     jobModal: jobModalReducer,
-    global: globalReducer,
+    pagination: paginationReducer,
     documents: documentReducer,
     [authApi.reducerPath]: authApi.reducer,
     [jobsApi.reducerPath]: jobsApi.reducer,

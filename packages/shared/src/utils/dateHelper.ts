@@ -8,6 +8,9 @@ import {
   isSameDay,
   isSameMonth,
   subDays,
+  differenceInDays,
+  differenceInMinutes,
+  differenceInHours,
 } from "date-fns";
 
 export const formatDate = (
@@ -76,4 +79,50 @@ export const getTodayString = (): string => {
 
 export const getRecentDate = (daysAgo: number = 7): Date => {
   return subDays(new Date(), daysAgo);
+};
+
+export const getTimeAgo = (date: string | Date): string => {
+  try {
+    const dateObj = typeof date === "string" ? parseISO(date) : date;
+    if (!isValid(dateObj)) return "Invalid date";
+
+    const now = new Date();
+
+    // Check if time is exactly midnight (00:00:00)
+    const isMidnight =
+      dateObj.getUTCHours() === 0 &&
+      dateObj.getUTCMinutes() === 0 &&
+      dateObj.getUTCSeconds() === 0;
+
+    const days = differenceInDays(now, dateObj);
+    console.log(isMidnight, dateObj);
+    // If same day and no time info → "today"
+    if (days === 0 && isMidnight) {
+      return "Today";
+    }
+
+    // If same day and has time → show minutes/hours
+    if (days === 0) {
+      const minutes = differenceInMinutes(now, dateObj);
+
+      if (minutes <= 0) return "just now";
+      if (minutes < 60) {
+        return `${minutes} minute${minutes !== 1 ? "s" : ""} ago`;
+      }
+
+      const hours = differenceInHours(now, dateObj);
+      return `${hours} hour${hours !== 1 ? "s" : ""} ago`;
+    }
+
+    // Days
+    if (days < 7) {
+      return `${days} day${days !== 1 ? "s" : ""} ago`;
+    }
+
+    // Weeks
+    const weeks = Math.floor(days / 7);
+    return `${weeks} week${weeks !== 1 ? "s" : ""} ago`;
+  } catch {
+    return "Invalid date";
+  }
 };
