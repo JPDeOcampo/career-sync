@@ -95,7 +95,7 @@ export const getTimeAgo = (date: string | Date): string => {
       dateObj.getUTCSeconds() === 0;
 
     const days = differenceInDays(now, dateObj);
-    console.log(isMidnight, dateObj);
+
     // If same day and no time info → "today"
     if (days === 0 && isMidnight) {
       return "Today";

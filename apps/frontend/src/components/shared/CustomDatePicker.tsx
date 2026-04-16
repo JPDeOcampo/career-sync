@@ -15,7 +15,7 @@ import {
 } from "lucide-react";
 import * as Popover from "@radix-ui/react-popover";
 import { cn } from "@/utils/cn";
-import { formatDate } from "@/utils/dateHelper";
+import { formatDate } from "@career-sync/shared";
 import { FieldLabel } from "@/components/shared/Label";
 
 type Props = {

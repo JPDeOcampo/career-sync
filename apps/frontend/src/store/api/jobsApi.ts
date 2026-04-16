@@ -1,10 +1,13 @@
 import { createApi } from "@reduxjs/toolkit/query/react";
-import { JobApplication, JobQueryTypes } from "@career-sync/shared";
+import { JobApplication, JobQueryTypes, formatDate } from "@career-sync/shared";
 import { baseQueryWithReauth } from "./baseQueryWithReauth";
-import { formatDate } from "@/utils/dateHelper";
 import { current } from "@reduxjs/toolkit";
 
 const path = "/jobs";
+
+type PatchResult = {
+  undo: () => void;
+};
 
 interface JobsResponse {
   jobs: JobApplication[];
@@ -362,96 +365,124 @@ export const jobsApi = createApi({
       //     console.error("Update job failed", err);
       //   }
       // },
-      async onQueryStarted({ id }, { dispatch, getState, queryFulfilled }) {
-        try {
-          const { data: response } = await queryFulfilled;
-          const updatedJob = response.data;
+      async onQueryStarted(
+        { id, data },
+        { dispatch, getState, queryFulfilled },
+      ) {
+        const state = getState();
+        const queries = state[jobsApi.reducerPath].queries;
 
-          const state = getState();
+        const patchResults: PatchResult[] = [];
 
-          const queries = state[jobsApi.reducerPath].queries;
+        const applyUpdate = ({
+          draft,
+          args,
+          updatedJob,
+        }: {
+          draft: JobsResponse;
+          args: JobQueryTypes;
+          updatedJob: JobApplication;
+        }) => {
+          const index = draft.jobs.findIndex((j) => j.id === id);
+          const oldJob = index !== -1 ? draft.jobs[index] : null;
 
+          const matchesQuery = (
+            job: JobApplication,
+            query: JobQueryTypes,
+          ): boolean => {
+            if (
+              query.status &&
+              job.status !== query.status &&
+              query.status !== "All"
+            )
+              return false;
+            if (
+              query.priority &&
+              job.priority !== query.priority &&
+              query.priority !== "All"
+            )
+              return false;
+
+            if (query.search) {
+              const search = query.search.toLowerCase();
+              const target = `${job.roleTitle} ${job.company}`.toLowerCase();
+              if (!target.includes(search)) return false;
+            }
+
+            return true;
+          };
+
+          const shouldExist = matchesQuery(updatedJob, args);
+
+          if (index !== -1) {
+            if (shouldExist) {
+              draft.jobs[index] = updatedJob;
+            } else {
+              draft.jobs.splice(index, 1);
+            }
+          } else if (shouldExist) {
+            const exists = draft.jobs.some((j) => j.id === updatedJob.id);
+            if (!exists) {
+              draft.jobs.unshift(updatedJob);
+            }
+          }
+
+          if (args.sort === "oldest") {
+            draft.jobs.sort(
+              (a, b) =>
+                new Date(a.createdAt).getTime() -
+                new Date(b.createdAt).getTime(),
+            );
+          } else {
+            draft.jobs.sort(
+              (a, b) =>
+                new Date(b.createdAt).getTime() -
+                new Date(a.createdAt).getTime(),
+            );
+          }
+
+          if (args.limit && draft.jobs.length > args.limit) {
+            draft.jobs.pop();
+          }
+
+          updateJobStats(draft, oldJob, updatedJob);
+        };
+
+        // Helper to run across all queries
+        const runUpdate = ({
+          updatedJob,
+          collectPatch = false,
+        }: {
+          updatedJob: JobApplication;
+          collectPatch?: boolean;
+        }) => {
           Object.values(queries).forEach((q) => {
             if (q?.endpointName !== "getJobs" || !q.originalArgs) return;
 
             const args = q.originalArgs as JobQueryTypes;
 
-            dispatch(
+            const result = dispatch(
               jobsApi.util.updateQueryData("getJobs", args, (draft) => {
-                const index = draft.jobs.findIndex((j) => j.id === id);
-                const oldJob = index !== -1 ? draft.jobs[index] : null;
-
-                // --- FILTER LOGIC ---
-                const matchesQuery = (
-                  job: JobApplication,
-                  query: JobQueryTypes,
-                ): boolean => {
-                  if (
-                    query.status &&
-                    job.status !== query.status &&
-                    query.status !== "All"
-                  )
-                    return false;
-                  if (
-                    query.priority &&
-                    job.priority !== query.priority &&
-                    query.priority !== "All"
-                  )
-                    return false;
-
-                  if (query.search) {
-                    const search = query.search.toLowerCase();
-                    const target =
-                      `${job.roleTitle} ${job.company}`.toLowerCase();
-                    if (!target.includes(search)) return false;
-                  }
-
-                  return true;
-                };
-
-                const shouldExist = matchesQuery(updatedJob, args);
-
-                // --- UPDATE / REMOVE / ADD ---
-                if (index !== -1) {
-                  if (shouldExist) {
-                    draft.jobs[index] = updatedJob;
-                  } else {
-                    draft.jobs.splice(index, 1);
-                  }
-                } else if (shouldExist) {
-                  const exists = draft.jobs.some((j) => j.id === updatedJob.id);
-                  if (!exists) {
-                    draft.jobs.unshift(updatedJob);
-                  }
-                }
-
-                // --- SORT ---
-                if (args.sort === "oldest") {
-                  draft.jobs.sort(
-                    (a, b) =>
-                      new Date(a.createdAt).getTime() -
-                      new Date(b.createdAt).getTime(),
-                  );
-                } else {
-                  draft.jobs.sort(
-                    (a, b) =>
-                      new Date(b.createdAt).getTime() -
-                      new Date(a.createdAt).getTime(),
-                  );
-                }
-
-                // --- PAGINATION LIMIT ---
-                if (args.limit && draft.jobs.length > args.limit) {
-                  draft.jobs.pop();
-                }
-
-                // --- STATS ---
-                updateJobStats(draft, oldJob, updatedJob);
+                applyUpdate({ draft, args, updatedJob });
               }),
             );
+
+            if (collectPatch) patchResults.push(result);
           });
+        };
+
+        // Update the cache first with updated data to provide instant UI feedback
+        runUpdate({ updatedJob: data, collectPatch: true });
+
+        try {
+          // Update data with api response
+          const { data: response } = await queryFulfilled;
+          runUpdate({ updatedJob: response.data });
         } catch (err) {
           console.error("Update job failed", err);
+
+          // Rollback
+          patchResults.forEach((p) => p.undo());
         }
       },
     }),
