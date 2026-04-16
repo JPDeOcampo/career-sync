@@ -17,9 +17,13 @@ import {
   Calendar,
   Notebook,
 } from "lucide-react";
-import { JobFormData, JobApplication, jobSchema } from "@career-sync/shared";
+import {
+  JobFormData,
+  JobApplication,
+  jobSchema,
+  getTodayString,
+} from "@career-sync/shared";
 import { selectAuth } from "@/store/selectors";
-import { getTodayString } from "@/utils/dateHelper";
 import { useForm, FormProvider } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { v4 as uuidv4 } from "uuid";

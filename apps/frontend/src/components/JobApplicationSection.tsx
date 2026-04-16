@@ -30,7 +30,7 @@ import {
   removeDocument,
 } from "@/store/slices/documentSlice";
 import ProgressBar from "./shared/ProgressBar";
-import { getTodayString } from "@/utils/dateHelper";
+import { getTodayString } from "@career-sync/shared";
 import { toast } from "sonner";
 import { isFetchBaseQueryError } from "@/utils/errorGuard";
 import { LoadingSpinner } from "./shared/Loading";
