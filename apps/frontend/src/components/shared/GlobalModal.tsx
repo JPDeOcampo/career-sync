@@ -7,7 +7,7 @@ import CustomTooltip from "./CustomTooltip";
 import { cn } from "@/utils/cn";
 import { LoadingSpinner } from "./Loading";
 
-const GlobalModal = ({
+export const ConfirmModal = ({
   isShow,
   title = "Confirm Action",
   description,
@@ -118,5 +118,3 @@ const GlobalModal = ({
     </AnimatePresence>
   );
 };
-
-export default GlobalModal;

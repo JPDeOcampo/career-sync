@@ -319,4 +319,92 @@
   .auth-card {
     @apply md:bg-white md:dark:bg-gray-800 rounded-2xl md:shadow-xl p-8 w-full md:max-w-md;
   }
+
+  /* React Date Picker */
+  .rdp {
+    @apply m-0;
+    --rdp-cell-size: 50px;
+    --rdp-accent-color: #3b82f6;
+  }
+
+  .rdp-root {
+    @apply w-full flex justify-center;
+  }
+
+  .rdp-month_caption {
+    @apply pl-4 md:pl-5.5!;
+  }
+
+  .rdp-weekday {
+    @apply lg:w-15! lg:inline-flex lg:justify-center;
+  }
+
+  .rdp-day {
+    @apply lg:h-15! lg:w-15! lg:inline-flex lg:justify-center;
+  }
+
+  .rdp-day_button {
+    @apply h-12.5! w-12.5!;
+  }
+
+  .rdp-nav button svg {
+    @apply fill-blue-700! hover:fill-blue-900!;
+  }
+
+  /* Application dot */
+  .rdp-day--application {
+    @apply relative;
+  }
+  .rdp-day--application::after {
+    content: "";
+    @apply absolute bottom-2.5 md:bottom-4.5 left-1/2 -translate-x-1/2 w-1.5 h-1.5 rounded-full bg-blue-500;
+  }
+
+  /* Interview dot */
+  .rdp-day--interview {
+    @apply relative;
+  }
+  .rdp-day--interview::before {
+    content: "";
+    @apply absolute  top-2.5 md:top-2 left-1/2 -translate-x-1/2 w-1.5 h-1.5 rounded-full bg-yellow-500;
+  }
+
+  /* Both modifiers */
+  .rdp-day--application.rdp-day--interview::after {
+    @apply bottom-2;
+  }
+
+  /* Layout */
+  .rdp-months {
+    @apply flex justify-center;
+  }
+
+  /* Text colors */
+  .rdp-caption {
+    @apply text-gray-900 dark:text-white;
+  }
+
+  .rdp-head_cell {
+    @apply text-gray-500 dark:text-gray-400;
+  }
+
+  .rdp-day {
+    @apply text-gray-900 dark:text-white;
+  }
+
+  /* Hover */
+  .rdp-day:hover:not(.rdp-selected):not(.rdp-today) .rdp-day_button {
+    @apply bg-gray-100! dark:bg-gray-700! rounded-full;
+  }
+
+  /* Selected */
+  .rdp-today .rdp-day_button {
+    @apply bg-blue-700! text-white! font-semibold! rounded-full!;
+  }
+
+  .rdp-selected .rdp-day_button {
+    @apply border border-blue-500! dark:border-gray-100! rounded-full;
+  }
+
+  /* -- React Date Picker End -- */
 }

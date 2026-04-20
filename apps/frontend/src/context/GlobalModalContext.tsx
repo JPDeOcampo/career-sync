@@ -1,6 +1,6 @@
 "use client";
 import { createContext, useContext, useState } from "react";
-import GlobalModal from "@/components/shared/GlobalModal";
+import { ConfirmModal } from "@/components/shared/GlobalModal";
 
 type GlobalModalOptions = {
   title?: string;
@@ -51,7 +51,7 @@ export const GlobalModalProvider = ({
     <GlobalModalContext.Provider value={{ handleGlobalModal }}>
       {children}
 
-      <GlobalModal
+      <ConfirmModal
         isShow={!!globalModal}
         title={globalModal?.title}
         description={globalModal?.description}
@@ -66,7 +66,7 @@ export const GlobalModalProvider = ({
         onClose={() => handleGlobalModal({})}
       >
         {globalModal?.children}
-      </GlobalModal>
+      </ConfirmModal>
     </GlobalModalContext.Provider>
   );
 };
