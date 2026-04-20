@@ -340,7 +340,7 @@
   }
 
   .rdp-day {
-    @apply lg:h-15! lg:w-15! lg:inline-flex lg:justify-center;
+    @apply lg:h-15! lg:w-15! lg:inline-flex lg:justify-center lg:items-center;
   }
 
   .rdp-day_button {
@@ -357,7 +357,7 @@
   }
   .rdp-day--application::after {
     content: "";
-    @apply absolute bottom-2.5 md:bottom-4.5 left-1/2 -translate-x-1/2 w-1.5 h-1.5 rounded-full bg-blue-500;
+    @apply absolute bottom-2! lg:bottom-3! left-1/2 -translate-x-1/2 w-1.5 h-1.5 rounded-full bg-blue-500;
   }
 
   /* Interview dot */
@@ -366,7 +366,7 @@
   }
   .rdp-day--interview::before {
     content: "";
-    @apply absolute  top-2.5 md:top-2 left-1/2 -translate-x-1/2 w-1.5 h-1.5 rounded-full bg-yellow-500;
+    @apply absolute top-1.5! lg:top-3! left-1/2 -translate-x-1/2 w-1.5 h-1.5 rounded-full bg-yellow-500;
   }
 
   /* Both modifiers */
