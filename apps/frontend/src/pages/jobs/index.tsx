@@ -1,3 +1,4 @@
+import { useMemo } from "react";
 import { JobTagStatus, JobTagPriorityText } from "@/components/shared/JobTag";
 import { Search, Trash2, ArrowUpDown } from "lucide-react";
 import {
@@ -581,11 +582,16 @@ const Jobs = () => {
 
   const { data, isFetching, isError } = useGetJobsQuery(getJobsQuery);
   const [deleteJob] = useDeleteJobMutation();
-  const jobs = data?.jobs || [];
+
   const totalPages = data?.pagination?.totalPages;
+  const jobs = useMemo(() => {
+    if (!data?.jobs) return [];
+    return data.jobs;
+  }, [data]);
+
   const hasJobs = jobs && jobs?.length > 0;
   const { handleGlobalModal } = useGlobalModal();
-  console.log(data);
+
   const handleSort = (newSortBy: typeof sortBy) => {
     const newSortOrder =
       sortBy === newSortBy && sortOrder === "desc" ? "asc" : "desc";

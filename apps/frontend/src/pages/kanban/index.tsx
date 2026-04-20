@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import {
   ApplicationStatus,
   JobApplication,
@@ -27,7 +27,11 @@ const Kanban = () => {
 
   const [updateJob, { isLoading: isUpdating }] = useUpdateJobMutation();
   const { data, isFetching, isError } = useGetJobsQuery(getJobsQuery);
-  const jobs = data?.jobs || [];
+
+  const jobs = useMemo(() => {
+    if (!data?.jobs) return [];
+    return data.jobs;
+  }, [data]);
 
   const groupedJobs = statuses.reduce(
     (acc, status) => {
