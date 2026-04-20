@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { JobApplication } from "@career-sync/shared";
 import { DayPicker } from "react-day-picker";
 import { format, parseISO, isSameDay } from "date-fns";
@@ -56,6 +56,10 @@ const Calendar = () => {
   const { data, isFetching, isError } = useGetJobsQuery(getJobsQuery);
   const jobs = data?.jobs || [];
   const latestStage = selectedJob?.interviewStages?.at(-1);
+  const modifiersClassNames = {
+    application: "rdp-day--application",
+    interview: "rdp-day--interview",
+  };
 
   // Get dates with applications
   const applicationDates = useMemo(() => {
@@ -127,10 +131,17 @@ const Calendar = () => {
     return mods;
   }, [applicationDates, interviewDates, filter]);
 
-  const modifiersClassNames = {
-    application: "rdp-day--application",
-    interview: "rdp-day--interview",
-  };
+  useEffect(() => {
+    if (selectedDate) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "unset";
+    }
+
+    return () => {
+      document.body.style.overflow = "unset";
+    };
+  }, [selectedDate]);
 
   return (
     <div className="space-y-6">
