@@ -1,3 +1,4 @@
+import { useMemo } from "react";
 import { motion } from "motion/react";
 import StatCard from "@/components/StatCard";
 import { Briefcase, Calendar, Gift, XCircle, Star } from "lucide-react";
@@ -32,7 +33,11 @@ const Dashboard = () => {
 
   const { data, isFetching, isError } = useGetJobsQuery(getJobsQuery);
 
-  const recentJobs = data?.jobs || [];
+  const recentJobs = useMemo(() => {
+    if (!data?.jobs) return [];
+    return data.jobs;
+  }, [data]);
+
   const totalPages = data?.pagination?.totalPages;
   const hasRecentJobs = recentJobs && recentJobs?.length > 0;
   const isLoadingJobs = isFetching && !isError && recentJobs?.length === 0;
