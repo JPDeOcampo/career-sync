@@ -14,31 +14,30 @@ type CalendarFilter = "all" | "applications" | "interviews";
 
 const CalendarSkeleton = () => {
   return (
-    <div className="w-110 p-4 mx-auto ">
+    <div className="w-full max-w-md p-2 lg:p-4 mx-auto">
       {/* Header */}
       <div className="flex items-center justify-between mb-4">
-        <Skeleton className="w-24 h-5 rounded-md" />
+        <Skeleton className="w-20 lg:w-24 h-5 rounded-md" />
         <div className="flex gap-2">
-          <Skeleton className="w-8 h-8 rounded-md" />
-          <Skeleton className="w-8 h-8 rounded-md" />
+          <Skeleton className="w-7 h-7 lg:w-8 sm:h-8 rounded-md" />
+          <Skeleton className="w-7 h-7 lg:w-8 sm:h-8 rounded-md" />
         </div>
       </div>
 
       {/* Weekday Labels */}
-      <div className="grid grid-cols-7 gap-2 mb-2">
+      <div className="grid grid-cols-7 gap-1 lg:gap-2 mb-2">
         {Array.from({ length: 7 }).map((_, i) => (
-          <Skeleton
-            key={i}
-            variant="rectangular"
-            className="h-3 w-10 mx-auto"
-          />
+          <Skeleton key={i} className="h-3 w-8 lg:w-10 mx-auto rounded-sm" />
         ))}
       </div>
 
       {/* Calendar Grid */}
-      <div className="grid grid-cols-7 gap-2 justify-items-center">
+      <div className="grid grid-cols-7 gap-1 lg:gap-2 justify-items-center">
         {Array.from({ length: 35 }).map((_, i) => (
-          <Skeleton key={i} variant="rectangular" className="h-11 w-10" />
+          <Skeleton
+            key={i}
+            className="h-10 lg:h-12 w-full max-w-11 rounded-md"
+          />
         ))}
       </div>
     </div>
