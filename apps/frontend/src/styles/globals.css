@@ -332,7 +332,7 @@
   }
 
   .rdp-month_caption {
-    @apply pl-4 md:pl-5.5!;
+    @apply pl-3 lg:pl-5.5!;
   }
 
   .rdp-weekday {
@@ -340,11 +340,11 @@
   }
 
   .rdp-day {
-    @apply lg:h-15! lg:w-15! lg:inline-flex lg:justify-center lg:items-center;
+    @apply h-14! w-14! lg:h-15! lg:w-15! lg:inline-flex lg:justify-center lg:items-center;
   }
 
   .rdp-day_button {
-    @apply h-12.5! w-12.5!;
+    @apply h-11! w-11! lg:h-12.5! lg:w-12.5!;
   }
 
   .rdp-nav button svg {
@@ -357,7 +357,7 @@
   }
   .rdp-day--application::after {
     content: "";
-    @apply absolute bottom-2! lg:bottom-3! left-1/2 -translate-x-1/2 w-1.5 h-1.5 rounded-full bg-blue-500;
+    @apply absolute bottom-3! left-5.5 lg:left-1/2 -translate-x-1/2 w-1.5 h-1.5 rounded-full bg-blue-500;
   }
 
   /* Interview dot */
@@ -366,7 +366,7 @@
   }
   .rdp-day--interview::before {
     content: "";
-    @apply absolute top-1.5! lg:top-3! left-1/2 -translate-x-1/2 w-1.5 h-1.5 rounded-full bg-yellow-500;
+    @apply absolute top-3! left-5.5 lg:left-1/2 -translate-x-1/2 w-1.5 h-1.5 rounded-full bg-yellow-500;
   }
 
   /* Both modifiers */
