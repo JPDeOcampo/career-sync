@@ -133,7 +133,7 @@ const Calendar = () => {
   }, [applicationDates, interviewDates, filter]);
 
   useEffect(() => {
-    if (selectedDate) {
+    if (selectedJob) {
       document.body.style.overflow = "hidden";
     } else {
       document.body.style.overflow = "unset";
@@ -142,7 +142,7 @@ const Calendar = () => {
     return () => {
       document.body.style.overflow = "unset";
     };
-  }, [selectedDate]);
+  }, [selectedJob]);
 
   return (
     <div className="space-y-6">
