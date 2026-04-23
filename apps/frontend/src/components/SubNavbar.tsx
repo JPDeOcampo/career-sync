@@ -3,8 +3,8 @@ import {
   Briefcase,
   KanbanSquare,
   Calendar,
-  ArrowLeft,
-  ArrowRight,
+  ChevronLeft,
+  ChevronRight,
 } from "lucide-react";
 import { motion } from "motion/react";
 import useGlobalHooks from "@/hooks/useGlobal";
@@ -105,7 +105,7 @@ const SubNavbar = () => {
               bg-background/80 backdrop-blur-md rounded-full p-1.5 shadow-md"
               aria-label="Previous"
             >
-              <ArrowLeft size={20} />
+              <ChevronLeft size={20} />
             </button>
           )}
 
@@ -166,7 +166,7 @@ const SubNavbar = () => {
               bg-background/80 backdrop-blur-md rounded-full p-1.5 shadow-md"
               aria-label="Next"
             >
-              <ArrowRight size={20} />
+              <ChevronRight size={20} />
             </button>
           )}
         </div>
