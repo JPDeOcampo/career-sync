@@ -185,6 +185,7 @@ const Dashboard = () => {
           onPageChange={(page) =>
             onPaginationAction({
               pages: { dashboard: { page } },
+              search: getJobsQuery.search,
               sort: "recent",
             })
           }

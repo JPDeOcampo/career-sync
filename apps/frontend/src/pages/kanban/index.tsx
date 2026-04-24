@@ -46,6 +46,7 @@ const Kanban = () => {
       const result = await updateJob({
         id: data.id,
         data: data,
+        isKanban: true,
       }).unwrap();
 
       handleSaveJob(result.data);

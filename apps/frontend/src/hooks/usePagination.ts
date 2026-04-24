@@ -5,6 +5,7 @@ import { selectPagination } from "@/store/selectors";
 
 interface PaginationState {
   pages: Record<string, { page: number }>;
+  search?: string;
   sort?: string;
 }
 
@@ -12,7 +13,7 @@ const usePaginationHooks = () => {
   const dispatch = useAppDispatch();
   const { pages } = useAppSelector(selectPagination);
 
-  const onPaginationAction = ({ pages, sort }: PaginationState) => {
+  const onPaginationAction = ({ pages, search, sort }: PaginationState) => {
     const [[key, value]] = Object.entries(pages);
     const nextPage = value.page;
     dispatch(setPage({ key, value: nextPage }));
@@ -21,6 +22,7 @@ const usePaginationHooks = () => {
         key,
         data: {
           page: nextPage || 1,
+          search,
           sort,
         },
       }),

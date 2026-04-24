@@ -737,7 +737,11 @@ const Jobs = () => {
           currentPage={pages.jobs || 1}
           totalPages={totalPages || 1}
           onPageChange={(page) =>
-            onPaginationAction({ pages: { jobs: { page } } })
+            onPaginationAction({
+              pages: { jobs: { page } },
+              search: getJobsQuery.search,
+              sort: getJobsQuery.sort,
+            })
           }
         />
       )}
