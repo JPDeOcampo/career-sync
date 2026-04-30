@@ -465,9 +465,9 @@ export const jobsApi = createApi({
         };
 
         // Optimistic: update UI + stats for kanban only
-        if (isKanban) {
-          runUpdate(data, true);
-        }
+        // if (isKanban) {
+        runUpdate(data, true);
+        // }
 
         try {
           const { data: response } = await queryFulfilled;

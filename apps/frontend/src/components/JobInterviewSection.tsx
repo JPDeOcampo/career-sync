@@ -93,8 +93,19 @@ const ItemHeader = ({
                 handleGlobalModal({
                   variant: "default",
                   title: "Confirm Action",
-                  description: `Are you sure you want to delete this <b>${title} ${orderId}</b>? This action cannot be undone.`,
-                  onConfirm: removedItem,
+                  description: (
+                    <p>
+                      Are you sure you want to delete this{" "}
+                      <b>
+                        {title} {orderId}
+                      </b>
+                      ? This action cannot be undone.
+                    </p>
+                  ),
+                  onConfirm: () => {
+                    removedItem();
+                    handleGlobalModal({});
+                  },
                 })
               }
               className="text-background bg-red-500 hover:bg-red-400 rounded-full p-1 cursor-pointer"
@@ -184,6 +195,7 @@ const JobInterviewSection = ({
                   value={controllerField.value}
                   isViewOnly={isViewOnly}
                   align="left"
+                  isRequired={true}
                 >
                   {interviewTypes.map((s) => (
                     <DropdownItem
@@ -211,6 +223,7 @@ const JobInterviewSection = ({
                   value={field.value}
                   isViewOnly={isViewOnly}
                   onChange={field.onChange}
+                  isRequired={true}
                 />
               )}
             />
@@ -223,6 +236,7 @@ const JobInterviewSection = ({
                   value={field.value}
                   isViewOnly={isViewOnly}
                   onChange={field.onChange}
+                  isRequired={true}
                 />
               )}
             />
@@ -244,12 +258,12 @@ const JobInterviewSection = ({
         <AddButton label="Add new Interview" onClick={handleAdd} />
       )}
 
-      <Checkbox
+      {/* <Checkbox
         label="Received Offer"
         disabled={isViewOnly}
         isViewOnly={isViewOnly}
         {...register("offer")}
-      />
+      /> */}
     </div>
   );
 };

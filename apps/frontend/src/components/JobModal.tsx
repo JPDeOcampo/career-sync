@@ -208,10 +208,11 @@ const JobModalSectionHeader = ({
   return (
     <div className="job-modal-section-header">
       <h3>{title}</h3>
+
       {editableFields.length === 0 && (
         <button
           type="button"
-          className="flex gap-2 items-center hover:opacity-70"
+          className="flex gap-2 items-center hover:bg-gray-100 dark:hover:bg-gray-700 p-1 rounded-md"
           aria-label="edit"
           onClick={() => {
             if (onClick) onClick();

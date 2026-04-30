@@ -260,10 +260,10 @@ const Calendar = () => {
           transition={{ duration: 0.5, delay: 0.3 }}
           className="lg:col-span-1"
         >
-          <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 p-6 sticky top-32">
+          <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 sticky top-32 py-6">
             {selectedDate ? (
               <>
-                <div className="flex items-center gap-2 mb-4">
+                <div className="flex items-center gap-2 mb-4 px-6">
                   <CalendarIcon className="w-5 h-5 text-blue-600 dark:text-blue-400" />
                   <h3 className="font-semibold text-gray-900 dark:text-white">
                     {format(selectedDate, "MMMM d, yyyy")}
@@ -271,7 +271,7 @@ const Calendar = () => {
                 </div>
 
                 {jobsForSelectedDate.length > 0 ? (
-                  <div className="space-y-3">
+                  <div className="ps-6 pr-5 space-y-3 max-h-118.75 overflow-y-auto">
                     {jobsForSelectedDate.map((job) => {
                       const latestStage =
                         job.interviewStages &&

@@ -55,9 +55,10 @@ const StatCard = ({
           )}
         </div>
         <div className={`p-3 rounded-xl ${colorStyles[color]}`}>
-          <Icon
+          {/* <Icon
             className={`w-6 h-6 ${title === "High Priority" ? "fill-yellow-500" : ""}`}
-          />
+          /> */}
+          <Icon className=" w-6 h-6" />
         </div>
       </div>
     </motion.div>

@@ -19,17 +19,17 @@ const HelmetMeta = ({
       <link
         rel="icon"
         type="image/png"
-        href="images/favicon/favicon-96x96.png"
+        href="/favicon/favicon-96x96.png"
         sizes="96x96"
       />
-      <link rel="icon" type="image/svg+xml" href="images/favicon/favicon.svg" />
-      <link rel="shortcut icon" href="images/favicon/favicon.ico" />
+      <link rel="icon" type="image/svg+xml" href="/favicon/favicon.svg" />
+      <link rel="shortcut icon" href="/favicon/favicon.ico" />
       <link
         rel="apple-touch-icon"
         sizes="180x180"
-        href="images/favicon/apple-touch-icon.png"
+        href="/favicon/apple-touch-icon.png"
       />
-      <link rel="manifest" href="images/favicon/site.webmanifest" />
+      <link rel="manifest" href="/favicon/site.webmanifest" />
       <meta property="og:title" content={title} />
       <meta property="og:description" content={description} />
       <meta property="og:image" content={`${image}`} />

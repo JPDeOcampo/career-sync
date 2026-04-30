@@ -135,7 +135,7 @@ const Kanban = () => {
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5, delay: 0.1 }}
-        className="overflow-x-auto p-4 relative"
+        className="overflow-x-auto px-1 pt-1 pb-2 relative"
       >
         <DndContext
           collisionDetection={closestCenter}

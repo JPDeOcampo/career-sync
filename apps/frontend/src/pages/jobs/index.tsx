@@ -170,7 +170,7 @@ const JobTableSkeleton = ({ rows = 5 }) => {
       </div>
 
       {/* MOBILE CARD SKELETON */}
-      <div className="block md:hidden p-2 space-y-3">
+      <div className="block md:hidden md:p-2 space-y-3">
         {Array.from({ length: rows }).map((_, index) => (
           <div
             key={index}

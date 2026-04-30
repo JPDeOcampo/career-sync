@@ -22,6 +22,7 @@ type Props = {
   label?: string;
   value?: Date | string | null;
   isViewOnly?: boolean;
+  isRequired?: boolean;
   onChange: (date: string) => void;
 };
 
@@ -35,6 +36,7 @@ const CustomDatePicker = ({
   label = "Date",
   value,
   isViewOnly,
+  isRequired = false,
   onChange,
 }: Props) => {
   const [open, setOpen] = useState(false);
@@ -69,7 +71,7 @@ const CustomDatePicker = ({
 
   return (
     <div className="flex flex-col gap-1 w-full">
-      {label && <FieldLabel label={label} isViewOnly={isViewOnly} />}
+      {label && <FieldLabel label={label} isViewOnly={isViewOnly} isRequired />}
 
       {isViewOnly && (
         <p className="text-job-value">

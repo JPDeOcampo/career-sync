@@ -10,6 +10,7 @@ interface DropdownProps {
   value: string;
   children: ReactNode;
   isViewOnly?: boolean;
+  isRequired?: boolean;
   align?: "left" | "right";
   url?: string;
   className?: string;
@@ -33,6 +34,7 @@ export const Dropdown = ({
   label,
   value,
   isViewOnly = false,
+  isRequired = false,
   children,
   align = "left",
   url,
@@ -56,7 +58,9 @@ export const Dropdown = ({
   return (
     <DropdownContext.Provider value={{ closeDropdown }}>
       <div className="flex flex-col gap-2 w-full">
-        {label && <FieldLabel label={label} isViewOnly={isViewOnly} />}
+        {label && (
+          <FieldLabel label={label} isViewOnly={isViewOnly} isRequired />
+        )}
 
         {/* VIEW ONLY MODE */}
         {isViewOnly &&

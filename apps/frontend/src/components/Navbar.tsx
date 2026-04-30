@@ -64,8 +64,8 @@ const Navbar = () => {
           {/* LEFT SIDE */}
           <div className="flex items-center gap-2 sm:gap-3 min-w-0">
             <Logo
-              className="h-10 w-10 sm:h-12 sm:w-12 shrink-0"
-              iconClassName="w-6 h-6 sm:w-8 sm:h-8"
+              className="h-10 w-10 sm:h-11 sm:w-11 shrink-0"
+              iconClassName="w-6 h-6 sm:w-7 sm:h-7"
             />
 
             <div className="truncate">

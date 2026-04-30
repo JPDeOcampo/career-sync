@@ -51,11 +51,11 @@ const KanbanColumn = ({
     <div className="shrink-0 w-80 h-full">
       <div
         ref={setNodeRef}
-        className={`bg-gray-100 dark:bg-gray-800/50 rounded-xl p-4 h-full transition ${
+        className={`bg-gray-100 dark:bg-gray-800/50 rounded-xl py-4 h-full transition ${
           isOver ? "ring-2 ring-blue-400" : ""
         }`}
       >
-        <div className="flex items-center justify-between mb-4">
+        <div className="flex items-center justify-between mb-4 px-4">
           <h3 className="font-semibold text-gray-900 dark:text-white">
             {status}
           </h3>
@@ -73,7 +73,7 @@ const KanbanColumn = ({
           )}
         </div>
 
-        <div className="space-y-3 min-h-130 max-h-130 overflow-y-auto overflow-x-visible">
+        <div className="space-y-3 min-h-130 max-h-130 px-4 overflow-y-auto overflow-x-visible">
           {" "}
           {isLoading
             ? Array.from({ length: 3 }).map((_, i) => (
