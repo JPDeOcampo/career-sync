@@ -2,13 +2,14 @@ import { useState, useMemo, useEffect } from "react";
 import { JobApplication } from "@career-sync/shared";
 import { DayPicker } from "react-day-picker";
 import { format, parseISO, isSameDay } from "date-fns";
-import { motion, AnimatePresence } from "motion/react";
+import { motion } from "motion/react";
 import { Calendar as CalendarIcon, X } from "lucide-react";
 import { JobTagStatus } from "@/components/shared/JobTag";
 import "react-day-picker/dist/style.css";
 import useJobHooks from "@/hooks/useJob";
 import { useGetJobsQuery } from "@/store/api/jobsApi";
 import { Skeleton } from "@/components/shared/Loading";
+import Modal from "@/components/shared/Modal";
 
 type CalendarFilter = "all" | "applications" | "interviews";
 
@@ -322,134 +323,107 @@ const Calendar = () => {
       </div>
 
       {/* Job Details Modal */}
-      <AnimatePresence>
-        {selectedJob && (
-          <div className="fixed inset-0 flex items-center justify-center z-50 p-4">
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              onClick={() => setSelectedJob(null)}
-              className="fixed inset-0 bg-black/50 backdrop-blur-sm z-40"
-            />
+      {selectedJob && (
+        <Modal
+          containerClassName="max-w-2xl max-h-[80vh]"
+          headerText={selectedJob.company}
+          onClose={() => setSelectedJob(null)}
+        >
+          <div className="p-6 overflow-y-auto max-h-[calc(80vh-80px)] space-y-4">
+            <div>
+              <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-1">
+                {selectedJob.roleTitle}
+              </h3>
+              <p className="text-sm text-gray-600 dark:text-gray-400">
+                {selectedJob.jobDescription}
+              </p>
+            </div>
 
-            <motion.div
-              initial={{ opacity: 0, scale: 0.95, y: 20 }}
-              animate={{ opacity: 1, scale: 1, y: 0 }}
-              exit={{ opacity: 0, scale: 0.95, y: 20 }}
-              className="surface rounded-2xl shadow-2xl w-full max-w-2xl max-h-[80vh] overflow-hidden z-50"
-            >
-              <div className="sticky top-0 bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 px-6 py-4 flex items-center justify-between">
-                <h2 className="text-xl font-semibold text-gray-900 dark:text-white">
-                  {selectedJob.company}
-                </h2>
-                <button
-                  onClick={() => setSelectedJob(null)}
-                  className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-full transition-colors"
-                >
-                  <X className="w-5 h-5 text-gray-500 dark:text-gray-400" />
-                </button>
+            <div className="grid grid-cols-2 gap-4 text-sm">
+              <div>
+                <span className="text-gray-500 dark:text-gray-400">
+                  Status:
+                </span>
+                <div className="mt-1">
+                  <JobTagStatus status={selectedJob.status} />
+                </div>
               </div>
-
-              <div className="p-6 overflow-y-auto max-h-[calc(80vh-80px)] space-y-4">
+              <div>
+                <span className="text-gray-500 dark:text-gray-400">Type:</span>
+                <p className="text-gray-900 dark:text-white mt-1">
+                  {selectedJob.jobType}
+                </p>
+              </div>
+              <div>
+                <span className="text-gray-500 dark:text-gray-400">
+                  Work Setup:
+                </span>
+                <p className="text-gray-900 dark:text-white mt-1">
+                  {selectedJob.workSetup}
+                </p>
+              </div>
+              {selectedJob.location && (
                 <div>
-                  <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-1">
-                    {selectedJob.roleTitle}
-                  </h3>
-                  <p className="text-sm text-gray-600 dark:text-gray-400">
-                    {selectedJob.jobDescription}
+                  <span className="text-gray-500 dark:text-gray-400">
+                    Location:
+                  </span>
+                  <p className="text-gray-900 dark:text-white mt-1">
+                    {selectedJob.location}
                   </p>
                 </div>
-
-                <div className="grid grid-cols-2 gap-4 text-sm">
-                  <div>
-                    <span className="text-gray-500 dark:text-gray-400">
-                      Status:
-                    </span>
-                    <div className="mt-1">
-                      <JobTagStatus status={selectedJob.status} />
-                    </div>
-                  </div>
-                  <div>
-                    <span className="text-gray-500 dark:text-gray-400">
-                      Type:
-                    </span>
-                    <p className="text-gray-900 dark:text-white mt-1">
-                      {selectedJob.jobType}
-                    </p>
-                  </div>
-                  <div>
-                    <span className="text-gray-500 dark:text-gray-400">
-                      Work Setup:
-                    </span>
-                    <p className="text-gray-900 dark:text-white mt-1">
-                      {selectedJob.workSetup}
-                    </p>
-                  </div>
-                  {selectedJob.location && (
-                    <div>
-                      <span className="text-gray-500 dark:text-gray-400">
-                        Location:
-                      </span>
-                      <p className="text-gray-900 dark:text-white mt-1">
-                        {selectedJob.location}
-                      </p>
-                    </div>
-                  )}
-                  {selectedJob.salary && (
-                    <div className="col-span-2">
-                      <span className="text-gray-500 dark:text-gray-400">
-                        Salary:
-                      </span>
-                      <p className="text-gray-900 dark:text-white mt-1">
-                        {selectedJob.salary}
-                      </p>
-                    </div>
-                  )}
+              )}
+              {selectedJob.salary && (
+                <div className="col-span-2">
+                  <span className="text-gray-500 dark:text-gray-400">
+                    Salary:
+                  </span>
+                  <p className="text-gray-900 dark:text-white mt-1">
+                    {selectedJob.salary}
+                  </p>
                 </div>
+              )}
+            </div>
 
-                {latestStage && (
-                  <div className="bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-lg p-4">
-                    <h4 className="font-bold text-yellow-900 dark:text-yellow-400 mb-2">
-                      Interview Details:
-                    </h4>
-                    <div className="text-sm space-y-1 text-yellow-800 dark:text-yellow-300">
-                      <p>
-                        Date:{" "}
-                        {format(
-                          parseISO(latestStage.interviewDate),
-                          "MMMM d, yyyy",
-                        )}
-                      </p>
-                      {latestStage.interviewTime && (
-                        <p>Time: {latestStage.interviewTime}</p>
-                      )}
-                      {latestStage.interviewerName && (
-                        <p>Interviewer: {latestStage.interviewerName}</p>
-                      )}
-                      <p>
-                        Stage-{selectedJob?.interviewStages?.length}:{" "}
-                        {latestStage.interviewType}
-                      </p>
-                    </div>
-                  </div>
-                )}
-
-                {selectedJob.notes && (
-                  <div>
-                    <span className="text-gray-500 dark:text-gray-400 text-sm">
-                      Notes:
-                    </span>
-                    <p className="text-gray-900 dark:text-white mt-1 text-sm">
-                      {selectedJob.notes}
-                    </p>
-                  </div>
-                )}
+            {latestStage && (
+              <div className="bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-lg p-4">
+                <h4 className="font-bold text-yellow-900 dark:text-yellow-400 mb-2">
+                  Interview Details:
+                </h4>
+                <div className="text-sm space-y-1 text-yellow-800 dark:text-yellow-300">
+                  <p>
+                    Date:{" "}
+                    {format(
+                      parseISO(latestStage.interviewDate),
+                      "MMMM d, yyyy",
+                    )}
+                  </p>
+                  {latestStage.interviewTime && (
+                    <p>Time: {latestStage.interviewTime}</p>
+                  )}
+                  {latestStage.interviewerName && (
+                    <p>Interviewer: {latestStage.interviewerName}</p>
+                  )}
+                  <p>
+                    Stage-{selectedJob?.interviewStages?.length}:{" "}
+                    {latestStage.interviewType}
+                  </p>
+                </div>
               </div>
-            </motion.div>
+            )}
+
+            {selectedJob.notes && (
+              <div>
+                <span className="text-gray-500 dark:text-gray-400 text-sm">
+                  Notes:
+                </span>
+                <p className="text-gray-900 dark:text-white mt-1 text-sm">
+                  {selectedJob.notes}
+                </p>
+              </div>
+            )}
           </div>
-        )}
-      </AnimatePresence>
+        </Modal>
+      )}
     </div>
   );
 };

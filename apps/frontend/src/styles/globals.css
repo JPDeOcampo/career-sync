@@ -295,7 +295,7 @@
   }
 
   .text-job-value {
-    @apply text-sm py-2 text-gray-900 dark:text-white;
+    @apply text-sm py-0 text-gray-900 dark:text-white;
   }
 
   /* Modal */

@@ -166,7 +166,7 @@ const JobInterviewSection = ({
   };
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-5">
       {isViewOnly && !hasInterviewStages && <p>No interviews added</p>}
 
       {fields.map((field, index) => (
@@ -185,7 +185,7 @@ const JobInterviewSection = ({
             isViewOnly={isViewOnly}
           />
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
             <Controller
               name={`interviewStages.${index}.interviewType`}
               control={control}

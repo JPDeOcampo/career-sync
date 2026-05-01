@@ -6,9 +6,8 @@ import {
   setReviewJobApplication,
 } from "@/store/slices/jobModalSlice";
 import { selectJobModal } from "@/store/selectors";
-import { motion, AnimatePresence } from "motion/react";
+import { motion } from "motion/react";
 import {
-  X,
   ChevronRight,
   ChevronDown,
   Check,
@@ -39,6 +38,7 @@ import { toast } from "sonner";
 import useJobHooks from "@/hooks/useJob";
 import { SquarePen } from "lucide-react";
 import CustomTooltip from "@/components/shared/CustomTooltip";
+import Modal from "@/components/shared/Modal";
 
 type JobFormKeys = keyof JobFormData;
 
@@ -465,140 +465,111 @@ const JobModal = () => {
   if (!isJobModalShow) return null;
 
   return (
-    <AnimatePresence>
-      <div className="fixed inset-0 flex items-center justify-center z-50 p-4">
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          exit={{ opacity: 0 }}
-          onClick={onClose}
-          className="fixed inset-0 bg-black/50 backdrop-blur-sm"
-        />
-        <motion.div
-          initial={{ opacity: 0, scale: 0.95, y: 20 }}
-          animate={{ opacity: 1, scale: 1, y: 0 }}
-          exit={{ opacity: 0, scale: 0.95, y: 20 }}
-          className="surface rounded-2xl shadow-2xl w-full max-w-5xl min-h-[75vh] max-h-[90vh] overflow-hidden z-50 flex my-8 flex-col"
+    <Modal headerText={headerText()} onClose={onClose}>
+      {/* Stepper Progress Indicator (Hidden in View Only) */}
+      {!isViewOnly && <JobModalStepper currentStep={currentStep} />}
+
+      {/* Form Content */}
+      <FormProvider {...methods}>
+        <form
+          onSubmit={handleSubmit(onSubmit)}
+          // onSubmit={handleSubmit(
+          //   (data) => {
+          //     console.log("VALID SUBMIT", data);
+          //   },
+          //   (errors) => {
+          //     console.log("FORM ERRORS", errors);
+          //   },
+          // )}
+          className="flex flex-col flex-1 min-h-0"
         >
-          {/* Header */}
-          <div className="px-6 py-4 border-b border-gray-100 dark:border-gray-700 flex items-center justify-between shadow-[0_-4px_6px_rgba(0,0,0,0.05),0_10px_20px_rgba(0,0,0,0.03)]">
-            <h2 className="text-xl font-bold text-default">{headerText()}</h2>
-            <button
-              onClick={onClose}
-              className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-full transition-colors"
-            >
-              <X className="w-5 h-5 text-gray-500" />
-            </button>
-          </div>
+          <div className="flex-1 overflow-y-auto px-6 pt-6 pb-8">
+            {isViewOnly ? (
+              <div className="space-y-8">
+                {fieldsToRender.includes("info") && (
+                  <>
+                    <JobModalSectionHeader
+                      title={STEPS[0].title}
+                      editableFields={editableFields}
+                      onClick={() => dispatch(setViewOnly({ info: false }))}
+                    />
+                    <JobInfoSection isViewOnly={viewOnly.info} />
+                  </>
+                )}
 
-          {/* Stepper Progress Indicator (Hidden in View Only) */}
-          {!isViewOnly && <JobModalStepper currentStep={currentStep} />}
+                {fieldsToRender.includes("applicationMethod") && (
+                  <>
+                    <JobModalSectionHeader
+                      title={STEPS[1].title}
+                      editableFields={editableFields}
+                      onClick={() =>
+                        dispatch(setViewOnly({ applicationMethod: false }))
+                      }
+                    />
+                    <JobApplicationSection
+                      isViewOnly={viewOnly.applicationMethod}
+                    />
+                  </>
+                )}
 
-          {/* Form Content */}
-          <FormProvider {...methods}>
-            <form
-              onSubmit={handleSubmit(onSubmit)}
-              // onSubmit={handleSubmit(
-              //   (data) => {
-              //     console.log("VALID SUBMIT", data);
-              //   },
-              //   (errors) => {
-              //     console.log("FORM ERRORS", errors);
-              //   },
-              // )}
-              className="flex flex-col flex-1 min-h-0"
-            >
-              <div className="flex-1 overflow-y-auto px-6 pt-6 pb-8">
-                {isViewOnly ? (
-                  <div className="space-y-8">
-                    {fieldsToRender.includes("info") && (
-                      <>
-                        <JobModalSectionHeader
-                          title={STEPS[0].title}
-                          editableFields={editableFields}
-                          onClick={() => dispatch(setViewOnly({ info: false }))}
-                        />
-                        <JobInfoSection isViewOnly={viewOnly.info} />
-                      </>
-                    )}
+                {fieldsToRender.includes("interviewStages") && (
+                  <>
+                    <JobModalSectionHeader
+                      title={`${STEPS[2].title} Stages`}
+                      editableFields={editableFields}
+                      onClick={() =>
+                        dispatch(setViewOnly({ interviewStages: false }))
+                      }
+                    />
+                    <JobInterviewSection
+                      isViewOnly={viewOnly.interviewStages}
+                    />
+                  </>
+                )}
 
-                    {fieldsToRender.includes("applicationMethod") && (
-                      <>
-                        <JobModalSectionHeader
-                          title={STEPS[1].title}
-                          editableFields={editableFields}
-                          onClick={() =>
-                            dispatch(setViewOnly({ applicationMethod: false }))
-                          }
-                        />
-                        <JobApplicationSection
-                          isViewOnly={viewOnly.applicationMethod}
-                        />
-                      </>
-                    )}
-
-                    {fieldsToRender.includes("interviewStages") && (
-                      <>
-                        <JobModalSectionHeader
-                          title={`${STEPS[2].title} Stages`}
-                          editableFields={editableFields}
-                          onClick={() =>
-                            dispatch(setViewOnly({ interviewStages: false }))
-                          }
-                        />
-                        <JobInterviewSection
-                          isViewOnly={viewOnly.interviewStages}
-                        />
-                      </>
-                    )}
-
-                    {fieldsToRender.includes("notes") && (
-                      <>
-                        <JobModalSectionHeader
-                          title="Notes"
-                          editableFields={editableFields}
-                          onClick={() =>
-                            dispatch(setViewOnly({ notes: false }))
-                          }
-                        />
-                        <JobNotesSection isViewOnly={viewOnly.notes} />
-                      </>
-                    )}
-                  </div>
-                ) : (
-                  <motion.div
-                    key={currentStep}
-                    initial={{ opacity: 0, x: 10 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    transition={{ duration: 0.2 }}
-                  >
-                    {currentStep === 1 && <JobInfoSection />}
-                    {currentStep === 2 && <JobApplicationSection />}
-                    {currentStep === 3 && <JobInterviewSection />}
-                    {currentStep === 4 && <JobNotesSection />}
-                  </motion.div>
+                {fieldsToRender.includes("notes") && (
+                  <>
+                    <JobModalSectionHeader
+                      title="Notes"
+                      editableFields={editableFields}
+                      onClick={() => dispatch(setViewOnly({ notes: false }))}
+                    />
+                    <JobNotesSection isViewOnly={viewOnly.notes} />
+                  </>
                 )}
               </div>
+            ) : (
+              <motion.div
+                key={currentStep}
+                initial={{ opacity: 0, x: 10 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ duration: 0.2 }}
+              >
+                {currentStep === 1 && <JobInfoSection />}
+                {currentStep === 2 && <JobApplicationSection />}
+                {currentStep === 3 && <JobInterviewSection />}
+                {currentStep === 4 && <JobNotesSection />}
+              </motion.div>
+            )}
+          </div>
 
-              {/* Footer */}
-              <JobModalFooter
-                editableFields={editableFields}
-                selectedJob={selectedJob}
-                currentStep={currentStep}
-                isJobViewOnly={isViewOnly}
-                isLoading={isAdding || isUpdating}
-                isDirty={isDirty}
-                reviewJob={reviewJobApplication}
-                onReviewJob={handleReview}
-                onClose={handleCancel}
-                handleBack={handleBack}
-                handleNext={handleNext}
-              />
-            </form>
-          </FormProvider>
-        </motion.div>
-      </div>
-    </AnimatePresence>
+          {/* Footer */}
+          <JobModalFooter
+            editableFields={editableFields}
+            selectedJob={selectedJob}
+            currentStep={currentStep}
+            isJobViewOnly={isViewOnly}
+            isLoading={isAdding || isUpdating}
+            isDirty={isDirty}
+            reviewJob={reviewJobApplication}
+            onReviewJob={handleReview}
+            onClose={handleCancel}
+            handleBack={handleBack}
+            handleNext={handleNext}
+          />
+        </form>
+      </FormProvider>
+    </Modal>
   );
 };
 

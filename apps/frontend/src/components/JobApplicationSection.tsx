@@ -155,9 +155,9 @@ const JobApplicationSection = ({ isViewOnly }: { isViewOnly?: boolean }) => {
   };
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-5">
       {/* Top Section */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
         {/* Application Method */}
         <Controller
           name="applicationMethod"
