@@ -207,6 +207,12 @@ const JobModalSectionHeader = ({
   const dispatch = useAppDispatch();
   return (
     <div className="job-modal-section-header">
+      {/* <div className="flex gap-2">
+        <CustomTooltip label="Edit" position="bottom">
+          <ArrowLeft className="h-4.5 w-4.5" />
+        </CustomTooltip>
+        <h3>{title}</h3>
+      </div> */}
       <h3>{title}</h3>
 
       {editableFields.length === 0 && (
@@ -650,7 +656,11 @@ const JobModalFooter = ({
     );
   } else if (reviewJob.isOnReview) {
     actionButton = (
-      <button type="submit" className="btn-success flex items-center gap-2">
+      <button
+        type="submit"
+        disabled={isLoading}
+        className="btn-success flex items-center gap-2 disabled:cursor-not-allowed disabled:opacity-50"
+      >
         {selectedJob ? "Update" : "Save Job"}
         {isLoading && <LoadingSpinner />}
       </button>
