@@ -164,14 +164,14 @@ export const jobsApi = createApi({
             const limit = args.limit ?? 5;
 
             if (args.sort === "recent") {
-              if (isWithinDays(addedJob.applicationDate, 7)) {
+              if (!isWithinDays(addedJob.applicationDate, 7)) {
                 dispatch(
                   jobsApi.util.updateQueryData("getJobs", args, (draft) => {
                     updateJobStats(draft, null, addedJob, limit);
                   }),
                 );
+                return;
               }
-              return;
             }
 
             // Determine if job should be inserted

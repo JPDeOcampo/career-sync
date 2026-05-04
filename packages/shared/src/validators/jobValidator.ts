@@ -55,6 +55,5 @@ export const jobSchema = z.object({
   coverLetterId: z.string().optional(),
   contact: z.string(),
   interviewStages: z.array(interviewStagesSchema).optional(),
-  offer: z.boolean(),
   notes: z.string(),
 });
