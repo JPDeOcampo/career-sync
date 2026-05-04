@@ -105,14 +105,15 @@ Checkbox.displayName = "Checkbox";
 export const FormCheckbox = React.forwardRef<HTMLInputElement, CheckboxProps>(
   ({ isViewOnly, name, variantSize = "md", ...props }, ref) => {
     const { watch } = useFormContext<JobFormData>();
-    const value = watch(name as keyof JobFormData) as boolean;
+    const value = watch(name as keyof JobFormData);
+    const boolValue = typeof value !== undefined ? value : false;
 
     /* View-only mode */
     if (isViewOnly) {
       const message =
         name && name in messages
           ? messages[name as keyof typeof messages][
-              String(value) as "true" | "false"
+              String(boolValue) as "true" | "false"
             ]
           : "";
 
