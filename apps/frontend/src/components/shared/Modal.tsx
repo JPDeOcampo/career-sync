@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { AnimatePresence, motion } from "motion/react";
 import { X } from "lucide-react";
 import { cn } from "@/utils/cn";
@@ -16,6 +16,14 @@ const Modal = ({
   headerClassName?: string;
   children: React.ReactNode;
 }) => {
+  useEffect(() => {
+    document.body.style.overflow = "hidden";
+
+    return () => {
+      document.body.style.overflow = "unset";
+    };
+  }, []);
+
   return (
     <AnimatePresence>
       <div className="fixed inset-0 flex items-center justify-center z-50 p-4">

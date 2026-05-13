@@ -9,3 +9,11 @@ export type DocumentType = {
   isUploading?: boolean;
   progress?: number;
 };
+
+export type FiltersType = {
+  page?: number;
+  limit?: number;
+  search?: string;
+  fileType?: "ALL" | "CV" | "COVER_LETTER";
+  sort?: string;
+};

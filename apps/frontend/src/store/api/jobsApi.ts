@@ -5,7 +5,7 @@ import { current } from "@reduxjs/toolkit";
 
 const path = "/jobs";
 
-interface JobsResponse {
+export interface JobsResponse {
   jobs: JobApplication[];
   stats: {
     total: number;
@@ -102,7 +102,7 @@ const matchesQuery = (job: JobApplication, query: JobQueryTypes): boolean => {
   return true;
 };
 
-const isGetJobsQuery = (
+export const isGetJobsQuery = (
   q: unknown,
 ): q is { endpointName: "getJobs"; originalArgs: JobQueryTypes } =>
   typeof q === "object" &&
@@ -234,7 +234,7 @@ export const jobsApi = createApi({
         body: data,
       }),
       async onQueryStarted(
-        { id, data, isKanban = false },
+        { id, data },
         { dispatch, getState, queryFulfilled },
       ) {
         const state = getState();

@@ -5,5 +5,7 @@ export type BaseFormFieldProps = {
   placeholder?: string;
   error?: string;
   autofocus?: boolean;
+  isRequired?: boolean;
   subtext?: string;
+  isViewOnly?: boolean;
 } & UseFormRegisterReturn;

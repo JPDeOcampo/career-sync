@@ -1,8 +1,8 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
-import { UserType } from "@/@types/userTypes";
+import { UserDTO } from "@career-sync/shared";
 
 interface AuthState {
-  user: UserType | null;
+  user: UserDTO | null;
   isAuthenticated?: boolean;
   resetEmail?: string | null;
   accessToken: string | null;
@@ -31,7 +31,10 @@ const authSlice = createSlice({
       state.accessToken = null;
       state.resetEmail = null;
     },
-    setUserId: (state, action: PayloadAction<UserType>) => {
+    setUser: (state, action: PayloadAction<UserDTO>) => {
+      state.user = action.payload;
+    },
+    setUserId: (state, action: PayloadAction<UserDTO>) => {
       state.user = {
         ...state.user,
         userId: action.payload.userId,
@@ -47,6 +50,12 @@ const authSlice = createSlice({
   },
 });
 
-export const { login, logout, setUserId, setResetEmail, resetPassword } =
-  authSlice.actions;
+export const {
+  login,
+  logout,
+  setUser,
+  setUserId,
+  setResetEmail,
+  resetPassword,
+} = authSlice.actions;
 export default authSlice.reducer;

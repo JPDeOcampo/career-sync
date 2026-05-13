@@ -460,12 +460,6 @@ const JobModal = () => {
       setCurrentStep(1);
       reset(updatedJob);
     }
-
-    if (isJobModalShow) document.body.style.overflow = "hidden";
-    else document.body.style.overflow = "unset";
-    return () => {
-      document.body.style.overflow = "unset";
-    };
   }, [selectedJob, isJobModalShow]);
 
   if (!isJobModalShow) return null;

@@ -1,7 +1,6 @@
 import { Controller, useFormContext, useFieldArray } from "react-hook-form";
 import { JobFormField } from "@/components/shared/JobFormField";
 import { Dropdown, DropdownItem } from "@/components/shared/CustomDropdown";
-import { Checkbox } from "@/components/shared/Checkbox";
 import { interviewTypes } from "@/constant/jobSelectList";
 import { cn } from "@/utils/cn";
 import { Plus, ArrowUp, ArrowDown, Minus } from "lucide-react";

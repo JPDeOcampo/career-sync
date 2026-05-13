@@ -9,4 +9,7 @@ export * from "./constant/jobSelectList";
 export * from "./utils/dateHelper";
 
 // types
+export * from "./@types/auth.types";
 export * from "./@types/job.types";
+export * from "./@types/document.types";
+export * from "./@types/global.types";

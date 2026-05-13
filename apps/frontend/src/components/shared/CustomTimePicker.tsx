@@ -59,7 +59,13 @@ const CustomTimePicker = ({
 
   return (
     <div className="flex flex-col gap-1 w-full">
-      {label && <FieldLabel label={label} isViewOnly={isViewOnly} isRequired />}
+      {label && (
+        <FieldLabel
+          label={label}
+          isViewOnly={isViewOnly}
+          isRequired={isRequired}
+        />
+      )}
 
       {isViewOnly && <p className="text-job-value">{value || "-"}</p>}
 

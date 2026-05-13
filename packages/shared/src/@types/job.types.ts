@@ -1,5 +1,6 @@
 import { z } from "zod";
 import { jobSchema } from "../validators/jobValidator";
+import { Documents } from "./document.types";
 
 export type JobFormData = z.infer<typeof jobSchema>;
 
@@ -48,19 +49,6 @@ export type InterviewInfo = {
 
 export type InterviewStages = {
   interviewStages: InterviewInfo[];
-};
-
-export type Documents = {
-  id: string;
-  userId: string;
-  type: string;
-  fileUrl: string;
-  filePath: string;
-  name: string;
-  createdAt?: Date;
-  updatedAt?: Date;
-  isUploading?: boolean;
-  progress?: number;
 };
 
 export interface JobApplication {

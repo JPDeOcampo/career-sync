@@ -6,11 +6,11 @@ import {
   // signedUrlFromStorage,
   downloadFileFromStorage,
 } from "@/utils/supabaseStorage";
-import { FiltersType } from "@/@types/global.types";
-import { UploadDocumentType, GetDocumentType } from "@/@types/document.types";
+import { DocumentsFiltersDTO } from "@career-sync/shared";
+import { UploadDocumentDTO } from "@/@types/document.types";
 // import { Documents } from "@career-sync/shared";
 
-export const uploadDocument = async (data: UploadDocumentType) => {
+export const uploadDocument = async (data: UploadDocumentDTO) => {
   const { file, userId, fileType } = data;
 
   if (!file) throw new AppError("No file provided", 400);
@@ -24,6 +24,10 @@ export const uploadDocument = async (data: UploadDocumentType) => {
   });
 
   if (existingFile) {
+    if (existingFile.type === fileType) {
+      throw new AppError("File already exists with same type", 409);
+    }
+
     throw new AppError(
       "A file with this name already exists. Please rename the file or delete the old one.",
       409,
@@ -51,24 +55,26 @@ export const uploadDocument = async (data: UploadDocumentType) => {
 
 export const getDocument = async ({
   userId,
-  data,
   filters,
 }: {
   userId: string;
-  data?: GetDocumentType;
-  filters: FiltersType;
+  filters: DocumentsFiltersDTO;
 }) => {
-  const { fileId, fileType } = data || {};
-  const { sort, page = 1, limit = 10 } = filters;
+  const { sort, search, fileId, fileType, page = 1, limit = 5 } = filters;
 
   if (!userId) throw new AppError("User ID is required", 400);
 
   const skip = (page - 1) * limit;
+  const isValid = (val?: string) =>
+    val && val !== "All" && val !== "ALL" && val.trim() !== "";
 
   const whereClause = {
     userId,
     ...(fileId && { id: fileId }),
-    ...(fileType && { type: fileType }),
+    ...(isValid(fileType) && { type: fileType }),
+    ...(isValid(search) && {
+      OR: [{ name: { contains: search, mode: "insensitive" as const } }],
+    }),
   };
 
   const documents = await prisma.document.findMany({
@@ -78,9 +84,8 @@ export const getDocument = async ({
         ? { createdAt: "desc" }
         : sort === "oldest"
           ? { createdAt: "asc" }
-          : undefined,
-    skip,
-    take: limit,
+          : { createdAt: "desc" },
+    ...(limit > 0 && { skip, take: limit }),
   });
 
   // --- Generate Signed URLs ---
@@ -119,11 +124,15 @@ export const getDocument = async ({
   };
 };
 
-export const deleteDocument = async (userId: string, fileId?: string) => {
-  if (!userId) throw new AppError("User ID is required", 400);
+export const deleteDocument = async (userId: string, fileId?: string[]) => {
+  if (!userId) {
+    throw new AppError("User ID is required", 400);
+  }
 
-  // DELETE ALL DOCUMENTS
-  if (!fileId) {
+  const fileIds = fileId ? (Array.isArray(fileId) ? fileId : [fileId]) : null;
+
+  //DELETE ALL DOCUMENTS
+  if (!fileIds) {
     const documents = await prisma.document.findMany({
       where: { userId },
       select: { id: true, filePath: true },
@@ -132,47 +141,81 @@ export const deleteDocument = async (userId: string, fileId?: string) => {
     const documentIds = documents.map((doc) => doc.id);
     const filePaths = documents.map((doc) => doc.filePath);
 
-    // Remove job references first
+    // Remove job references
     await prisma.job.updateMany({
-      where: { cvId: { in: documentIds } },
-      data: { cvId: null },
+      where: {
+        cvId: { in: documentIds },
+        coverLetterId: { in: documentIds },
+      },
+      data: {
+        cvId: null,
+        coverLetterId: null,
+      },
     });
 
-    // Delete from Supabase Storage
+    // Delete files from storage
     if (filePaths.length > 0) {
       await deleteFilesFromStorage(filePaths);
     }
 
-    // Delete DB records
+    // Delete documents
     await prisma.document.deleteMany({
       where: { userId },
     });
 
-    return { message: "All documents deleted successfully" };
+    return {
+      message: "All documents deleted successfully",
+    };
   }
 
-  // DELETE SINGLE DOCUMENT
-  const document = await prisma.document.findFirst({
-    where: { id: fileId, userId },
+  // DELETE ONE OR MULTIPLE DOCUMENTS
+  const documents = await prisma.document.findMany({
+    where: {
+      id: { in: fileIds },
+      userId,
+    },
+    select: {
+      id: true,
+      filePath: true,
+    },
   });
 
-  if (!document) {
-    throw new AppError("Document not found", 404);
+  if (documents.length === 0) {
+    throw new AppError("Document(s) not found", 404);
   }
+
+  const documentIds = documents.map((doc) => doc.id);
+  const filePaths = documents.map((doc) => doc.filePath);
 
   // Remove job references
   await prisma.job.updateMany({
-    where: { cvId: fileId },
-    data: { cvId: null },
+    where: {
+      cvId: { in: documentIds },
+      coverLetterId: { in: documentIds },
+    },
+    data: {
+      cvId: null,
+      coverLetterId: null,
+    },
   });
 
-  await deleteFilesFromStorage([document.filePath]);
+  // Delete files from storage
+  await deleteFilesFromStorage(filePaths);
 
-  await prisma.document.delete({
-    where: { id: fileId },
+  // Delete documents
+  await prisma.document.deleteMany({
+    where: {
+      id: { in: documentIds },
+      userId,
+    },
   });
 
-  return { message: "Document deleted successfully" };
+  return {
+    message:
+      documentIds.length === 1
+        ? "Document deleted successfully"
+        : "Documents deleted successfully",
+  };
 };
 
 export const getCleanedURLDocument = async ({

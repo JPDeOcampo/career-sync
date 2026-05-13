@@ -36,9 +36,9 @@ export const updatePassword = async (data: UpdatePasswordDTO) => {
   const { id, currentPassword, newPassword } = data;
 
   // Validate ObjectId first
-  if (id as unknown as string) {
-    throw new AppError("Invalid user ID.", 400);
-  }
+  // if (id as unknown as string) {
+  //   throw new AppError("Invalid user ID.", 400);
+  // }
 
   // Find user
   const user = await prisma.user.findUnique({

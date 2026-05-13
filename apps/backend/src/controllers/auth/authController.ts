@@ -32,3 +32,22 @@ export const userLogin = async (req: Request, res: Response) => {
     },
   });
 };
+
+export const userUpdate = async (
+  req: Request,
+  res: Response,
+): Promise<Response> => {
+  const { id } = req.params;
+  const { firstName, lastName, email } = req.body;
+
+  const updatedUser = await authService.userUpdate(id, {
+    firstName,
+    lastName,
+    email,
+  });
+
+  return res.status(200).json({
+    message: "User information updated successfully",
+    user: updatedUser,
+  });
+};
