@@ -5,13 +5,18 @@ import { validate } from "@/middleware/validate.js";
 import {
   registerSchema,
   emailSchema,
+  userUpdateSchema,
   updatePasswordSchema,
   resetPasswordSchema,
 } from "@career-sync/shared";
 import { asyncHandler } from "@/utils/asyncHandler.js";
 
 // -- Auth Controllers --
-import { userRegister, userLogin } from "@/controllers/auth/authController.js";
+import {
+  userRegister,
+  userLogin,
+  userUpdate,
+} from "@/controllers/auth/authController.js";
 
 // -- Password Controllers --
 import {
@@ -37,6 +42,14 @@ router.post(
   asyncHandler(userRegister),
 );
 router.post("/login", asyncHandler(userLogin));
+
+router.put(
+  "/update-user/:id",
+  authLimiter,
+  protect,
+  validate(userUpdateSchema),
+  asyncHandler(userUpdate),
+);
 
 router.post("/refresh-token", authLimiter, asyncHandler(refreshToken));
 

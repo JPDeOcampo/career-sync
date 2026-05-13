@@ -6,12 +6,19 @@ export interface RegisterUserDTO {
 }
 
 export interface UserDTO {
-  firstName: string;
-  lastName: string;
-  email: string;
+  userId?: string;
+  firstName?: string;
+  lastName?: string;
+  email?: string;
 }
 
 export interface LoginUserDTO {
   email: string;
   password: string;
+}
+
+export interface UpdatePasswordDTO {
+  currentPassword: string;
+  newPassword: string;
+  confirmPassword: string;
 }

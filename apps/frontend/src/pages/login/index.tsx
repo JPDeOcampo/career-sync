@@ -10,7 +10,7 @@ import { useLoginMutation } from "@/store/api/authApi";
 import useGlobalHooks from "@/hooks/useGlobal";
 import { InputEmail, InputPassword } from "@/components/shared/CustomUserInput";
 import type { FetchBaseQueryError } from "@reduxjs/toolkit/query";
-import { useForm } from "react-hook-form";
+import { useForm, FormProvider } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { loginSchema } from "@career-sync/shared";
@@ -23,15 +23,17 @@ const Login = () => {
   const [userLogin, { isLoading }] = useLoginMutation();
   const { navigate } = useGlobalHooks();
 
-  const {
-    register,
-    handleSubmit,
-    formState: { errors, isSubmitting },
-  } = useForm<LoginFormData>({
+  const methods = useForm<LoginFormData>({
     resolver: zodResolver(loginSchema),
     // mode: "onBlur",
     reValidateMode: "onChange",
   });
+
+  const {
+    register,
+    handleSubmit,
+    formState: { errors, isSubmitting },
+  } = methods;
 
   const onSubmit = async (data: LoginFormData) => {
     const { email, password } = data;
@@ -69,37 +71,39 @@ const Login = () => {
         </p>
       </div>
 
-      <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-        <InputEmail
-          {...register("email")}
-          error={errors.email?.message}
-          autofocus
-        />
+      <FormProvider {...methods}>
+        <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+          <InputEmail
+            {...register("email")}
+            error={errors.email?.message}
+            autofocus
+          />
 
-        <InputPassword
-          withForgotPassword
-          showPassword={showPassword}
-          setShowPassword={() => setShowPassword(!showPassword)}
-          {...register("password")}
-          error={errors.password?.message}
-        />
+          <InputPassword
+            withForgotPassword
+            showPassword={showPassword}
+            setShowPassword={() => setShowPassword(!showPassword)}
+            {...register("password")}
+            error={errors.password?.message}
+          />
 
-        <Button
-          type="submit"
-          className="w-full h-11"
-          disabled={isSubmitting || isLoading}
-        >
-          {isLoading ? (
-            <motion.div
-              animate={{ rotate: 360 }}
-              transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
-              className="w-5 h-5 border-2 border-white border-t-transparent rounded-full"
-            />
-          ) : (
-            "Sign In"
-          )}
-        </Button>
-      </form>
+          <Button
+            type="submit"
+            className="w-full h-11"
+            disabled={isSubmitting || isLoading}
+          >
+            {isLoading ? (
+              <motion.div
+                animate={{ rotate: 360 }}
+                transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+                className="w-5 h-5 border-2 border-white border-t-transparent rounded-full"
+              />
+            ) : (
+              "Sign In"
+            )}
+          </Button>
+        </form>
+      </FormProvider>
 
       <div className="mt-6 text-center">
         <p className="text-gray-600 dark:text-gray-400">

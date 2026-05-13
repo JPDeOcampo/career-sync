@@ -1,9 +1,9 @@
-import { useState, useMemo, useEffect } from "react";
+import { useState, useMemo } from "react";
 import { JobApplication } from "@career-sync/shared";
 import { DayPicker } from "react-day-picker";
 import { format, parseISO, isSameDay } from "date-fns";
 import { motion } from "motion/react";
-import { Calendar as CalendarIcon, X } from "lucide-react";
+import { Calendar as CalendarIcon } from "lucide-react";
 import { JobTagStatus } from "@/components/shared/JobTag";
 import "react-day-picker/dist/style.css";
 import useJobHooks from "@/hooks/useJob";
@@ -132,18 +132,6 @@ const Calendar = () => {
 
     return mods;
   }, [applicationDates, interviewDates, filter]);
-
-  useEffect(() => {
-    if (selectedJob) {
-      document.body.style.overflow = "hidden";
-    } else {
-      document.body.style.overflow = "unset";
-    }
-
-    return () => {
-      document.body.style.overflow = "unset";
-    };
-  }, [selectedJob]);
 
   return (
     <div className="space-y-6">

@@ -59,7 +59,11 @@ export const Dropdown = ({
     <DropdownContext.Provider value={{ closeDropdown }}>
       <div className="flex flex-col gap-2 w-full">
         {label && (
-          <FieldLabel label={label} isViewOnly={isViewOnly} isRequired />
+          <FieldLabel
+            label={label}
+            isViewOnly={isViewOnly}
+            isRequired={isRequired}
+          />
         )}
 
         {/* VIEW ONLY MODE */}
@@ -170,8 +174,11 @@ export const DropdownItem = ({
       onClick={handleSelect}
       className={cn(
         "flex items-center gap-3 w-full px-3 py-2 text-sm rounded-md",
-        "transition-colors text-default hover:bg-gray-100 dark:hover:text-gray-900",
-        isActive && "bg-blue-600 text-white",
+        "transition-colors text-default",
+        !isActive &&
+          "hover:bg-gray-200 dark:hover:bg-gray-600 hover:text-gray-900 dark:hover:text-gray-100",
+        isActive &&
+          "bg-blue-600 dark:bg-gray-100 text-white dark:text-gray-900",
       )}
     >
       {icon}

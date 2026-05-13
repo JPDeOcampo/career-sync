@@ -1,7 +1,11 @@
 import { hashPassword, verifyPassword } from "@/utils/authUtils.js";
 import { generateSignToken } from "@/utils/generateSignToken.js";
 import { AppError } from "@/utils/errors/appError.js";
-import type { RegisterUserDTO, LoginUserDTO } from "@/@types/auth.types.js";
+import type {
+  RegisterUserDTO,
+  LoginUserDTO,
+  UserDTO,
+} from "@/@types/auth.types.js";
 import crypto from "crypto";
 import { prisma } from "@/lib/prisma.js";
 
@@ -116,5 +120,45 @@ export const loginUser = async (credentials: LoginUserDTO) => {
     user: updatedUser,
     accessToken,
     refreshToken,
+  };
+};
+
+export const userUpdate = async (
+  userId: string | string[],
+  userData: Partial<UserDTO>,
+) => {
+  const { firstName, lastName, email } = userData;
+
+  const dataToUpdate: Partial<UserDTO> = {};
+
+  if (firstName !== undefined) dataToUpdate.firstName = firstName;
+  if (lastName !== undefined) dataToUpdate.lastName = lastName;
+
+  if (email !== undefined) {
+    const normalizedEmail = email.toLowerCase().trim();
+
+    const existingUser = await prisma.user.findUnique({
+      where: { email: normalizedEmail },
+    });
+
+    if (existingUser && existingUser.id !== userId) {
+      throw new AppError("The email is already taken.", 400, "email");
+    }
+
+    dataToUpdate.email = normalizedEmail;
+  }
+
+  const updatedUser = await prisma.user.update({
+    where: { id: userId as unknown as string },
+    data: dataToUpdate,
+  });
+
+  return {
+    userId: updatedUser.id,
+    firstName: updatedUser.firstName,
+    lastName: updatedUser.lastName,
+    email: updatedUser.email,
+    updatedAt: updatedUser.updatedAt,
+    createdAt: updatedUser.createdAt,
   };
 };
