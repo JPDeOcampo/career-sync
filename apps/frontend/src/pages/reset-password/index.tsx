@@ -9,7 +9,7 @@ import useGlobalHooks from "@/hooks/useGlobal";
 import useAuthHooks from "@/hooks/useAuth";
 import { InputPassword } from "@/components/shared/CustomUserInput";
 import { resetPasswordSchema } from "@career-sync/shared";
-import { useForm } from "react-hook-form";
+import { useForm, FormProvider } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import type { FetchBaseQueryError } from "@reduxjs/toolkit/query";
@@ -22,14 +22,17 @@ const ResetPassword = () => {
   const [userResetPassword, { isLoading }] = useResetPasswordMutation();
   const { user, refreshResetPassword } = useAuthHooks();
   const { navigate } = useGlobalHooks();
+
+  const methods = useForm<ResetPasswordFormData>({
+    resolver: zodResolver(resetPasswordSchema),
+    reValidateMode: "onChange",
+  });
+
   const {
     register,
     handleSubmit,
     formState: { errors, isSubmitting },
-  } = useForm<ResetPasswordFormData>({
-    resolver: zodResolver(resetPasswordSchema),
-    reValidateMode: "onChange",
-  });
+  } = methods;
 
   const onSubmit = async (data: ResetPasswordFormData) => {
     const { newPassword, confirmPassword } = data;
@@ -69,38 +72,40 @@ const ResetPassword = () => {
         <h1 className="text-3xl font-bold text-default mb-2">Reset Password</h1>
       </div>
 
-      <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
-        <InputPassword
-          showPassword={showPassword}
-          setShowPassword={() => setShowPassword(!showPassword)}
-          {...register("newPassword")}
-          error={errors.newPassword?.message}
-        />
+      <FormProvider {...methods}>
+        <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
+          <InputPassword
+            showPassword={showPassword}
+            setShowPassword={() => setShowPassword(!showPassword)}
+            {...register("newPassword")}
+            error={errors.newPassword?.message}
+          />
 
-        <InputPassword
-          {...register("confirmPassword")}
-          label="Confirm Password"
-          showPassword={showConfirmPassword}
-          setShowPassword={() => setShowConfirmPassword(!showConfirmPassword)}
-          error={errors.confirmPassword?.message}
-        />
+          <InputPassword
+            {...register("confirmPassword")}
+            label="Confirm Password"
+            showPassword={showConfirmPassword}
+            setShowPassword={() => setShowConfirmPassword(!showConfirmPassword)}
+            error={errors.confirmPassword?.message}
+          />
 
-        <Button
-          type="submit"
-          className="w-full h-11"
-          disabled={isSubmitting || isLoading}
-        >
-          {isLoading ? (
-            <motion.div
-              animate={{ rotate: 360 }}
-              transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
-              className="w-5 h-5 border-2 border-white border-t-transparent rounded-full"
-            />
-          ) : (
-            "Reset Password"
-          )}
-        </Button>
-      </form>
+          <Button
+            type="submit"
+            className="w-full h-11"
+            disabled={isSubmitting || isLoading}
+          >
+            {isLoading ? (
+              <motion.div
+                animate={{ rotate: 360 }}
+                transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+                className="w-5 h-5 border-2 border-white border-t-transparent rounded-full"
+              />
+            ) : (
+              "Reset Password"
+            )}
+          </Button>
+        </form>
+      </FormProvider>
     </div>
   );
 };

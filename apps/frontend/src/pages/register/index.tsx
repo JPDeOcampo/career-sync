@@ -13,7 +13,7 @@ import { toast } from "sonner";
 import { useRegisterMutation } from "@/store/api/authApi";
 import useGlobalHooks from "@/hooks/useGlobal";
 import { registerSchema } from "@career-sync/shared";
-import { useForm } from "react-hook-form";
+import { useForm, FormProvider } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import type { FetchBaseQueryError } from "@reduxjs/toolkit/query";
@@ -27,14 +27,16 @@ const Register = () => {
   const [userRegister, { isLoading }] = useRegisterMutation();
   const { navigate } = useGlobalHooks();
 
+  const methods = useForm<RegisterFormData>({
+    resolver: zodResolver(registerSchema),
+    reValidateMode: "onChange",
+  });
+
   const {
     register,
     handleSubmit,
     formState: { errors, isSubmitting },
-  } = useForm<RegisterFormData>({
-    resolver: zodResolver(registerSchema),
-    reValidateMode: "onChange",
-  });
+  } = methods;
 
   const onSubmit = async (data: RegisterFormData) => {
     const { firstName, lastName, email, password, confirmPassword } = data;
@@ -79,42 +81,42 @@ const Register = () => {
           Start tracking your job applications today
         </p>
       </div>
+      <FormProvider {...methods}>
+        <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
+          <div className="grid grid-cols-2 gap-4">
+            <InputName
+              {...register("firstName")}
+              label="First Name"
+              placeholder="John"
+              autofocus
+              error={errors.firstName?.message}
+            />
 
-      <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
-        <div className="grid grid-cols-2 gap-4">
-          <InputName
-            {...register("firstName")}
-            label="First Name"
-            placeholder="John"
-            autofocus
-            error={errors.firstName?.message}
+            <InputName
+              {...register("lastName")}
+              label="Last Name"
+              placeholder="Doe"
+              error={errors.lastName?.message}
+            />
+          </div>
+          <InputEmail {...register("email")} error={errors.email?.message} />
+
+          <InputPassword
+            showPassword={showPassword}
+            setShowPassword={() => setShowPassword(!showPassword)}
+            {...register("password")}
+            error={errors.password?.message}
           />
 
-          <InputName
-            {...register("lastName")}
-            label="Last Name"
-            placeholder="Doe"
-            error={errors.lastName?.message}
+          <InputPassword
+            {...register("confirmPassword")}
+            label="Confirm Password"
+            showPassword={showConfirmPassword}
+            setShowPassword={() => setShowConfirmPassword(!showConfirmPassword)}
+            error={errors.confirmPassword?.message}
           />
-        </div>
-        <InputEmail {...register("email")} error={errors.email?.message} />
 
-        <InputPassword
-          showPassword={showPassword}
-          setShowPassword={() => setShowPassword(!showPassword)}
-          {...register("password")}
-          error={errors.password?.message}
-        />
-
-        <InputPassword
-          {...register("confirmPassword")}
-          label="Confirm Password"
-          showPassword={showConfirmPassword}
-          setShowPassword={() => setShowConfirmPassword(!showConfirmPassword)}
-          error={errors.confirmPassword?.message}
-        />
-
-        {/* <div className="flex items-center space-x-2">
+          {/* <div className="flex items-center space-x-2">
           <Checkbox
             id="terms"
             checked={agreedToTerms}
@@ -131,22 +133,23 @@ const Register = () => {
           </label>
         </div> */}
 
-        <Button
-          type="submit"
-          className="w-full h-11"
-          disabled={isSubmitting || isLoading}
-        >
-          {isLoading ? (
-            <motion.div
-              animate={{ rotate: 360 }}
-              transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
-              className="w-5 h-5 border-2 border-white border-t-transparent rounded-full"
-            />
-          ) : (
-            "Create Account"
-          )}
-        </Button>
-      </form>
+          <Button
+            type="submit"
+            className="w-full h-11"
+            disabled={isSubmitting || isLoading}
+          >
+            {isLoading ? (
+              <motion.div
+                animate={{ rotate: 360 }}
+                transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+                className="w-5 h-5 border-2 border-white border-t-transparent rounded-full"
+              />
+            ) : (
+              "Create Account"
+            )}
+          </Button>
+        </form>
+      </FormProvider>
 
       <div className="mt-6 text-center">
         <p className="text-gray-600 dark:text-gray-400">
