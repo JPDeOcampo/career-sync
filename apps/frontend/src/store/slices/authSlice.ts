@@ -6,6 +6,7 @@ interface AuthState {
   isAuthenticated?: boolean;
   resetEmail?: string | null;
   accessToken: string | null;
+  isAuthLoading?: boolean;
 }
 
 const initialState: AuthState = {
@@ -13,6 +14,7 @@ const initialState: AuthState = {
   isAuthenticated: false,
   resetEmail: null,
   accessToken: null,
+  isAuthLoading: true,
 };
 
 const authSlice = createSlice({
@@ -24,12 +26,14 @@ const authSlice = createSlice({
       state.isAuthenticated = action.payload.accessToken !== null;
       state.accessToken = action.payload.accessToken;
       state.resetEmail = null;
+      state.isAuthLoading = false;
     },
     logout: (state) => {
       state.user = null;
       state.isAuthenticated = false;
       state.accessToken = null;
       state.resetEmail = null;
+      state.isAuthLoading = false;
     },
     setUser: (state, action: PayloadAction<UserDTO>) => {
       state.user = action.payload;

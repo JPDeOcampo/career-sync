@@ -43,7 +43,7 @@ const Login = () => {
       const response = await userLogin({ email, password }).unwrap();
       dispatch(login(response));
       navigate("/dashboard");
-      toast.success(`Welcome back, ${response.user.firstName}!`);
+      toast.success(`Welcome, ${response.user.firstName}!`);
     } catch (error) {
       const err = error as FetchBaseQueryError;
 

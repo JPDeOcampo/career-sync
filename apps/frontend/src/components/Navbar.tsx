@@ -16,12 +16,13 @@ import DarkModeButton from "./shared/DarkModeButton";
 import { useLogoutMutation } from "@/store/api/authApi";
 import useJobHooks from "@/hooks/useJob";
 import SettingsModal from "./SettingsModal";
+import { Skeleton } from "@/components/shared/Loading";
+import { selectAuth } from "@/store/selectors";
 
 const Navbar = () => {
   const router = useRouter();
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
-  const auth = useAppSelector((state) => state.auth);
-  const user = auth.user;
+  const { user, isAuthLoading } = useAppSelector(selectAuth);
 
   const [singleLogout] = useLogoutMutation();
 
@@ -113,12 +114,23 @@ const Navbar = () => {
                 <DropdownMenuContent className="w-56">
                   <DropdownMenuLabel>
                     <div className="flex flex-col space-y-1">
-                      <p className="text-sm font-medium truncate">
-                        {user?.firstName} {user?.lastName}
-                      </p>
-                      <p className="text-xs text-gray-500 dark:text-gray-400 truncate">
-                        {user?.email}
-                      </p>
+                      {isAuthLoading && (
+                        <>
+                          <Skeleton className="w-35 h-4 rounded-md" />
+                          <Skeleton className="w-40 h-4 rounded-md" />
+                        </>
+                      )}
+
+                      {!isAuthLoading && (
+                        <>
+                          <p className="text-sm font-medium truncate">
+                            {user?.firstName || "-"} {user?.lastName}
+                          </p>
+                          <p className="text-xs text-gray-500 dark:text-gray-400 truncate">
+                            {user?.email || "-"}
+                          </p>
+                        </>
+                      )}
                     </div>
                   </DropdownMenuLabel>
 
@@ -128,6 +140,7 @@ const Navbar = () => {
                   <DropdownMenuItem
                     onClick={() => setIsSettingsOpen(true)}
                     className="cursor-pointer"
+                    disabled={isAuthLoading}
                   >
                     <Settings className="w-4 h-4 mr-2" />
                     Settings
@@ -139,6 +152,7 @@ const Navbar = () => {
                   <DropdownMenuItem
                     onClick={handleLogout}
                     className="cursor-pointer"
+                    disabled={isAuthLoading}
                   >
                     <LogOut className="w-4 h-4 mr-2" />
                     Logout
