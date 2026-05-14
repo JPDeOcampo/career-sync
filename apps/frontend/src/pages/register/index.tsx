@@ -11,7 +11,7 @@ import {
 // import { Checkbox } from "@/components/shared/Checkbox";
 import { toast } from "sonner";
 import { useRegisterMutation } from "@/store/api/authApi";
-import useGlobalHooks from "@/hooks/useGlobal";
+import { useRouter } from "next/navigation";
 import { registerSchema } from "@career-sync/shared";
 import { useForm, FormProvider } from "react-hook-form";
 import { z } from "zod";
@@ -21,11 +21,11 @@ import type { FetchBaseQueryError } from "@reduxjs/toolkit/query";
 type RegisterFormData = z.infer<typeof registerSchema>;
 
 const Register = () => {
+  const router = useRouter();
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   // const [agreedToTerms, setAgreedToTerms] = useState(false);
   const [userRegister, { isLoading }] = useRegisterMutation();
-  const { navigate } = useGlobalHooks();
 
   const methods = useForm<RegisterFormData>({
     resolver: zodResolver(registerSchema),
@@ -57,7 +57,7 @@ const Register = () => {
         confirmPassword: confirmPassword,
       });
       toast.success("Account created successfully!");
-      navigate("/");
+      router.push("/");
     } catch (error) {
       const err = error as FetchBaseQueryError;
       if ("status" in err) {
@@ -155,7 +155,7 @@ const Register = () => {
         <p className="text-gray-600 dark:text-gray-400">
           Already have an account?{" "}
           <button
-            onClick={() => navigate("/login")}
+            onClick={() => router.push("/login")}
             className="text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300 font-medium transition-colors"
           >
             Sign in

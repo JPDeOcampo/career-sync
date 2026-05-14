@@ -5,7 +5,7 @@ import Button from "@/components/shared/Button";
 import { toast } from "sonner";
 import LogoShield from "@/components/shared/LogoShield";
 import { useResetPasswordMutation } from "@/store/api/authApi";
-import useGlobalHooks from "@/hooks/useGlobal";
+import { useRouter } from "next/router";
 import useAuthHooks from "@/hooks/useAuth";
 import { InputPassword } from "@/components/shared/CustomUserInput";
 import { resetPasswordSchema } from "@career-sync/shared";
@@ -17,11 +17,11 @@ import type { FetchBaseQueryError } from "@reduxjs/toolkit/query";
 type ResetPasswordFormData = z.infer<typeof resetPasswordSchema>;
 
 const ResetPassword = () => {
+  const router = useRouter();
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [userResetPassword, { isLoading }] = useResetPasswordMutation();
   const { user, refreshResetPassword } = useAuthHooks();
-  const { navigate } = useGlobalHooks();
 
   const methods = useForm<ResetPasswordFormData>({
     resolver: zodResolver(resetPasswordSchema),
@@ -45,7 +45,7 @@ const ResetPassword = () => {
         confirmPassword: confirmPassword,
       }).unwrap();
       toast.success("Password reset successfully!");
-      navigate("/");
+      router.push("/");
     } catch (error) {
       const err = error as FetchBaseQueryError;
       if ("status" in err) {

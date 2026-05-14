@@ -7,17 +7,18 @@ import {
   ChevronRight,
 } from "lucide-react";
 import { motion } from "motion/react";
-import useGlobalHooks from "@/hooks/useGlobal";
 import { useEffect, useRef, useState } from "react";
+import { useRouter } from "next/router";
+import { usePathname } from "next/navigation";
 
 const SubNavbar = () => {
+  const router = useRouter();
+  const pathname = usePathname();
   const [showLeft, setShowLeft] = useState(false);
   const [showRight, setShowRight] = useState(false);
 
   const stripRef = useRef<HTMLDivElement>(null);
   const thumbRefs = useRef<HTMLButtonElement[]>([]);
-
-  const { navigate, pathname } = useGlobalHooks();
 
   const navItems = [
     { path: "/dashboard", icon: LayoutDashboard, label: "Dashboard" },
@@ -125,7 +126,7 @@ const SubNavbar = () => {
                     if (el) thumbRefs.current[i] = el;
                   }}
                   onClick={() => {
-                    navigate(item.path);
+                    router.push(item.path);
                     centerItem(i);
                   }}
                   className="relative px-3 sm:px-4 py-3 flex items-center gap-2 text-sm font-medium transition-colors shrink-0"

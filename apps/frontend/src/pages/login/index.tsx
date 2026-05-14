@@ -7,7 +7,7 @@ import Logo from "@/components/shared/Logo";
 import Button from "@/components/shared/Button";
 import { toast } from "sonner";
 import { useLoginMutation } from "@/store/api/authApi";
-import useGlobalHooks from "@/hooks/useGlobal";
+import { useRouter } from "next/navigation";
 import { InputEmail, InputPassword } from "@/components/shared/CustomUserInput";
 import type { FetchBaseQueryError } from "@reduxjs/toolkit/query";
 import { useForm, FormProvider } from "react-hook-form";
@@ -19,9 +19,9 @@ type LoginFormData = z.infer<typeof loginSchema>;
 
 const Login = () => {
   const dispatch = useAppDispatch();
+  const router = useRouter();
   const [showPassword, setShowPassword] = useState(false);
   const [userLogin, { isLoading }] = useLoginMutation();
-  const { navigate } = useGlobalHooks();
 
   const methods = useForm<LoginFormData>({
     resolver: zodResolver(loginSchema),
@@ -42,7 +42,7 @@ const Login = () => {
     try {
       const response = await userLogin({ email, password }).unwrap();
       dispatch(login(response));
-      navigate("/dashboard");
+      router.push("/dashboard");
       toast.success(`Welcome, ${response.user.firstName}!`);
     } catch (error) {
       const err = error as FetchBaseQueryError;
@@ -109,7 +109,7 @@ const Login = () => {
         <p className="text-gray-600 dark:text-gray-400">
           Don&apos;t have an account?{" "}
           <button
-            onClick={() => navigate("/register")}
+            onClick={() => router.push("/register")}
             className="text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300 font-medium transition-colors"
           >
             Sign up
