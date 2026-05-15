@@ -38,8 +38,7 @@ const useDocumentsHooks = () => {
   });
   const documentContainerRef = useRef(null);
   const { handleGlobalModal } = useGlobalModal();
-  const { documents, pagination, selectedViewDocument } =
-    useAppSelector(selectDocuments);
+  const { documents, pagination } = useAppSelector(selectDocuments);
   const [uploadDocument] = useUploadDocumentMutation();
   const [fetchDocuments, { isFetching: isFetchingDocuments }] =
     useLazyGetDocumentsQuery();

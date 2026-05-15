@@ -4,7 +4,6 @@
 import {
   useState,
   ReactElement,
-  cloneElement,
   HTMLAttributes,
   useRef,
   useEffect,
@@ -33,7 +32,7 @@ const CustomTooltip = ({
     left: number;
   } | null>(null);
 
-  const triggerRef = useRef<HTMLElement | null>(null);
+  const triggerRef = useRef<HTMLSpanElement | null>(null);
 
   const positionClasses: Record<TooltipPosition, string> = {
     top: "-translate-x-1/2 -translate-y-full",
@@ -86,22 +85,40 @@ const CustomTooltip = ({
     }
   }, [isVisible, position]);
 
-  const trigger = cloneElement(children, {
-    ref: (node: HTMLElement) => {
-      triggerRef.current = node;
-    },
-    "aria-label": (children.props as any)["aria-label"] || label,
-    onMouseEnter: () => setIsVisible(true),
-    onMouseLeave: () => {
+  useEffect(() => {
+    if (!isVisible) return;
+
+    const handleScroll = () => {
       setIsVisible(false);
       setCoords(null);
-    },
-    onFocus: () => setIsVisible(true),
-    onBlur: () => {
-      setIsVisible(false);
-      setCoords(null);
-    },
-  } as HTMLAttributes<HTMLElement>);
+    };
+
+    window.addEventListener("scroll", handleScroll, true);
+
+    return () => {
+      window.removeEventListener("scroll", handleScroll, true);
+    };
+  }, [isVisible]);
+
+  const trigger = (
+    <span
+      ref={triggerRef}
+      onMouseEnter={() => setIsVisible(true)}
+      onMouseLeave={() => {
+        setIsVisible(false);
+        setCoords(null);
+      }}
+      onFocus={() => setIsVisible(true)}
+      onBlur={() => {
+        setIsVisible(false);
+        setCoords(null);
+      }}
+      className="inline-flex"
+      aria-label={(children.props as any)["aria-label"] || label}
+    >
+      {children}
+    </span>
+  );
 
   return (
     <>
