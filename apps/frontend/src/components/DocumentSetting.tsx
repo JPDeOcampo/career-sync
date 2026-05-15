@@ -336,8 +336,11 @@ const DocumentsTable = ({
           </div>
         ))}
         {isLoading && <DocumentsTableSkeleton rows={5} type="mobile" />}
+
         {/* No Data State */}
-        {documents?.length === 0 && <EmptyState title={emptyStateText} />}
+        {!isLoading && documents?.length === 0 && (
+          <EmptyState title={emptyStateText} />
+        )}
       </div>
     </>
   );
