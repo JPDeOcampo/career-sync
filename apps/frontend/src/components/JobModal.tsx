@@ -256,6 +256,7 @@ const JobModal = () => {
     fieldsToRender,
     selectedJob,
     handleCloseModal,
+    handleGlobalModal,
     onConfirmModal,
     handleSaveJob,
   } = useJobHooks();
@@ -352,6 +353,7 @@ const JobModal = () => {
       const onConfirm = () => {
         reset(selectedJob);
         setAllViewOnly();
+        handleGlobalModal({});
       };
       return onConfirmModal(onConfirm);
     }

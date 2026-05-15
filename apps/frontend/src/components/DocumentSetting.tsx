@@ -1,7 +1,7 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import { useEffect } from "react";
 import Dropbox from "@/components/shared/Dropbox";
-import useUploadFileHooks from "@/hooks/useUploadFile";
+import useDocumentsHooks from "@/hooks/useDocuments";
 import { selectDocuments } from "@/store/selectors";
 import { useAppSelector, useAppDispatch } from "@/hooks/useRedux";
 import { ArrowUpDown, Trash2 } from "lucide-react";
@@ -23,6 +23,7 @@ import {
 } from "@/components/shared/Filters";
 import { ProgressBar } from "@/components/shared/Loading";
 import { useDebounce } from "@/hooks/useDebounce";
+import CustomTooltip from "@/components/shared/CustomTooltip";
 
 type ColumnKey = "filename" | "type" | "dateUploaded" | "actions";
 
@@ -175,7 +176,7 @@ const DocumentsTable = ({
 }) => {
   const dispatch = useAppDispatch();
   const { selectedItems } = useAppSelector(selectDocuments);
-  const { handleDelete } = useUploadFileHooks();
+  const { handleDelete, viewDocument } = useDocumentsHooks();
 
   const tdClass = "px-4 py-4";
 
@@ -184,7 +185,7 @@ const DocumentsTable = ({
       {/* DESKTOP TABLE */}
       <div className="hidden md:block bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 overflow-hidden">
         <div className="overflow-x-auto">
-          <table className=" w-full">
+          <table className="w-full overflow-hidden">
             <DocumentsTableHead
               handleSort={handleSort}
               disableSort={isLoading}
@@ -199,6 +200,9 @@ const DocumentsTable = ({
                       animate={{ opacity: 1, x: 0 }}
                       transition={{ duration: 0.2, delay: 0.05 + index * 0.1 }}
                       className="hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors cursor-pointer"
+                      onClick={() =>
+                        viewDocument({ id: document.id, url: document.fileUrl })
+                      }
                     >
                       <td className={`px-4 py-4`}>
                         <Checkbox
@@ -212,9 +216,11 @@ const DocumentsTable = ({
                         />
                       </td>
                       <td className={`px-4 py-4`}>
-                        <div className="font-medium text-gray-900 dark:text-white truncate max-w-37.5">
-                          {document.name}
-                        </div>
+                        <CustomTooltip label={document.name} position="top">
+                          <div className="font-medium text-gray-900 dark:text-white truncate max-w-37.5">
+                            {document.name}
+                          </div>
+                        </CustomTooltip>
                       </td>
                       <td className={`${tdClass}`}>
                         <div className="text-sm text-gray-600 dark:text-gray-400 truncate max-w-37.5">
@@ -233,22 +239,27 @@ const DocumentsTable = ({
 
                       <td className={`${tdClass}`}>
                         <div className="flex items-center justify-end gap-2">
-                          {document.isUploading ? (
-                            <ProgressBar
-                              progress={document.progress ?? 0}
-                              size={20}
-                            />
-                          ) : (
-                            <button
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                handleDelete?.(document.id);
-                              }}
-                              className={`p-2 rounded-lg transition-colors text-red-600 hover:bg-red-50 dark:text-red-400 dark:hover:bg-red-900/30`}
-                            >
-                              <Trash2 className="w-4 h-4" />
-                            </button>
-                          )}
+                          <CustomTooltip
+                            label={document.isUploading ? "Loading" : "Delete"}
+                            position="bottom"
+                          >
+                            {document.isUploading ? (
+                              <ProgressBar
+                                progress={document.progress ?? 0}
+                                size={20}
+                              />
+                            ) : (
+                              <button
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  handleDelete?.(document.id);
+                                }}
+                                className={`p-2 rounded-lg transition-colors text-red-600 hover:bg-red-50 dark:text-red-400 dark:hover:bg-red-900/30`}
+                              >
+                                <Trash2 className="w-4 h-4" />
+                              </button>
+                            )}
+                          </CustomTooltip>
                         </div>
                       </td>
                     </motion.tr>
@@ -270,6 +281,9 @@ const DocumentsTable = ({
           <div
             key={document.id}
             className="bg-white dark:bg-gray-800 p-4 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 active:scale-[0.98] transition"
+            onClick={() =>
+              viewDocument({ id: document.id, url: document.fileUrl })
+            }
           >
             {/* Top Row */}
             <div className="flex items-center justify-between gap-2 pb-3 border-b border-gray-200 dark:border-gray-700">
@@ -335,7 +349,7 @@ const filterTypeList = [
   { label: "Cover Letter", value: "COVER_LETTER" },
 ];
 
-const FileSetting = () => {
+const DocumentSetting = () => {
   const dispatch = useAppDispatch();
   const { documents, selectedItems } = useAppSelector(selectDocuments);
   const {
@@ -346,7 +360,7 @@ const FileSetting = () => {
     scrollRef,
     getDocumentsQuery,
     setDocumentsQuery,
-  } = useUploadFileHooks();
+  } = useDocumentsHooks();
 
   const debouncedSearch = useDebounce(getDocumentsQuery.search, 500);
 
@@ -370,16 +384,13 @@ const FileSetting = () => {
   }, [debouncedSearch, getDocumentsQuery.fileType]);
 
   return (
-    <div className="pb-6 h-[65vh] md:h-[70vh]">
-      <div
-        className="flex flex-col gap-4 pr-4 overflow-y-auto h-full"
-        ref={scrollRef}
-      >
+    <div className="h-full overflow-y-auto md:pt-6 px-4" ref={scrollRef}>
+      <div className="flex flex-col gap-4">
         <h3>Documents</h3>
         <div className="flex flex-col gap-6">
           <Dropbox
             title="Upload Documents"
-            accept=".pdf,.doc,.docx"
+            accept=".pdf"
             onFileSelect={(file, documentType) =>
               handleFileUpload(file, documentType)
             }
@@ -389,6 +400,7 @@ const FileSetting = () => {
             <div className="flex items-center justify-between gap-4 md:pl-[1.5px]">
               <SearchFilter
                 filters={getDocumentsQuery.search || ""}
+                placeholder="Search by filename"
                 onSearch={(value) => {
                   setDocumentsQuery({
                     ...getDocumentsQuery,
@@ -443,4 +455,4 @@ const FileSetting = () => {
   );
 };
 
-export default FileSetting;
+export default DocumentSetting;

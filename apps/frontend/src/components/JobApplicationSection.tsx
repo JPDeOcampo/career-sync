@@ -22,7 +22,7 @@ import { useAppSelector } from "@/hooks/useRedux";
 import ProgressBar from "./shared/ProgressBar";
 import { getTodayString } from "@career-sync/shared";
 import { LoadingSpinner } from "./shared/Loading";
-import useUploadFileHooks from "@/hooks/useUploadFile";
+import useDocumentsHooks from "@/hooks/useDocuments";
 import { toast } from "sonner";
 
 const JobApplicationSection = ({ isViewOnly }: { isViewOnly?: boolean }) => {
@@ -36,7 +36,7 @@ const JobApplicationSection = ({ isViewOnly }: { isViewOnly?: boolean }) => {
     handleFetchDocuments,
     handleFileUpload,
     scrollRef,
-  } = useUploadFileHooks();
+  } = useDocumentsHooks();
 
   const renderDocumentDropdown = (
     type: "CV" | "COVER_LETTER",

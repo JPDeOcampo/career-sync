@@ -362,7 +362,7 @@ const AccountSetting = () => {
   };
 
   return (
-    <div className="space-y-10">
+    <div className="space-y-10 md:pt-6 px-4 h-full">
       <PersonalInformation
         isViewOnly={viewOnly.personalInformation}
         onViewOnly={() => handleViewOnly("personalInformation")}

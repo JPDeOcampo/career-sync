@@ -290,8 +290,9 @@
   }
 
   label.job-form-label,
-  span.job-form-label {
-    @apply text-gray-700 dark:text-gray-300;
+  span.job-form-label,
+  label.form-label {
+    @apply text-gray-700! dark:text-gray-300!;
   }
 
   .text-job-value {

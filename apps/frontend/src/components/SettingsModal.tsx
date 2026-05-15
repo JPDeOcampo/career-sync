@@ -1,7 +1,7 @@
 import { useState } from "react";
 import Modal from "@/components/shared/Modal";
 import AccountSetting from "./AccountSetting";
-import FileSetting from "./FileSetting";
+import DocumentSetting from "./DocumentSetting";
 import { cn } from "@/utils/cn";
 import { Dropdown, DropdownItem } from "@/components/shared/CustomDropdown";
 
@@ -35,28 +35,23 @@ const DesktopSettings = ({
           )}
           onClick={() => handleTabChange("account")}
         >
-          Account Settings
+          Account Setting
         </button>
 
         <button
           className={cn(
             buttonClass,
-            activeTab === "files" && activeButtonClass,
-            activeTab !== "files" && hoverButtonClass,
+            activeTab === "documents" && activeButtonClass,
+            activeTab !== "documents" && hoverButtonClass,
           )}
-          onClick={() => handleTabChange("files")}
+          onClick={() => handleTabChange("documents")}
         >
-          File Settings
+          Documents Setting
         </button>
       </div>
 
       {/* Right Column */}
-      <div
-        className={cn(
-          "col-span-4 pl-4 py-6 max-h-[70vh]",
-          activeTab !== "files" && "overflow-y-scroll pr-5",
-        )}
-      >
+      <div className={cn("col-span-4 max-h-[75vh] mb-23", "overflow-y-auto")}>
         {content}
       </div>
     </div>
@@ -89,7 +84,9 @@ export const MobileSettings = ({
           ))}
         </Dropdown>
       </div>
-      <div className="block md:hidden pl-4">{content}</div>
+      <div className="block md:hidden mb-4 h-full overflow-y-auto">
+        {content}
+      </div>
     </>
   );
 };
@@ -105,7 +102,7 @@ const SettingsModal = ({ onClose }: { onClose: () => void }) => {
     return (
       <>
         {activeTab === "account" && <AccountSetting />}
-        {activeTab === "files" && <FileSetting />}
+        {activeTab === "documents" && <DocumentSetting />}
       </>
     );
   };
