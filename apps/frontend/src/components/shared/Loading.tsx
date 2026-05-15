@@ -11,7 +11,7 @@ export const LoadingSpinner = ({
       animate={{ rotate: 360 }}
       transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
       className={cn(
-        "border-2 border-white border-t-transparent rounded-full",
+        "rounded-full border-2 border-gray-300 border-t-black dark:border-gray-700 dark:border-t-white",
         className,
       )}
     />

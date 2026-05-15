@@ -13,6 +13,10 @@ type DocumentState = {
   pagination: Pagination;
   uploadProgress: number;
   selectedItems: string[];
+  selectedViewDocument: {
+    id: string | null;
+    url: string | null;
+  };
 };
 
 const initialState: DocumentState = {
@@ -20,6 +24,7 @@ const initialState: DocumentState = {
   pagination: { page: 0, limit: 0, totalPages: 0, total: 0 },
   uploadProgress: 0,
   selectedItems: [],
+  selectedViewDocument: { id: null, url: null },
 };
 
 const documentSlice = createSlice({
@@ -105,6 +110,12 @@ const documentSlice = createSlice({
         state.selectedItems.push(id);
       }
     },
+    setSelectedViewDocument: (
+      state,
+      action: PayloadAction<{ id: string | null; url: string | null }>,
+    ) => {
+      state.selectedViewDocument = action.payload;
+    },
   },
 });
 
@@ -119,6 +130,7 @@ export const {
   setSelectedAllItems,
   deselectAllItems,
   setSelectedItem,
+  setSelectedViewDocument,
 } = documentSlice.actions;
 
 export default documentSlice.reducer;

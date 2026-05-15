@@ -12,6 +12,7 @@ import {
   updateDocumentProgress,
   markDocumentUploaded,
   removeDocument,
+  setSelectedViewDocument,
 } from "@/store/slices/documentSlice";
 import { toast } from "sonner";
 import { isFetchBaseQueryError } from "@/utils/errorGuard";
@@ -20,7 +21,7 @@ import { useGlobalModal } from "@/context/GlobalModalContext";
 import useInfiniteScroll from "./useInfiniteScroll";
 import { Documents, DocumentType } from "@career-sync/shared";
 
-const useUploadFileHooks = () => {
+const useDocumentsHooks = () => {
   const dispatch = useAppDispatch();
   const [getDocumentsQuery, setDocumentsQuery] = useState<{
     page: number;
@@ -37,7 +38,8 @@ const useUploadFileHooks = () => {
   });
   const documentContainerRef = useRef(null);
   const { handleGlobalModal } = useGlobalModal();
-  const { documents, pagination } = useAppSelector(selectDocuments);
+  const { documents, pagination, selectedViewDocument } =
+    useAppSelector(selectDocuments);
   const [uploadDocument] = useUploadDocumentMutation();
   const [fetchDocuments, { isFetching: isFetchingDocuments }] =
     useLazyGetDocumentsQuery();
@@ -58,6 +60,10 @@ const useUploadFileHooks = () => {
     }
 
     return null;
+  };
+
+  const viewDocument = (document: { id: string; url: string }) => {
+    dispatch(setSelectedViewDocument(document));
   };
 
   const handleFetchDocuments = ({
@@ -168,6 +174,7 @@ const useUploadFileHooks = () => {
       //   onPaginationAction({ pages: { jobs: { page: pages.jobs - 1 } } });
       // }
       dispatch(removeDocument(ids));
+      dispatch(setSelectedViewDocument({ id: null, url: null }));
       toast.success("Job deleted successfully.");
     } catch (error) {
       console.error("Failed to delete job:", error);
@@ -240,6 +247,7 @@ const useUploadFileHooks = () => {
 
   return {
     getDocumentsQuery,
+    viewDocument,
     setDocumentsQuery,
     documentContainerRef,
     documents,
@@ -253,4 +261,4 @@ const useUploadFileHooks = () => {
   };
 };
 
-export default useUploadFileHooks;
+export default useDocumentsHooks;

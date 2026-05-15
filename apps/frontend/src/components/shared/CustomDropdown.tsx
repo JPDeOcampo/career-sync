@@ -4,6 +4,7 @@ import { useOutsideClick } from "@/hooks/useOutsideClick";
 import { cn } from "@/utils/cn";
 import { FieldLabel } from "./Label";
 import { UploadCloud } from "lucide-react";
+import useDocumentsHooks from "@/hooks/useDocuments";
 
 interface DropdownProps {
   label?: string;
@@ -44,6 +45,7 @@ export const Dropdown = ({
 }: DropdownProps) => {
   const [isOpen, setIsOpen] = useState(false);
   const ref = useOutsideClick(() => setIsOpen(false));
+  const { viewDocument } = useDocumentsHooks();
 
   const closeDropdown = () => setIsOpen(false);
 
@@ -69,9 +71,13 @@ export const Dropdown = ({
         {/* VIEW ONLY MODE */}
         {isViewOnly &&
           (url ? (
-            <a href={url} className="text-job-value" target="_blank">
+            <button
+              type="button"
+              onClick={() => viewDocument({ id: "", url })}
+              className="text-job-value w-fit underline hover:opacity-70"
+            >
               {value || "-"}
-            </a>
+            </button>
           ) : (
             <p className="text-job-value">{value || "-"}</p>
           ))}
@@ -121,7 +127,7 @@ export const Dropdown = ({
 
 export const DropdownUpload = ({
   onFileSelect,
-  accept = ".pdf,.doc,.docx",
+  accept = ".pdf",
 }: {
   onFileSelect: (file: File) => void;
   accept?: string;

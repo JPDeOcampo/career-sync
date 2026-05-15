@@ -124,6 +124,7 @@ const useJobHooks = () => {
     viewOnlyKeys,
     editableFields,
     fieldsToRender,
+    handleGlobalModal,
     jobQueryBuilder,
     handleAddJob,
     handleEditJob,

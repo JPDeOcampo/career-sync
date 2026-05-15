@@ -2,7 +2,7 @@ import React, { useState, useRef } from "react";
 import { UploadCloud } from "lucide-react";
 import { cn } from "@/utils/cn";
 import { DocumentType } from "@career-sync/shared";
-import useUploadFile from "@/hooks/useUploadFile";
+import useUploadFile from "@/hooks/useDocuments";
 import { toast } from "sonner";
 
 type DropboxProps = {
