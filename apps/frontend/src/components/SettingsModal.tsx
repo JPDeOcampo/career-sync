@@ -7,7 +7,7 @@ import { Dropdown, DropdownItem } from "@/components/shared/CustomDropdown";
 
 const settingsOptions = [
   { label: "Account Setting", value: "account" },
-  { label: "File Setting", value: "files" },
+  { label: "Documents Setting", value: "documents" },
 ];
 
 const DesktopSettings = ({
@@ -27,27 +27,19 @@ const DesktopSettings = ({
     <div className="hidden md:grid grid-cols-6 h-full">
       {/* Left Column */}
       <div className="flex flex-col justify-start text-start gap-1 space-y-4 col-span-2 border-r border-r-gray-200 dark:border-gray-700 pl-6 py-6 pr-4">
-        <button
-          className={cn(
-            buttonClass,
-            activeTab === "account" && activeButtonClass,
-            activeTab !== "account" && hoverButtonClass,
-          )}
-          onClick={() => handleTabChange("account")}
-        >
-          Account Setting
-        </button>
-
-        <button
-          className={cn(
-            buttonClass,
-            activeTab === "documents" && activeButtonClass,
-            activeTab !== "documents" && hoverButtonClass,
-          )}
-          onClick={() => handleTabChange("documents")}
-        >
-          Documents Setting
-        </button>
+        {settingsOptions.map((s) => (
+          <button
+            key={s.value}
+            className={cn(
+              buttonClass,
+              activeTab === s.value && activeButtonClass,
+              activeTab !== s.value && hoverButtonClass,
+            )}
+            onClick={() => handleTabChange(s.value)}
+          >
+            {s.label}
+          </button>
+        ))}
       </div>
 
       {/* Right Column */}
