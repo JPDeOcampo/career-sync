@@ -8,7 +8,7 @@ import { toast } from "sonner";
 import { useForgotPasswordMutation } from "@/store/api/authApi";
 import { InputEmail } from "@/components/shared/CustomUserInput";
 import { emailSchema } from "@career-sync/shared";
-import { useForm } from "react-hook-form";
+import { useForm, FormProvider } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import type { FetchBaseQueryError } from "@reduxjs/toolkit/query";
@@ -19,14 +19,16 @@ const ForgotPassword = () => {
   const router = useRouter();
   const [userForgotPassword, { isLoading }] = useForgotPasswordMutation();
 
+  const methods = useForm<EmailFormData>({
+    resolver: zodResolver(emailSchema),
+    reValidateMode: "onChange",
+  });
+
   const {
     register,
     handleSubmit,
     formState: { errors, isSubmitting },
-  } = useForm<EmailFormData>({
-    resolver: zodResolver(emailSchema),
-    reValidateMode: "onChange",
-  });
+  } = methods;
 
   const onSubmit = async (data: EmailFormData) => {
     const email = data.email;
@@ -71,30 +73,32 @@ const ForgotPassword = () => {
         </p>
       </div>
 
-      <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-        <InputEmail
-          label="Email Address"
-          {...register("email")}
-          error={errors.email?.message}
-          subtext="Enter the email associated with your account"
-        />
+      <FormProvider {...methods}>
+        <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+          <InputEmail
+            label="Email Address"
+            {...register("email")}
+            error={errors.email?.message}
+            subtext="Enter the email associated with your account"
+          />
 
-        <Button
-          type="submit"
-          className="w-full h-11"
-          disabled={isSubmitting || isLoading}
-        >
-          {isLoading ? (
-            <motion.div
-              animate={{ rotate: 360 }}
-              transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
-              className="w-5 h-5 border-2 border-white border-t-transparent rounded-full"
-            />
-          ) : (
-            "Send Verification Code"
-          )}
-        </Button>
-      </form>
+          <Button
+            type="submit"
+            className="w-full h-11"
+            disabled={isSubmitting || isLoading}
+          >
+            {isLoading ? (
+              <motion.div
+                animate={{ rotate: 360 }}
+                transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+                className="w-5 h-5 border-2 border-white border-t-transparent rounded-full"
+              />
+            ) : (
+              "Send Verification Code"
+            )}
+          </Button>
+        </form>
+      </FormProvider>
     </div>
   );
 };

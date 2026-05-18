@@ -4,12 +4,14 @@ import { useOutsideClick } from "@/hooks/useOutsideClick";
 import { cn } from "@/utils/cn";
 import { FieldLabel } from "./Label";
 import { UploadCloud } from "lucide-react";
+import useDocumentsHooks from "@/hooks/useDocuments";
 
 interface DropdownProps {
   label?: string;
   value: string;
   children: ReactNode;
   isViewOnly?: boolean;
+  isRequired?: boolean;
   align?: "left" | "right";
   url?: string;
   className?: string;
@@ -33,6 +35,7 @@ export const Dropdown = ({
   label,
   value,
   isViewOnly = false,
+  isRequired = false,
   children,
   align = "left",
   url,
@@ -42,6 +45,7 @@ export const Dropdown = ({
 }: DropdownProps) => {
   const [isOpen, setIsOpen] = useState(false);
   const ref = useOutsideClick(() => setIsOpen(false));
+  const { viewDocument } = useDocumentsHooks();
 
   const closeDropdown = () => setIsOpen(false);
 
@@ -56,14 +60,24 @@ export const Dropdown = ({
   return (
     <DropdownContext.Provider value={{ closeDropdown }}>
       <div className="flex flex-col gap-2 w-full">
-        {label && <FieldLabel label={label} isViewOnly={isViewOnly} />}
+        {label && (
+          <FieldLabel
+            label={label}
+            isViewOnly={isViewOnly}
+            isRequired={isRequired}
+          />
+        )}
 
         {/* VIEW ONLY MODE */}
         {isViewOnly &&
           (url ? (
-            <a href={url} className="text-job-value" target="_blank">
+            <button
+              type="button"
+              onClick={() => viewDocument({ id: "", url })}
+              className="text-job-value w-fit underline hover:opacity-70"
+            >
               {value || "-"}
-            </a>
+            </button>
           ) : (
             <p className="text-job-value">{value || "-"}</p>
           ))}
@@ -113,7 +127,7 @@ export const Dropdown = ({
 
 export const DropdownUpload = ({
   onFileSelect,
-  accept = ".pdf,.doc,.docx",
+  accept = ".pdf",
 }: {
   onFileSelect: (file: File) => void;
   accept?: string;
@@ -166,8 +180,11 @@ export const DropdownItem = ({
       onClick={handleSelect}
       className={cn(
         "flex items-center gap-3 w-full px-3 py-2 text-sm rounded-md",
-        "transition-colors text-default hover:bg-gray-100 dark:hover:text-gray-900",
-        isActive && "bg-blue-600 text-white",
+        "transition-colors text-default",
+        !isActive &&
+          "hover:bg-gray-200 dark:hover:bg-gray-600 hover:text-gray-900 dark:hover:text-gray-100",
+        isActive &&
+          "bg-blue-600 dark:bg-gray-100 text-white dark:text-gray-900",
       )}
     >
       {icon}

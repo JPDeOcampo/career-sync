@@ -9,6 +9,7 @@ type Props = {
   label?: string;
   value?: string | null;
   isViewOnly?: boolean;
+  isRequired?: boolean;
   onChange: (time: string) => void;
 };
 
@@ -32,6 +33,7 @@ const CustomTimePicker = ({
   label = "Time",
   value,
   isViewOnly,
+  isRequired,
   onChange,
 }: Props) => {
   const [open, setOpen] = useState(false);
@@ -57,7 +59,13 @@ const CustomTimePicker = ({
 
   return (
     <div className="flex flex-col gap-1 w-full">
-      {label && <FieldLabel label={label} isViewOnly={isViewOnly} />}
+      {label && (
+        <FieldLabel
+          label={label}
+          isViewOnly={isViewOnly}
+          isRequired={isRequired}
+        />
+      )}
 
       {isViewOnly && <p className="text-job-value">{value || "-"}</p>}
 

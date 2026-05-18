@@ -13,7 +13,7 @@ export const Label = ({
     <label
       data-slot="label"
       className={cn(
-        "flex items-center gap-1 text-sm leading-none font-medium select-none disabled:pointer-events-none disabled:opacity-50 cursor-pointer",
+        "flex items-center gap-1 text-sm leading-none font-medium select-none disabled:pointer-events-none disabled:opacity-50 cursor-pointer form-label",
         className,
       )}
       {...props}

@@ -1,10 +1,17 @@
 import { createApi } from "@reduxjs/toolkit/query/react";
 import { baseQueryWithReauth } from "./baseQueryWithReauth";
-import { setDocuments } from "../slices/documentSlice";
-import { DocumentType } from "@/@types/document.types";
+import {
+  setDocuments,
+  setLoadMoreDocuments,
+  setPagination,
+} from "../slices/documentSlice";
+import { Documents } from "@career-sync/shared";
 import axios from "axios";
 import { BASE_URL } from "@/utils/apiPath";
 import type { FetchBaseQueryError } from "@reduxjs/toolkit/query";
+import { RootState } from "../store";
+import { isGetJobsQuery, JobsResponse } from "./jobsApi";
+import { jobsApi } from "./jobsApi";
 
 const toRtkError = (err: unknown): FetchBaseQueryError => {
   if (axios.isAxiosError(err)) {
@@ -32,9 +39,10 @@ const path = "/document";
 export const documentApi = createApi({
   reducerPath: "documentApi",
   baseQuery: baseQueryWithReauth,
+  tagTypes: ["Documents"],
   endpoints: (builder) => ({
     uploadDocument: builder.mutation<
-      { data: DocumentType },
+      { data: Documents },
       { formData: FormData; onProgress: (p: number) => void }
     >({
       queryFn: async ({ formData, onProgress }, api) => {
@@ -64,38 +72,111 @@ export const documentApi = createApi({
       },
     }),
     getDocuments: builder.query<
-      { documents: DocumentType[] },
       {
+        documents: Documents[];
+        pagination: {
+          page: number;
+          limit: number;
+          totalPages: number;
+          total: number;
+        };
+      },
+      {
+        fileId?: string;
         sort?: string;
         page?: number;
+        search?: string;
+        fileType?: string;
         limit?: number;
       }
     >({
-      query: ({ sort, page, limit }) => ({
+      query: ({ fileId, sort, page, search, fileType, limit }) => ({
         url: path,
         method: "GET",
         params: {
           sort,
           page,
           limit,
+          search,
+          fileType,
+          fileId,
         },
       }),
-      async onQueryStarted(_, { dispatch, queryFulfilled }) {
+      async onQueryStarted(args, { dispatch, queryFulfilled }) {
+        const { page } = args;
         try {
           const { data } = await queryFulfilled;
-          const sortedDocuments = [...data.documents].sort(
-            (a, b) =>
-              new Date(b.createdAt ?? 0).getTime() -
-              new Date(a.createdAt ?? 0).getTime(),
-          );
-          dispatch(setDocuments(sortedDocuments));
+          if (page && page === 1) {
+            dispatch(setDocuments(data.documents));
+          } else {
+            dispatch(setLoadMoreDocuments(data.documents));
+          }
+
+          dispatch(setPagination(data.pagination));
         } catch (err) {
           console.log("Fetch jobs failed", err);
         }
       },
     }),
+    deleteDocuments: builder.mutation<void, { ids: string[] }>({
+      query: ({ ids }) => ({
+        url: `${path}/delete`,
+        method: "DELETE",
+        body: { fileId: ids },
+      }),
+      async onQueryStarted({ ids }, { dispatch, getState, queryFulfilled }) {
+        const state = getState() as RootState;
+
+        const queries = state.jobsApi.queries;
+
+        const patchResults: Array<{ undo: () => void }> = [];
+
+        Object.values(queries).forEach((q) => {
+          if (!isGetJobsQuery(q)) return;
+
+          const result = dispatch(
+            jobsApi.util.updateQueryData(
+              "getJobs",
+              q.originalArgs,
+              (draft: JobsResponse) => {
+                draft.jobs.forEach((job) => {
+                  const shouldRemoveCv =
+                    job.cvId != null && ids.includes(job.cvId);
+
+                  const shouldRemoveCoverLetter =
+                    job.coverLetterId != null &&
+                    ids.includes(job.coverLetterId);
+
+                  if (shouldRemoveCv) {
+                    job.cvId = undefined;
+                    job.cv = undefined;
+                  }
+
+                  if (shouldRemoveCoverLetter) {
+                    job.coverLetterId = undefined;
+                    job.coverLetter = undefined;
+                  }
+                });
+              },
+            ),
+          );
+
+          patchResults.push(result);
+        });
+
+        try {
+          await queryFulfilled;
+        } catch {
+          patchResults.forEach((p) => p.undo());
+        }
+      },
+      invalidatesTags: [{ type: "Documents", id: "LIST" }],
+    }),
   }),
 });
 
-export const { useUploadDocumentMutation, useLazyGetDocumentsQuery } =
-  documentApi;
+export const {
+  useUploadDocumentMutation,
+  useLazyGetDocumentsQuery,
+  useDeleteDocumentsMutation,
+} = documentApi;

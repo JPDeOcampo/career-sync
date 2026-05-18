@@ -5,7 +5,7 @@ const JobInterviewSection = ({ isViewOnly }: { isViewOnly?: boolean }) => {
   const { register } = useFormContext();
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-5">
       <JobFormField
         label="Notes"
         rows={5}

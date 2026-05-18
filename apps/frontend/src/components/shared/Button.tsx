@@ -1,4 +1,5 @@
 import * as React from "react";
+import { cn } from "@/utils/cn";
 
 type ButtonProps = React.ButtonHTMLAttributes<HTMLButtonElement> & {
   variant?:
@@ -30,9 +31,11 @@ const Button: React.FC<ButtonProps> = ({
       "border border-gray-300 text-gray-700 hover:bg-gray-100 focus-visible:ring-gray-400",
     secondary:
       "bg-gray-200 text-gray-900 hover:bg-gray-300 focus-visible:ring-gray-400",
+
     ghost:
-      "bg-transparent text-gray-900 hover:bg-gray-100 focus-visible:ring-gray-400",
-    link: "text-blue-600 underline hover:text-blue-700",
+      "bg-transparent text-gray-500 hover:text-gray-900 focus-visible:ring-gray-400 dark:text-gray-200 dark:hover:bg-transparent dark:hover:text-gray-500",
+
+    link: "text-blue-600 underline hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300",
   };
 
   const sizeStyles: Record<string, string> = {
@@ -44,7 +47,12 @@ const Button: React.FC<ButtonProps> = ({
 
   return (
     <button
-      className={`${baseStyles} ${variantStyles[variant]} ${sizeStyles[size]} ${className}`}
+      className={cn(
+        baseStyles,
+        variantStyles[variant],
+        sizeStyles[size],
+        className,
+      )}
       {...props}
     >
       {children}

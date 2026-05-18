@@ -1,6 +1,6 @@
 import { createApi } from "@reduxjs/toolkit/query/react";
 import { baseQueryWithReauth } from "./baseQueryWithReauth";
-import { setUserId, logout } from "../slices/authSlice";
+import { setUser, setUserId, logout } from "../slices/authSlice";
 import { UserType } from "@/@types/userTypes";
 
 const path = "/auth";
@@ -29,6 +29,37 @@ export const authApi = createApi({
       },
     }),
 
+    // --- Update User ---
+    updateUser: builder.mutation<
+      {
+        firstName: string;
+        lastName: string;
+        email: string;
+      },
+      {
+        id: string;
+        firstName: string;
+        lastName: string;
+        email: string;
+      }
+    >({
+      query: ({ id, firstName, lastName, email }) => ({
+        url: `${path}/update-user/${id}`,
+        method: "PUT",
+        body: { firstName, lastName, email },
+      }),
+      extraOptions: {
+        skipReauth: true,
+      },
+      async onQueryStarted(_, { dispatch, queryFulfilled }) {
+        try {
+          const { data } = await queryFulfilled;
+          dispatch(setUser(data));
+        } catch (err) {
+          console.error("Update user failed", err);
+        }
+      },
+    }),
     // --- Register ---
     register: builder.mutation<
       void,
@@ -44,6 +75,26 @@ export const authApi = createApi({
         url: `${path}/register`,
         method: "POST",
         body: credentials,
+      }),
+      extraOptions: {
+        skipReauth: true,
+      },
+    }),
+
+    // --- update Password ---
+    updatePassword: builder.mutation<
+      void,
+      {
+        id: string;
+        currentPassword: string;
+        newPassword: string;
+        confirmPassword: string;
+      }
+    >({
+      query: ({ id, currentPassword, newPassword, confirmPassword }) => ({
+        url: `${path}/update-password/${id}`,
+        method: "PUT",
+        body: { currentPassword, newPassword, confirmPassword },
       }),
       extraOptions: {
         skipReauth: true,
@@ -164,7 +215,9 @@ export const authApi = createApi({
 
 export const {
   useLoginMutation,
+  useUpdateUserMutation,
   useRegisterMutation,
+  useUpdatePasswordMutation,
   useForgotPasswordMutation,
   useVerifyResetPasswordMutation,
   useResendResetVerificationCodeMutation,

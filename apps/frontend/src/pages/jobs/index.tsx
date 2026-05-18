@@ -1,3 +1,4 @@
+import { useMemo } from "react";
 import { JobTagStatus, JobTagPriorityText } from "@/components/shared/JobTag";
 import { Search, Trash2, ArrowUpDown } from "lucide-react";
 import {
@@ -169,7 +170,7 @@ const JobTableSkeleton = ({ rows = 5 }) => {
       </div>
 
       {/* MOBILE CARD SKELETON */}
-      <div className="block md:hidden p-2 space-y-3">
+      <div className="block md:hidden md:p-2 space-y-3">
         {Array.from({ length: rows }).map((_, index) => (
           <div
             key={index}
@@ -581,11 +582,16 @@ const Jobs = () => {
 
   const { data, isFetching, isError } = useGetJobsQuery(getJobsQuery);
   const [deleteJob] = useDeleteJobMutation();
-  const jobs = data?.jobs || [];
+
   const totalPages = data?.pagination?.totalPages;
+  const jobs = useMemo(() => {
+    if (!data?.jobs) return [];
+    return data.jobs;
+  }, [data]);
+
   const hasJobs = jobs && jobs?.length > 0;
   const { handleGlobalModal } = useGlobalModal();
-  console.log(data);
+
   const handleSort = (newSortBy: typeof sortBy) => {
     const newSortOrder =
       sortBy === newSortBy && sortOrder === "desc" ? "asc" : "desc";
@@ -731,7 +737,11 @@ const Jobs = () => {
           currentPage={pages.jobs || 1}
           totalPages={totalPages || 1}
           onPageChange={(page) =>
-            onPaginationAction({ pages: { jobs: { page } } })
+            onPaginationAction({
+              pages: { jobs: { page } },
+              search: getJobsQuery.search,
+              sort: getJobsQuery.sort,
+            })
           }
         />
       )}

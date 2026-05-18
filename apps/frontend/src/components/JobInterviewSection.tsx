@@ -1,15 +1,13 @@
 import { Controller, useFormContext, useFieldArray } from "react-hook-form";
 import { JobFormField } from "@/components/shared/JobFormField";
 import { Dropdown, DropdownItem } from "@/components/shared/CustomDropdown";
-import { Checkbox } from "@/components/shared/Checkbox";
 import { interviewTypes } from "@/constant/jobSelectList";
 import { cn } from "@/utils/cn";
 import { Plus, ArrowUp, ArrowDown, Minus } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
 import CustomTooltip from "@/components/shared/CustomTooltip";
 import InterviewStageCard from "@/components/shared/InterviewStageCard";
-import { getTodayString } from "@/utils/dateHelper";
-import { InterviewInfo } from "@career-sync/shared";
+import { InterviewInfo, getTodayString } from "@career-sync/shared";
 import { useGlobalModal } from "@/context/GlobalModalContext";
 import CustomDatePicker from "./shared/CustomDatePicker";
 import CustomTimePicker from "./shared/CustomTimePicker";
@@ -94,8 +92,19 @@ const ItemHeader = ({
                 handleGlobalModal({
                   variant: "default",
                   title: "Confirm Action",
-                  description: `Are you sure you want to delete this <b>${title} ${orderId}</b>? This action cannot be undone.`,
-                  onConfirm: removedItem,
+                  description: (
+                    <p>
+                      Are you sure you want to delete this{" "}
+                      <b>
+                        {title} {orderId}
+                      </b>
+                      ? This action cannot be undone.
+                    </p>
+                  ),
+                  onConfirm: () => {
+                    removedItem();
+                    handleGlobalModal({});
+                  },
                 })
               }
               className="text-background bg-red-500 hover:bg-red-400 rounded-full p-1 cursor-pointer"
@@ -156,7 +165,7 @@ const JobInterviewSection = ({
   };
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-5">
       {isViewOnly && !hasInterviewStages && <p>No interviews added</p>}
 
       {fields.map((field, index) => (
@@ -175,7 +184,7 @@ const JobInterviewSection = ({
             isViewOnly={isViewOnly}
           />
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
             <Controller
               name={`interviewStages.${index}.interviewType`}
               control={control}
@@ -185,6 +194,7 @@ const JobInterviewSection = ({
                   value={controllerField.value}
                   isViewOnly={isViewOnly}
                   align="left"
+                  isRequired={true}
                 >
                   {interviewTypes.map((s) => (
                     <DropdownItem
@@ -212,6 +222,7 @@ const JobInterviewSection = ({
                   value={field.value}
                   isViewOnly={isViewOnly}
                   onChange={field.onChange}
+                  isRequired={true}
                 />
               )}
             />
@@ -224,6 +235,7 @@ const JobInterviewSection = ({
                   value={field.value}
                   isViewOnly={isViewOnly}
                   onChange={field.onChange}
+                  isRequired={true}
                 />
               )}
             />
@@ -245,12 +257,12 @@ const JobInterviewSection = ({
         <AddButton label="Add new Interview" onClick={handleAdd} />
       )}
 
-      <Checkbox
+      {/* <Checkbox
         label="Received Offer"
         disabled={isViewOnly}
         isViewOnly={isViewOnly}
         {...register("offer")}
-      />
+      /> */}
     </div>
   );
 };

@@ -7,10 +7,10 @@ import Logo from "@/components/shared/Logo";
 import Button from "@/components/shared/Button";
 import { toast } from "sonner";
 import { useLoginMutation } from "@/store/api/authApi";
-import useGlobalHooks from "@/hooks/useGlobal";
+import { useRouter } from "next/navigation";
 import { InputEmail, InputPassword } from "@/components/shared/CustomUserInput";
 import type { FetchBaseQueryError } from "@reduxjs/toolkit/query";
-import { useForm } from "react-hook-form";
+import { useForm, FormProvider } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { loginSchema } from "@career-sync/shared";
@@ -19,19 +19,21 @@ type LoginFormData = z.infer<typeof loginSchema>;
 
 const Login = () => {
   const dispatch = useAppDispatch();
+  const router = useRouter();
   const [showPassword, setShowPassword] = useState(false);
   const [userLogin, { isLoading }] = useLoginMutation();
-  const { navigate } = useGlobalHooks();
+
+  const methods = useForm<LoginFormData>({
+    resolver: zodResolver(loginSchema),
+    // mode: "onBlur",
+    reValidateMode: "onChange",
+  });
 
   const {
     register,
     handleSubmit,
     formState: { errors, isSubmitting },
-  } = useForm<LoginFormData>({
-    resolver: zodResolver(loginSchema),
-    // mode: "onBlur",
-    reValidateMode: "onChange",
-  });
+  } = methods;
 
   const onSubmit = async (data: LoginFormData) => {
     const { email, password } = data;
@@ -40,8 +42,8 @@ const Login = () => {
     try {
       const response = await userLogin({ email, password }).unwrap();
       dispatch(login(response));
-      navigate("/dashboard");
-      toast.success(`Welcome back, ${response.user.firstName}!`);
+      router.push("/dashboard");
+      toast.success(`Welcome, ${response.user.firstName}!`);
     } catch (error) {
       const err = error as FetchBaseQueryError;
 
@@ -69,43 +71,45 @@ const Login = () => {
         </p>
       </div>
 
-      <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-        <InputEmail
-          {...register("email")}
-          error={errors.email?.message}
-          autofocus
-        />
+      <FormProvider {...methods}>
+        <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+          <InputEmail
+            {...register("email")}
+            error={errors.email?.message}
+            autofocus
+          />
 
-        <InputPassword
-          withForgotPassword
-          showPassword={showPassword}
-          setShowPassword={() => setShowPassword(!showPassword)}
-          {...register("password")}
-          error={errors.password?.message}
-        />
+          <InputPassword
+            withForgotPassword
+            showPassword={showPassword}
+            setShowPassword={() => setShowPassword(!showPassword)}
+            {...register("password")}
+            error={errors.password?.message}
+          />
 
-        <Button
-          type="submit"
-          className="w-full h-11"
-          disabled={isSubmitting || isLoading}
-        >
-          {isLoading ? (
-            <motion.div
-              animate={{ rotate: 360 }}
-              transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
-              className="w-5 h-5 border-2 border-white border-t-transparent rounded-full"
-            />
-          ) : (
-            "Sign In"
-          )}
-        </Button>
-      </form>
+          <Button
+            type="submit"
+            className="w-full h-11"
+            disabled={isSubmitting || isLoading}
+          >
+            {isLoading ? (
+              <motion.div
+                animate={{ rotate: 360 }}
+                transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+                className="w-5 h-5 border-2 border-white border-t-transparent rounded-full"
+              />
+            ) : (
+              "Sign In"
+            )}
+          </Button>
+        </form>
+      </FormProvider>
 
       <div className="mt-6 text-center">
         <p className="text-gray-600 dark:text-gray-400">
           Don&apos;t have an account?{" "}
           <button
-            onClick={() => navigate("/register")}
+            onClick={() => router.push("/register")}
             className="text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300 font-medium transition-colors"
           >
             Sign up

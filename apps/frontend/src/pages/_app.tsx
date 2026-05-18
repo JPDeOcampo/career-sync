@@ -12,6 +12,10 @@ import { publicRoutes } from "@/constant/routesPath";
 import JobModal from "@/components/JobModal";
 import useJobHooks from "@/hooks/useJob";
 import { GlobalModalProvider } from "@/context/GlobalModalContext";
+import DocumentModal from "@/components/shared/DocumentModal";
+import { useAppSelector, useAppDispatch } from "@/hooks/useRedux";
+import { setSelectedViewDocument } from "@/store/slices/documentSlice";
+import { selectDocuments } from "@/store/selectors";
 
 const poppins = Poppins({
   subsets: ["latin"],
@@ -22,7 +26,9 @@ const poppins = Poppins({
 
 const AppContent = ({ Component, pageProps }: AppProps) => {
   const router = useRouter();
+  const dispatch = useAppDispatch();
   const hideHeader = publicRoutes.includes(router.pathname);
+  const { selectedViewDocument } = useAppSelector(selectDocuments);
 
   const { isJobModalShow } = useJobHooks();
 
@@ -51,6 +57,15 @@ const AppContent = ({ Component, pageProps }: AppProps) => {
         </div>
       </main>
       {isJobModalShow && <JobModal />}
+      <DocumentModal
+        isOpen={!!selectedViewDocument.url}
+        onClose={() =>
+          dispatch(setSelectedViewDocument({ id: null, url: null }))
+        }
+        documentUrl={selectedViewDocument.url || ""}
+        documentId={selectedViewDocument.id || ""}
+        title="Document Preview"
+      />
 
       <Toaster position="top-right" richColors />
     </div>

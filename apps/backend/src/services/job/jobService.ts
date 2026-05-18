@@ -173,8 +173,7 @@ export const getJobs = async (
           coverLetter: true,
         },
         orderBy,
-        skip,
-        take: limit,
+        ...(limit > 0 && { skip, take: limit }),
       }),
 
       prisma.job.count({ where }),

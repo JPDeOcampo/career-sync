@@ -25,7 +25,7 @@ export const getJobsController = async (req: Request, res: Response) => {
     search: search as string,
     priority: priority as string,
     page: Number(page) || 1,
-    limit: Number(limit) || 10,
+    limit: Number(limit),
   });
 
   setTimeout(() => {

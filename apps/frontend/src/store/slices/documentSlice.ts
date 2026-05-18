@@ -1,27 +1,55 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
-import { DocumentType } from "@/@types/document.types";
+import { Documents } from "@career-sync/shared";
+
+type Pagination = {
+  page: number;
+  limit: number;
+  totalPages: number;
+  total: number;
+};
 
 type DocumentState = {
-  documents: DocumentType[];
+  documents: Documents[];
+  pagination: Pagination;
   uploadProgress: number;
+  selectedItems: string[];
+  selectedViewDocument: {
+    id: string | null;
+    url: string | null;
+  };
 };
 
 const initialState: DocumentState = {
   documents: [],
+  pagination: { page: 0, limit: 0, totalPages: 0, total: 0 },
   uploadProgress: 0,
+  selectedItems: [],
+  selectedViewDocument: { id: null, url: null },
 };
 
 const documentSlice = createSlice({
   name: "documents",
   initialState,
   reducers: {
-    setDocuments: (state, action: PayloadAction<DocumentType[]>) => {
+    setDocuments: (state, action: PayloadAction<Documents[]>) => {
       state.documents = action.payload;
     },
-    addDocument: (
-      state,
-      action: PayloadAction<DocumentType | DocumentType[]>,
-    ) => {
+    setLoadMoreDocuments: (state, action: PayloadAction<Documents[]>) => {
+      const docs = Array.isArray(action.payload)
+        ? action.payload
+        : [action.payload];
+
+      docs.forEach((doc) => {
+        const exists = state.documents.some((d) => d.id === doc.id);
+        if (!exists) {
+          state.documents.push(doc);
+        }
+      });
+    },
+    setPagination: (state, action: PayloadAction<Pagination>) => {
+      state.pagination = action.payload;
+    },
+    addDocument: (state, action: PayloadAction<Documents | Documents[]>) => {
       const docs = Array.isArray(action.payload)
         ? action.payload
         : [action.payload];
@@ -42,23 +70,6 @@ const documentSlice = createSlice({
         doc.progress = action.payload.progress;
       }
     },
-
-    //     markDocumentUploaded: (state, action) => {
-    //   const { tempId, document } = action.payload;
-
-    //   const index = state.documents.findIndex((d) => d.id === tempId);
-    //   (console.log("index", index), document);
-    //   if (index !== -1) {
-    //     state.documents[index] = {
-    //       ...document,
-    //       id: document.id,
-    //       userId: document.userId,
-    //       fileUrl: document.fileUrl,
-    //       isUploading: false,
-    //       progress: 100,
-    //     };
-    //   }
-    // },
     markDocumentUploaded: (state, action) => {
       const doc = state.documents.find((d) => d.id === action.payload.id);
       if (doc) {
@@ -70,17 +81,56 @@ const documentSlice = createSlice({
     },
 
     removeDocument: (state, action) => {
-      state.documents = state.documents.filter((d) => d.id !== action.payload);
+      const ids = Array.isArray(action.payload)
+        ? action.payload
+        : [action.payload];
+
+      state.documents = state.documents.filter((d) => !ids.includes(d.id));
+    },
+
+    setSelectedAllItems: (state, action: PayloadAction<string[]>) => {
+      // state.selectedItems = action.payload;
+      action.payload.forEach((id) => {
+        if (!state.selectedItems.includes(id)) {
+          state.selectedItems.push(id);
+        }
+      });
+    },
+    deselectAllItems: (state, action: PayloadAction<string[]>) => {
+      state.selectedItems = state.selectedItems.filter(
+        (id) => !action.payload.includes(id),
+      );
+    },
+    setSelectedItem: (state, action: PayloadAction<string>) => {
+      const id = action.payload;
+
+      if (state.selectedItems.includes(id)) {
+        state.selectedItems = state.selectedItems.filter((item) => item !== id);
+      } else {
+        state.selectedItems.push(id);
+      }
+    },
+    setSelectedViewDocument: (
+      state,
+      action: PayloadAction<{ id: string | null; url: string | null }>,
+    ) => {
+      state.selectedViewDocument = action.payload;
     },
   },
 });
 
 export const {
   setDocuments,
+  setLoadMoreDocuments,
+  setPagination,
   addDocument,
   updateDocumentProgress,
   markDocumentUploaded,
   removeDocument,
+  setSelectedAllItems,
+  deselectAllItems,
+  setSelectedItem,
+  setSelectedViewDocument,
 } = documentSlice.actions;
 
 export default documentSlice.reducer;

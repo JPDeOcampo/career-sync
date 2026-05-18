@@ -1,7 +1,8 @@
+import { useMemo } from "react";
 import { motion } from "motion/react";
 import StatCard from "@/components/StatCard";
-import { Briefcase, Calendar, Gift, XCircle, Star } from "lucide-react";
-import { JobTagStatus, JobTagPriorityIcon } from "@/components/shared/JobTag";
+import { Briefcase, Calendar, Gift, XCircle, AlertCircle } from "lucide-react";
+import { JobTagStatus, JobTagPriorityText } from "@/components/shared/JobTag";
 import useJobHooks from "@/hooks/useJob";
 import { useGetJobsQuery } from "@/store/api/jobsApi";
 import Skeleton from "@/components/shared/Skeleton";
@@ -27,12 +28,16 @@ const JobRowSkeleton = () => (
 );
 
 const Dashboard = () => {
-  const { jobQueryBuilder } = useJobHooks();
+  const { jobQueryBuilder, handleAddJob } = useJobHooks();
   const getJobsQuery = jobQueryBuilder("dashboard", { sort: "recent" });
 
   const { data, isFetching, isError } = useGetJobsQuery(getJobsQuery);
 
-  const recentJobs = data?.jobs || [];
+  const recentJobs = useMemo(() => {
+    if (!data?.jobs) return [];
+    return data.jobs;
+  }, [data]);
+
   const totalPages = data?.pagination?.totalPages;
   const hasRecentJobs = recentJobs && recentJobs?.length > 0;
   const isLoadingJobs = isFetching && !isError && recentJobs?.length === 0;
@@ -61,15 +66,15 @@ const Dashboard = () => {
       title: "Interviews",
       value: stats.interviews,
       icon: Calendar,
-      color: "orange",
+      color: "yellow",
     },
     { title: "Offers", value: stats.offers, icon: Gift, color: "green" },
     { title: "Rejected", value: stats.rejected, icon: XCircle, color: "red" },
     {
       title: "High Priority",
       value: stats.highPriority,
-      icon: Star,
-      color: "yellow",
+      icon: AlertCircle,
+      color: "purple",
     },
   ];
 
@@ -137,12 +142,11 @@ const Dashboard = () => {
                 initial={{ opacity: 0, x: -20 }}
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ duration: 0.2, delay: 0.05 + index * 0.1 }}
-                className="px-4 py-4 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors cursor-pointer"
+                className="px-6 py-4 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors cursor-pointer"
                 onClick={() => handleViewOnly(job, getJobsQuery)}
               >
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-4">
-                    <JobTagPriorityIcon priority={job.priority} />
                     <div className="flex-1 min-w-0">
                       <h3 className="font-semibold text-default truncate max-w-22.5 md:max-w-56">
                         {job.company}
@@ -154,6 +158,7 @@ const Dashboard = () => {
                   </div>
                   <div className="ml-4 flex items-center gap-3">
                     <JobTagStatus status={job.status} />
+                    <JobTagPriorityText priority={job.priority} />
                     <span className="text-sm text-gray-500 dark:text-gray-400">
                       {new Date(job.applicationDate).toLocaleDateString()}
                     </span>
@@ -166,10 +171,21 @@ const Dashboard = () => {
 
         {/* No Data State */}
         {!isFetching && !isError && recentJobs?.length === 0 && (
-          <EmptyState
-            title="No recent job applications for the last 7 days"
-            description="Click &rdquo;Add Job&rdquo; to get started"
-          />
+          <EmptyState title="No recent job applications for the last 7 days">
+            <p>
+              Click &quot;
+              <a
+                href="#"
+                onClick={(e) => {
+                  e.preventDefault();
+                  handleAddJob();
+                }}
+              >
+                Add Job
+              </a>
+              &quot; to get started
+            </p>
+          </EmptyState>
         )}
       </motion.div>
 
@@ -180,6 +196,7 @@ const Dashboard = () => {
           onPageChange={(page) =>
             onPaginationAction({
               pages: { dashboard: { page } },
+              search: getJobsQuery.search,
               sort: "recent",
             })
           }

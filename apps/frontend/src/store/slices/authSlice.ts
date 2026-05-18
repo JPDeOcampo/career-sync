@@ -1,11 +1,12 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
-import { UserType } from "@/@types/userTypes";
+import { UserDTO } from "@career-sync/shared";
 
 interface AuthState {
-  user: UserType | null;
+  user: UserDTO | null;
   isAuthenticated?: boolean;
   resetEmail?: string | null;
   accessToken: string | null;
+  isAuthLoading?: boolean;
 }
 
 const initialState: AuthState = {
@@ -13,6 +14,7 @@ const initialState: AuthState = {
   isAuthenticated: false,
   resetEmail: null,
   accessToken: null,
+  isAuthLoading: true,
 };
 
 const authSlice = createSlice({
@@ -24,14 +26,19 @@ const authSlice = createSlice({
       state.isAuthenticated = action.payload.accessToken !== null;
       state.accessToken = action.payload.accessToken;
       state.resetEmail = null;
+      state.isAuthLoading = false;
     },
     logout: (state) => {
       state.user = null;
       state.isAuthenticated = false;
       state.accessToken = null;
       state.resetEmail = null;
+      state.isAuthLoading = false;
     },
-    setUserId: (state, action: PayloadAction<UserType>) => {
+    setUser: (state, action: PayloadAction<UserDTO>) => {
+      state.user = action.payload;
+    },
+    setUserId: (state, action: PayloadAction<UserDTO>) => {
       state.user = {
         ...state.user,
         userId: action.payload.userId,
@@ -47,6 +54,12 @@ const authSlice = createSlice({
   },
 });
 
-export const { login, logout, setUserId, setResetEmail, resetPassword } =
-  authSlice.actions;
+export const {
+  login,
+  logout,
+  setUser,
+  setUserId,
+  setResetEmail,
+  resetPassword,
+} = authSlice.actions;
 export default authSlice.reducer;

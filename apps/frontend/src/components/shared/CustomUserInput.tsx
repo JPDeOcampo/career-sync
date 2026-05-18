@@ -3,26 +3,43 @@ import Input from "./Input";
 import { Eye, EyeOff } from "lucide-react";
 import { useRouter } from "next/router";
 import { BaseFormFieldProps } from "@/@types/fieldTypes";
+import { useFormContext } from "react-hook-form";
+import { UserType } from "@/@types/userTypes";
 
 const InputName = ({
   label = "Name",
   placeholder = "John Doe",
   error,
   autofocus = false,
+  isViewOnly = false,
   ...registerProps
 }: BaseFormFieldProps) => {
+  const { watch } = useFormContext<UserType>();
+  const value = watch(
+    registerProps.name as keyof UserType,
+  ) as UserType[keyof UserType];
   return (
     <div className="space-y-2">
       <Label htmlFor={registerProps.name}>{label}</Label>
-      <Input
-        id={registerProps.name}
-        type="text"
-        placeholder={placeholder}
-        className={`h-11 ${error ? "border border-red-500" : ""}`}
-        autoFocus={autofocus}
-        {...registerProps}
-      />
-      {error && <p className="text-red-500 text-sm">{error}</p>}
+      {isViewOnly && (
+        <p className="text-job-value">
+          {typeof value === "string" && value !== "" ? value : "-"}
+        </p>
+      )}
+
+      {!isViewOnly && (
+        <>
+          <Input
+            id={registerProps.name}
+            type="text"
+            placeholder={placeholder}
+            className={`h-11 ${error ? "border border-red-500" : ""}`}
+            autoFocus={autofocus}
+            {...registerProps}
+          />
+          {error && <p className="text-red-500 text-sm">{error}</p>}
+        </>
+      )}
     </div>
   );
 };
@@ -33,24 +50,40 @@ const InputEmail = ({
   error,
   autofocus = false,
   subtext,
+  isViewOnly = false,
   ...registerProps
 }: BaseFormFieldProps) => {
+  const { watch } = useFormContext<UserType>();
+  const value = watch(
+    registerProps.name as keyof UserType,
+  ) as UserType[keyof UserType];
   return (
     <div className="space-y-2">
       <Label htmlFor={registerProps.name}>{label}</Label>
+      {isViewOnly && (
+        <p className="text-job-value">
+          {typeof value === "string" && value !== "" ? value : "-"}
+        </p>
+      )}
 
-      <Input
-        id={registerProps.name}
-        type="email"
-        placeholder={placeholder}
-        className={`h-11 ${error ? "border border-red-500" : ""}`}
-        autoFocus={autofocus}
-        {...registerProps}
-      />
+      {!isViewOnly && (
+        <>
+          <Input
+            id={registerProps.name}
+            type="email"
+            placeholder={placeholder}
+            className={`h-11 ${error ? "border border-red-500" : ""}`}
+            autoFocus={autofocus}
+            {...registerProps}
+          />
 
-      {error && <p className="text-red-500 text-sm">{error}</p>}
-      {subtext && (
-        <p className="text-sm text-gray-500 dark:text-gray-400">{subtext}</p>
+          {error && <p className="text-red-500 text-sm">{error}</p>}
+          {subtext && (
+            <p className="text-sm text-gray-500 dark:text-gray-400">
+              {subtext}
+            </p>
+          )}
+        </>
       )}
     </div>
   );
@@ -66,6 +99,7 @@ const InputPassword = ({
   label = "Password",
   placeholder = "••••••••",
   error,
+  autofocus = false,
   withForgotPassword = false,
   showPassword,
   setShowPassword,
@@ -91,6 +125,7 @@ const InputPassword = ({
           id={registerProps.name}
           type={showPassword ? "text" : "password"}
           placeholder={placeholder}
+          autoFocus={autofocus}
           className={`h-11 pr-10 ${error ? "border border-red-500" : ""}`}
           {...registerProps}
         />

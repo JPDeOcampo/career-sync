@@ -16,13 +16,18 @@ export const uploadDocumentController = async (req: Request, res: Response) => {
 
 export const getDocumentController = async (req: Request, res: Response) => {
   const userId = req.user?.id as string;
-  const body = req.body;
   const filters = req.query;
 
   const data = await documentService.getDocument({
     userId,
-    data: body,
-    filters,
+    filters: {
+      fileId: filters.fileId as string,
+      sort: filters.sort as string,
+      page: Number(filters.page) || 1,
+      limit: Number(filters.limit),
+      search: filters.search as string,
+      fileType: filters.fileType as "CV" | "COVER_LETTER" | undefined,
+    },
   });
 
   return res.status(200).json({
@@ -33,7 +38,7 @@ export const getDocumentController = async (req: Request, res: Response) => {
 
 export const deleteDocumentController = async (req: Request, res: Response) => {
   const userId = req.user?.id as string;
-  const { fileId } = req.params as { fileId: string };
+  const { fileId } = req.body;
 
   await documentService.deleteDocument(userId, fileId);
 

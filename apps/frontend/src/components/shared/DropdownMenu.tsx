@@ -72,16 +72,19 @@ const DropdownMenuItem = ({
   className,
   variant = "default",
   ...props
-}: React.ComponentProps<"div"> & { variant?: "default" | "destructive" }) => {
+}: React.ComponentProps<"button"> & {
+  variant?: "default" | "destructive";
+}) => {
   const context = useContext(DropdownContext);
   return (
-    <div
+    <button
       onClick={(e) => {
         props.onClick?.(e);
         context?.setOpen(false);
       }}
       className={cn(
-        "text-default hover:bg-gray-100 dark:hover:text-gray-900 relative flex cursor-default items-center gap-2 rounded-sm px-2 py-1.5 text-sm outline-none select-none",
+        "w-full text-default hover:bg-gray-100 dark:hover:text-gray-900 relative flex cursor-default items-center gap-2 rounded-sm px-2 py-1.5 text-sm outline-none select-none",
+        "disabled:pointer-events-none disabled:opacity-50",
         variant === "destructive" && "text-destructive hover:bg-destructive/10",
         className,
       )}
