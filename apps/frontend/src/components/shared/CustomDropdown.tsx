@@ -16,6 +16,7 @@ interface DropdownProps {
   url?: string;
   className?: string;
   containerClassName?: string;
+  isDisabled?: boolean;
   onClick?: () => void;
 }
 
@@ -40,7 +41,8 @@ export const Dropdown = ({
   align = "left",
   url,
   className,
-  containerClassName = "max-h-40 overflow-auto px-1 py-2",
+  containerClassName = "max-h-40 overflow-auto px-1.5",
+  isDisabled = false,
   onClick,
 }: DropdownProps) => {
   const [isOpen, setIsOpen] = useState(false);
@@ -94,6 +96,7 @@ export const Dropdown = ({
                 "focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px]",
                 className,
               )}
+              disabled={isDisabled}
             >
               <span className="text-sm font-medium">{value}</span>
 
@@ -110,12 +113,11 @@ export const Dropdown = ({
               <div
                 className={cn(
                   "absolute z-50 mt-2 w-full bg-white dark:bg-gray-700",
-                  "rounded-lg shadow-xl border",
+                  "rounded-lg shadow-xl border py-2 overflow-hidden",
                   alignment,
-                  containerClassName,
                 )}
               >
-                {children}
+                <ul className={cn(containerClassName)}>{children}</ul>
               </div>
             )}
           </div>
@@ -175,20 +177,22 @@ export const DropdownItem = ({
   const isActive = item === selectedItem;
 
   return (
-    <button
-      type="button"
-      onClick={handleSelect}
-      className={cn(
-        "flex items-center gap-3 w-full px-3 py-2 text-sm rounded-md",
-        "transition-colors text-default",
-        !isActive &&
-          "hover:bg-gray-200 dark:hover:bg-gray-600 hover:text-gray-900 dark:hover:text-gray-100",
-        isActive &&
-          "bg-blue-600 dark:bg-gray-100 text-white dark:text-gray-900",
-      )}
-    >
-      {icon}
-      {item}
-    </button>
+    <li>
+      <button
+        type="button"
+        onClick={handleSelect}
+        className={cn(
+          "flex items-center gap-3 w-full px-3 py-2 text-sm rounded-md",
+          "transition-colors text-default",
+          !isActive &&
+            "hover:bg-gray-200 dark:hover:bg-gray-600 hover:text-gray-900 dark:hover:text-gray-100",
+          isActive &&
+            "bg-blue-600 dark:bg-gray-100 text-white dark:text-gray-900",
+        )}
+      >
+        {icon}
+        {item}
+      </button>
+    </li>
   );
 };
