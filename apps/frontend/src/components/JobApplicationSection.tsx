@@ -56,21 +56,20 @@ const JobApplicationSection = ({ isViewOnly }: { isViewOnly?: boolean }) => {
         isViewOnly={isViewOnly}
         label={label}
       >
-        <div className="pt-2 px-1 mb-10 max-h-28 overflow-auto" ref={scrollRef}>
+        <div className="px-1.5 mb-8 max-h-28 overflow-auto" ref={scrollRef}>
           {filteredDocs.length > 0 &&
             filteredDocs.map((d) => (
-              <div key={d.id} className="flex items-center justify-between">
-                <DropdownItem
-                  item={d.name || ""}
-                  selectedItem={selectedDoc?.name || ""}
-                  onSelect={() => field.onChange(d.id)}
-                  icon={
-                    d.isUploading ? (
-                      <ProgressBar progress={d.progress ?? 0} />
-                    ) : null
-                  }
-                />
-              </div>
+              <DropdownItem
+                key={d.name}
+                item={d.name || ""}
+                selectedItem={selectedDoc?.name || ""}
+                onSelect={() => field.onChange(d.id)}
+                icon={
+                  d.isUploading ? (
+                    <ProgressBar progress={d.progress ?? 0} />
+                  ) : null
+                }
+              />
             ))}
 
           {isFetchingDocuments && (

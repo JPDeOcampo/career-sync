@@ -31,6 +31,11 @@ import { resetPagination } from "@/store/slices/paginationSlice";
 import { useGlobalModal } from "@/context/GlobalModalContext";
 import { Checkbox } from "@/components/shared/Checkbox";
 import { toast } from "sonner";
+import {
+  SearchFilter,
+  DropdownFilters,
+  ActionFilters,
+} from "@/components/shared/Filters";
 
 // JobTableHead
 type ColumnKey =
@@ -213,6 +218,23 @@ const JobTableSkeleton = ({ rows = 5 }) => {
 //Filters
 type FilterKey = "search" | "filters" | "actions";
 
+const filterStatusList = [
+  { label: "All", value: "All" },
+  { label: "Applied", value: "Applied" },
+  { label: "Under Review", value: "Under Review" },
+  { label: "Interview", value: "Interview" },
+  { label: "Offer", value: "Offer" },
+  { label: "Rejected", value: "Rejected" },
+  { label: "Withdrawn", value: "Withdrawn" },
+];
+
+const filterPriorityList = [
+  { label: "All", value: "All" },
+  { label: "High", value: "High" },
+  { label: "Medium", value: "Medium" },
+  { label: "Low", value: "Low" },
+];
+
 const Filters = ({
   filters,
   jobs,
@@ -233,38 +255,6 @@ const Filters = ({
 
   const show = (filter: FilterKey) => visibleColumns.includes(filter);
 
-  const total = jobs.length;
-
-  const jobsSelected = selectedItems.filter((id) =>
-    jobs.some((job) => job.id === id),
-  );
-
-  const checkboxState =
-    jobsSelected.length === 0
-      ? "unchecked"
-      : jobsSelected.length === total
-        ? "checked"
-        : "indeterminate";
-
-  const isDisabled = checkboxState === "unchecked" || isLoading;
-
-  const filterList = [
-    { label: "All", value: "All" },
-    { label: "Applied", value: "Applied" },
-    { label: "Under Review", value: "Under Review" },
-    { label: "Interview", value: "Interview" },
-    { label: "Offer", value: "Offer" },
-    { label: "Rejected", value: "Rejected" },
-    { label: "Withdrawn", value: "Withdrawn" },
-  ];
-
-  const priorityList = [
-    { label: "All", value: "All" },
-    { label: "High", value: "High" },
-    { label: "Medium", value: "Medium" },
-    { label: "Low", value: "Low" },
-  ];
-
   const handleFilterChange = (filter: Partial<JobFilters>) => {
     dispatch(setFilter(filter));
     dispatch(resetPagination());
@@ -274,102 +264,54 @@ const Filters = ({
     <>
       {show("search") && (
         <div className="md:col-span-2">
-          <div className="flex w-full gap-4">
-            <div className="relative w-full">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
-              <input
-                type="text"
-                placeholder="Search by company, role, or location..."
-                value={filters.search}
-                onChange={(e) => {
-                  dispatch(setSearch(e.target.value));
-                  dispatch(resetPagination());
-                }}
-                className="w-full pl-10 pr-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              />
-            </div>
-          </div>
+          <SearchFilter
+            filters={filters.search || ""}
+            placeholder="Search by company, role, or location"
+            onSearch={(value) => {
+              dispatch(setSearch(value));
+              dispatch(resetPagination());
+            }}
+          />
         </div>
       )}
 
       {show("filters") && (
         <div className="md:col-span-2 flex items-center gap-4">
-          <Dropdown
-            value={`Status: ${filters.status || filterList[0].value}`}
-            align="left"
-          >
-            {filterList.map((s) => (
-              <DropdownItem
-                key={s.value}
-                item={s.value}
-                selectedItem={filters.status || filterList[0].value}
-                onSelect={() => handleFilterChange({ status: s.value })}
-              />
-            ))}
-          </Dropdown>
-
-          <Dropdown
-            value={`Priority: ${filters.priority || priorityList[0].value}`}
-            align="left"
-          >
-            {priorityList.map((p) => (
-              <DropdownItem
-                key={p.value}
-                item={p.value}
-                selectedItem={filters.priority || priorityList[0].value}
-                onSelect={() => handleFilterChange({ priority: p.value })}
-              />
-            ))}
-          </Dropdown>
+          <DropdownFilters
+            valueLabel="Status"
+            value={filters.status || "All"}
+            filterList={filterStatusList}
+            className="w-full"
+            handleFilterChange={(value) => {
+              handleFilterChange({ status: value });
+            }}
+          />
+          <DropdownFilters
+            valueLabel="Priority"
+            value={filters.priority || "All"}
+            filterList={filterPriorityList}
+            className="w-full"
+            handleFilterChange={(value) => {
+              handleFilterChange({ priority: value });
+            }}
+          />
         </div>
       )}
 
       {show("actions") && (
-        <div className="flex items-center gap-4 justify-between w-full">
-          <Checkbox
-            name="selectAll"
-            label={checkboxState === "checked" ? "Deselect All" : "Select All"}
-            labelClassName={`text-md font-semibold text-foreground/90    ${
-              isLoading || jobs.length === 0
-                ? "text-foreground/40 cursor-not-allowed opacity-60"
-                : " text-foreground/90 hover:text-foreground"
-            }`}
-            variantSize="lg"
-            className="w-44"
-            state={checkboxState}
-            checked={
-              (checkboxState === "checked" ||
-                checkboxState === "indeterminate") &&
-              !isLoading
+        <ActionFilters
+          items={jobs}
+          selectedItems={selectedItems}
+          isLoading={isLoading || jobs.length === 0}
+          onSelectionChange={(ids, selected) => {
+            if (selected) {
+              dispatch(setSelectedAllItems(ids));
+            } else {
+              dispatch(deselectAllItems(ids));
             }
-            disabled={isLoading || jobs.length === 0}
-            onChange={(e) => {
-              const ids = jobs.map((job) => job.id);
-              const shouldSelectAll =
-                checkboxState === "indeterminate" || e.target.checked;
-
-              dispatch(
-                shouldSelectAll
-                  ? setSelectedAllItems(ids)
-                  : deselectAllItems(ids),
-              );
-            }}
-          />
-
-          <button
-            disabled={isDisabled}
-            className={`flex gap-2 items-center font-semibold transition-colors
-              ${
-                isDisabled
-                  ? "text-foreground/40 cursor-not-allowed opacity-60"
-                  : "text-foreground/90 hover:text-red-500 cursor-pointer"
-              }`}
-            onClick={() => handleDelete(jobsSelected)}
-          >
-            <Trash2 className={`w-6 h-6 ${isDisabled ? "opacity-60" : ""}`} />
-            <span className="hidden md:block">Delete</span>
-          </button>
-        </div>
+          }}
+          onDelete={(ids) => handleDelete?.(ids)}
+        />
       )}
     </>
   );
@@ -409,9 +351,9 @@ const JobsTable = ({
 
   const emptyStateText = () => {
     if (filters.search) {
-      return `No jobs match your search for "${filters.search}".`;
+      return `No job matches your search for "${filters.search}".`;
     }
-    return "No jobs match.";
+    return "No jobs found. Start by adding your first job application!";
   };
 
   return (
