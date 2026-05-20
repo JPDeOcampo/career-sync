@@ -8,6 +8,7 @@ interface JobModalState {
     notes: boolean;
   };
   isJobModalShow: boolean;
+  isFormDirty: boolean;
   currentStep: number;
   reviewJobApplication: {
     isToReview: boolean;
@@ -28,6 +29,7 @@ const initialState: JobModalState = {
     isToReview: false,
     isOnReview: false,
   },
+  isFormDirty: false,
 };
 
 const jobModalSlice = createSlice({
@@ -60,7 +62,9 @@ const jobModalSlice = createSlice({
     ) => {
       state.reviewJobApplication = action.payload;
     },
-
+    setIsFormDirty: (state, action: PayloadAction<boolean>) => {
+      state.isFormDirty = action.payload;
+    },
     resetJobModal: () => initialState,
   },
 });
@@ -70,6 +74,7 @@ export const {
   setIsJobModalShow,
   setCurrentStep,
   setReviewJobApplication,
+  setIsFormDirty,
   resetJobModal,
 } = jobModalSlice.actions;
 

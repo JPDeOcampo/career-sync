@@ -98,6 +98,12 @@ const useJobHooks = () => {
   };
 
   const handleViewOnly = (job: JobApplication, jobQuery: JobQueryTypes) => {
+    const updatedJob = {
+      ...job,
+      cvId: job?.cvId || "",
+      coverLetterId: job?.coverLetterId || "",
+    };
+
     dispatch(addDocument([job.cv, job.coverLetter].filter(isDefined)));
     dispatch(
       setJobQuery({
@@ -105,7 +111,7 @@ const useJobHooks = () => {
         data: jobQuery,
       }),
     );
-    dispatch(selectJob(job));
+    dispatch(selectJob(updatedJob));
     dispatch(setIsJobModalShow(true));
     dispatch(
       setViewOnly({

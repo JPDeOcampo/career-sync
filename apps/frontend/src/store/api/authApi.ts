@@ -1,12 +1,12 @@
 import { createApi } from "@reduxjs/toolkit/query/react";
 import { baseQueryWithReauth } from "./baseQueryWithReauth";
 import { setUser, setUserId, logout } from "../slices/authSlice";
-import { UserType } from "@/@types/userTypes";
+import { UserDTO } from "@career-sync/shared";
 
 const path = "/auth";
 
 interface UserResponseType {
-  user: UserType;
+  user: UserDTO;
   accessToken: string;
 }
 
@@ -103,7 +103,7 @@ export const authApi = createApi({
 
     // --- Forgot Password ---
     forgotPassword: builder.mutation<
-      { userId: UserType["userId"]; email: UserType["email"] },
+      { userId: UserDTO["userId"]; email: UserDTO["email"] },
       { email: string }
     >({
       query: (credentials) => ({
@@ -127,7 +127,7 @@ export const authApi = createApi({
 
     // --- Refresh Reset Password ---
     refreshResetPassword: builder.mutation<
-      { userId: UserType["userId"]; email: UserType["email"] },
+      { userId: UserDTO["userId"]; email: UserDTO["email"] },
       void
     >({
       query: () => ({
@@ -150,7 +150,7 @@ export const authApi = createApi({
     // --- Verify Reset Password ---
     verifyResetPassword: builder.mutation<
       void,
-      { userId: UserType["userId"]; verificationCode: string }
+      { userId: UserDTO["userId"]; verificationCode: string }
     >({
       query: ({ userId, verificationCode }) => ({
         url: `${path}/reset/verify-reset-password/${userId}`,
@@ -165,7 +165,7 @@ export const authApi = createApi({
     // --- Resend Verification Code ---
     resendResetVerificationCode: builder.mutation<
       void,
-      { userId: UserType["userId"] }
+      { userId: UserDTO["userId"] }
     >({
       query: ({ userId }) => ({
         url: `${path}/reset/resend-reset-verification-code/${userId}`,
@@ -180,7 +180,7 @@ export const authApi = createApi({
     resetPassword: builder.mutation<
       void,
       {
-        userId: UserType["userId"];
+        userId: UserDTO["userId"];
         newPassword: string;
         confirmPassword: string;
       }

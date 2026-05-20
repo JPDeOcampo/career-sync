@@ -4,7 +4,7 @@ import { Eye, EyeOff } from "lucide-react";
 import { useRouter } from "next/router";
 import { BaseFormFieldProps } from "@/@types/fieldTypes";
 import { useFormContext } from "react-hook-form";
-import { UserType } from "@/@types/userTypes";
+import { UserDTO } from "@career-sync/shared";
 
 const InputName = ({
   label = "Name",
@@ -14,10 +14,10 @@ const InputName = ({
   isViewOnly = false,
   ...registerProps
 }: BaseFormFieldProps) => {
-  const { watch } = useFormContext<UserType>();
+  const { watch } = useFormContext<UserDTO>();
   const value = watch(
-    registerProps.name as keyof UserType,
-  ) as UserType[keyof UserType];
+    registerProps.name as keyof UserDTO,
+  ) as UserDTO[keyof UserDTO];
   return (
     <div className="space-y-2">
       <Label htmlFor={registerProps.name}>{label}</Label>
@@ -53,10 +53,10 @@ const InputEmail = ({
   isViewOnly = false,
   ...registerProps
 }: BaseFormFieldProps) => {
-  const { watch } = useFormContext<UserType>();
+  const { watch } = useFormContext<UserDTO>();
   const value = watch(
-    registerProps.name as keyof UserType,
-  ) as UserType[keyof UserType];
+    registerProps.name as keyof UserDTO,
+  ) as UserDTO[keyof UserDTO];
   return (
     <div className="space-y-2">
       <Label htmlFor={registerProps.name}>{label}</Label>

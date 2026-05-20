@@ -271,7 +271,9 @@ const DocumentsTable = ({
           </table>
 
           {/* No Data State */}
-          {documents?.length === 0 && <EmptyState title={emptyStateText} />}
+          {!isLoading && documents?.length === 0 && (
+            <EmptyState title={emptyStateText} />
+          )}
         </div>
       </div>
 
@@ -374,9 +376,9 @@ const DocumentSetting = () => {
 
   const emptyStateText = () => {
     if (getDocumentsQuery.search) {
-      return `No documents match your search for "${getDocumentsQuery.search}".`;
+      return `No document matches your search for "${getDocumentsQuery.search}".`;
     }
-    return "No documents match.";
+    return "No documents found. Start by adding your first document!";
   };
 
   useEffect(() => {

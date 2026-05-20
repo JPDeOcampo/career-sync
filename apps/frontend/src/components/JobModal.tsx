@@ -4,7 +4,9 @@ import { useAppDispatch, useAppSelector } from "@/hooks/useRedux";
 import {
   setViewOnly,
   setReviewJobApplication,
+  setIsFormDirty,
 } from "@/store/slices/jobModalSlice";
+import { selectJob } from "@/store/slices/jobSlice";
 import { selectJobModal } from "@/store/selectors";
 import { motion } from "motion/react";
 import {
@@ -247,7 +249,8 @@ const JobModal = () => {
   const [addJob, { isLoading: isAdding }] = useAddJobMutation();
   const [updateJob, { isLoading: isUpdating }] = useUpdateJobMutation();
 
-  const { viewOnly, reviewJobApplication } = useAppSelector(selectJobModal);
+  const { viewOnly, reviewJobApplication, isFormDirty } =
+    useAppSelector(selectJobModal);
 
   const {
     isJobModalShow,
@@ -274,9 +277,12 @@ const JobModal = () => {
 
   const { isDirty } = formState;
 
+  const checkIsDirty = isFormDirty || isDirty;
+
   const onClose = () => {
     if (isAdding || isUpdating) return;
-    handleCloseModal(isDirty);
+    handleCloseModal(checkIsDirty);
+    dispatch(setIsFormDirty(false));
   };
 
   const getStepFromFields = () => {
@@ -336,6 +342,7 @@ const JobModal = () => {
       }),
     );
 
+    dispatch(setIsFormDirty(true));
     setAllViewOnly();
   };
 
@@ -343,13 +350,13 @@ const JobModal = () => {
     const step = getStepFromFields();
 
     // Case: fields are not dirty and not select job
-    if (editableFields.length > 0 && !isDirty && selectedJob) {
+    if (editableFields.length > 0 && !checkIsDirty && selectedJob) {
       setAllViewOnly();
       return;
     }
 
     // Case: fields are dirty and a job is selected
-    if (editableFields.length > 0 && isDirty && selectedJob) {
+    if (editableFields.length > 0 && checkIsDirty && selectedJob) {
       const onConfirm = () => {
         reset(selectedJob);
         setAllViewOnly();
@@ -362,7 +369,7 @@ const JobModal = () => {
     if (
       editableFields.length > 0 &&
       currentStep !== 1 &&
-      isDirty &&
+      checkIsDirty &&
       !selectedJob
     ) {
       const fieldsToValidate = stepFields[step];
@@ -374,7 +381,12 @@ const JobModal = () => {
             setReviewJobApplication({ isToReview: false, isOnReview: true }),
           );
           setAllViewOnly();
+          handleGlobalModal({});
+          reset();
         };
+
+        if ((!selectedJob && !isDirty) || !isDirty) return onConfirm();
+
         return onConfirmModal(onConfirm);
       }
     }
@@ -406,6 +418,17 @@ const JobModal = () => {
       location: capitalizeSmart(data.location),
     } as JobApplication;
 
+    if (
+      (reviewJobApplication.isToReview && !reviewJobApplication.isOnReview) ||
+      editableFields.length > 0
+    ) {
+      if (selectedJob) {
+        dispatch(selectJob({ ...selectedJob, ...jobData } as JobApplication));
+      }
+      reset(jobData);
+      return handleReview();
+    }
+
     try {
       const result = selectedJob
         ? await updateJob({
@@ -432,6 +455,7 @@ const JobModal = () => {
         setReviewJobApplication({ isToReview: false, isOnReview: false }),
       );
       dispatch(setViewOnly({}));
+      dispatch(setIsFormDirty(false));
     }
   };
 
@@ -452,15 +476,9 @@ const JobModal = () => {
   };
 
   useEffect(() => {
-    const updatedJob = {
-      ...selectedJob,
-      cvId: selectedJob?.cvId || "",
-      coverLetterId: selectedJob?.coverLetterId || "",
-    };
-
     if (isJobModalShow) {
       setCurrentStep(1);
-      reset(updatedJob);
+      reset(selectedJob);
     }
   }, [selectedJob, isJobModalShow]);
 
@@ -562,9 +580,8 @@ const JobModal = () => {
             currentStep={currentStep}
             isJobViewOnly={isViewOnly}
             isLoading={isAdding || isUpdating}
-            isDirty={isDirty}
+            isDirty={checkIsDirty}
             reviewJob={reviewJobApplication}
-            onReviewJob={handleReview}
             onClose={handleCancel}
             handleBack={handleBack}
             handleNext={handleNext}
@@ -583,7 +600,6 @@ const JobModalFooter = ({
   isLoading,
   isDirty,
   reviewJob,
-  onReviewJob,
   onClose,
   handleBack,
   handleNext,
@@ -595,7 +611,6 @@ const JobModalFooter = ({
   isLoading: boolean;
   isDirty: boolean;
   reviewJob: { isToReview: boolean; isOnReview: boolean };
-  onReviewJob: () => void;
   onClose: () => void;
   handleBack: () => void;
   handleNext: () => void;
@@ -627,7 +642,13 @@ const JobModalFooter = ({
     actionButton = (
       <button
         type="button"
-        onClick={handleNext}
+        onClick={(e) => {
+          if (!selectedJob) {
+            e.preventDefault();
+            e.stopPropagation();
+          }
+          handleNext();
+        }}
         className="btn-primary flex items-center gap-2"
       >
         Next <ChevronRight className="w-4 h-4" />
@@ -638,15 +659,7 @@ const JobModalFooter = ({
     editableFields.length > 0
   ) {
     actionButton = (
-      <button
-        type="button"
-        onClick={(e) => {
-          e.preventDefault();
-          e.stopPropagation();
-          onReviewJob();
-        }}
-        className="btn-primary flex items-center gap-2"
-      >
+      <button type="submit" className="btn-primary flex items-center gap-2">
         Review <ChevronRight className="w-4 h-4" />
       </button>
     );

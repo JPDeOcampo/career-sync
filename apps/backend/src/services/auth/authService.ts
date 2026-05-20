@@ -5,7 +5,7 @@ import type {
   RegisterUserDTO,
   LoginUserDTO,
   UserDTO,
-} from "@/@types/auth.types.js";
+} from "@career-sync/shared";
 import crypto from "crypto";
 import { prisma } from "@/lib/prisma.js";
 

@@ -6,13 +6,13 @@ import {
 } from "@reduxjs/toolkit/query";
 import { Mutex, withTimeout, E_TIMEOUT } from "async-mutex";
 import { RootState } from "../store";
-import { UserType } from "@/@types/userTypes";
+import { UserDTO } from "@career-sync/shared";
 import { login, logout } from "@/store/slices/authSlice";
 import { toast } from "sonner";
 import { BASE_URL } from "@/utils/apiPath";
 
 interface UserResponseType {
-  user: UserType;
+  user: UserDTO;
   accessToken: string;
 }
 
