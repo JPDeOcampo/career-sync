@@ -5,10 +5,12 @@ interface SendResetEmailParams {
   resetCode: string;
 }
 
+const isProduction = process.env.NODE_ENV === "production";
+
 const transporter = nodemailer.createTransport({
-  host: "smtp.gmail.com",
-  port: 465,
-  secure: true,
+  host: isProduction ? "smtp-relay.brevo.com" : "smtp.gmail.com",
+  port: isProduction ? 587 : 465,
+  secure: isProduction ? false : true,
   auth: {
     user: process.env.EMAIL_USER,
     pass: process.env.EMAIL_PASS,
@@ -53,7 +55,7 @@ export const sendResetPassword = async ({
 
   try {
     await transporter.sendMail({
-      from: process.env.EMAIL_USER,
+      from: isProduction ? process.env.EMAIL_FROM : process.env.EMAIL_USER,
       to: email,
       subject: "Password Reset Request",
       html: htmlContent,
