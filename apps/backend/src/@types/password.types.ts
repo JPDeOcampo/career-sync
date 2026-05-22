@@ -5,7 +5,7 @@ export interface UpdatePasswordDTO {
 }
 
 export interface VerifyResetPWVerificationCodeDTO {
-  verificationCodeToken: string | undefined;
+  verificationToken: string | undefined;
   userId: string | string[] | undefined;
   verificationCode: string;
 }

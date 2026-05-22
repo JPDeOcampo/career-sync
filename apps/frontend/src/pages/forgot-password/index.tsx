@@ -1,6 +1,5 @@
 "use client";
 import { useRouter } from "next/router";
-import { motion } from "motion/react";
 import Logo from "@/components/shared/Logo";
 import Button from "@/components/shared/Button";
 import { ArrowLeft } from "lucide-react";
@@ -12,11 +11,15 @@ import { useForm, FormProvider } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import type { FetchBaseQueryError } from "@reduxjs/toolkit/query";
+import { useAppDispatch } from "@/hooks/useRedux";
+import { setSessionExpiry } from "@/store/slices/authSlice";
+import { LoadingSpinner } from "@/components/shared/Loading";
 
 type EmailFormData = z.infer<typeof emailSchema>;
 
 const ForgotPassword = () => {
   const router = useRouter();
+  const dispatch = useAppDispatch();
   const [userForgotPassword, { isLoading }] = useForgotPasswordMutation();
 
   const methods = useForm<EmailFormData>({
@@ -34,7 +37,8 @@ const ForgotPassword = () => {
     const email = data.email;
 
     try {
-      await userForgotPassword({ email }).unwrap();
+      const response = await userForgotPassword({ email }).unwrap();
+      dispatch(setSessionExpiry(response.expiresIn));
       toast.success("Verification code sent to your email!");
       router.push(`/verify-code`);
     } catch (error) {
@@ -87,15 +91,7 @@ const ForgotPassword = () => {
             className="w-full h-11"
             disabled={isSubmitting || isLoading}
           >
-            {isLoading ? (
-              <motion.div
-                animate={{ rotate: 360 }}
-                transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
-                className="w-5 h-5 border-2 border-white border-t-transparent rounded-full"
-              />
-            ) : (
-              "Send Verification Code"
-            )}
+            {isLoading ? <LoadingSpinner /> : "Send Verification Code"}
           </Button>
         </form>
       </FormProvider>

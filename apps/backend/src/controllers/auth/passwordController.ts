@@ -16,22 +16,40 @@ export const updatePassword = async (
 
 // --- Forgot Password ---
 export const forgotPassword = async (req: Request, res: Response) => {
-  const { verificationCodeToken, userId, email } =
-    (await passwordService.forgotPassword(req.body.email)) as {
-      verificationCodeToken: string;
-      userId: string;
-      email: string;
-    };
+  const {
+    verificationToken,
+    verificationTokenExpiresAt,
+    expiresAt,
+    expiresIn,
+    userId,
+    email,
+  } = (await passwordService.forgotPassword(req.body.email)) as {
+    verificationToken: string;
+    verificationTokenExpiresAt: number;
+    expiresIn: number;
+    expiresAt: number;
+    userId: string;
+    email: string;
+  };
 
-  res.cookie(
-    "verificationCodeToken",
-    verificationCodeToken,
-    getCookieConfig({ maxAge: 5 * 60 }),
-  ); // 5 minutes
+  res.setHeader("Set-Cookie", [
+    serialize(
+      "verificationToken",
+      verificationToken,
+      getCookieConfig({ maxAge: verificationTokenExpiresAt }),
+    ),
+    serialize(
+      "expiresAt",
+      expiresAt.toString(),
+      getCookieConfig({ maxAge: expiresIn }),
+    ),
+  ]);
 
   return res.status(200).json({
     userId,
     email,
+    expiresIn,
+    expiresAt,
     message: "Reset code is sent to your email",
   });
 };
@@ -41,18 +59,18 @@ export const verifyResetPWVerificationCode = async (
   req: Request,
   res: Response,
 ): Promise<Response> => {
-  const verificationCodeToken = req.cookies.verificationCodeToken;
+  const verificationToken = req.cookies.verificationToken;
   const userId = req.params.id;
   const { verificationCode } = req.body;
 
   const resetToken = await passwordService.verifyResetPWVerificationCode({
-    verificationCodeToken,
+    verificationToken,
     userId,
     verificationCode,
   });
 
   res.setHeader("Set-Cookie", [
-    serialize("verificationCodeToken", "", clearCookieConfig({})),
+    serialize("verificationToken", "", clearCookieConfig({})),
     serialize("resetToken", resetToken, getCookieConfig({ maxAge: 5 * 60 })),
   ]);
 
@@ -77,13 +95,16 @@ export const resetPassword = async (req: Request, res: Response) => {
 
 // --- Refresh Reset Password Code ---
 export const refreshResetPassword = async (req: Request, res: Response) => {
-  const { userId, email } = await passwordService.refreshResetPassword(
-    req.cookies.verificationCodeToken || req.cookies.resetToken,
-  );
+  const { userId, email, expiresIn } =
+    await passwordService.refreshResetPassword({
+      refreshToken: req.cookies.verificationToken || req.cookies.resetToken,
+      expiresAt: req.cookies.expiresAt,
+    });
 
   return res.status(200).json({
     userId,
     email,
+    expiresIn,
     message: "Reset token is valid",
   });
 };
@@ -93,10 +114,33 @@ export const resendResetVerificationCode = async (
   req: Request,
   res: Response,
 ) => {
-  const resetToken =
-    req.cookies.verificationCodeToken || req.cookies.resetToken;
+  const resetToken = req.cookies.verificationToken || req.cookies.resetToken;
   const userId = req.params.id;
-  await passwordService.resendResetVerificationCode({ userId, resetToken });
+  const {
+    expiresIn,
+    verificationToken,
+    verificationTokenExpiresAt,
+    expiresAt,
+  } = await passwordService.resendResetVerificationCode({
+    userId,
+    resetToken,
+  });
 
-  return res.status(200).json({ message: "Reset code is sent to your email" });
+  res.setHeader("Set-Cookie", [
+    serialize(
+      "verificationToken",
+      verificationToken,
+      getCookieConfig({ maxAge: verificationTokenExpiresAt }),
+    ),
+    serialize(
+      "expiresAt",
+      expiresAt.toString(),
+      getCookieConfig({ maxAge: expiresIn }),
+    ),
+  ]);
+
+  return res.status(200).json({
+    expiresIn,
+    message: "Reset code is sent to your email",
+  });
 };

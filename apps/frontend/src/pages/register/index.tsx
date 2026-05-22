@@ -1,6 +1,5 @@
 "use client";
 import { useState } from "react";
-import { motion } from "motion/react";
 import Logo from "@/components/shared/Logo";
 import Button from "@/components/shared/Button";
 import {
@@ -17,6 +16,7 @@ import { useForm, FormProvider } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import type { FetchBaseQueryError } from "@reduxjs/toolkit/query";
+import { LoadingSpinner } from "@/components/shared/Loading";
 
 type RegisterFormData = z.infer<typeof registerSchema>;
 
@@ -138,15 +138,7 @@ const Register = () => {
             className="w-full h-11"
             disabled={isSubmitting || isLoading}
           >
-            {isLoading ? (
-              <motion.div
-                animate={{ rotate: 360 }}
-                transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
-                className="w-5 h-5 border-2 border-white border-t-transparent rounded-full"
-              />
-            ) : (
-              "Create Account"
-            )}
+            {isLoading ? <LoadingSpinner /> : "Create Account"}
           </Button>
         </form>
       </FormProvider>

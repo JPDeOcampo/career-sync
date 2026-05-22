@@ -7,6 +7,7 @@ interface AuthState {
   resetEmail?: string | null;
   accessToken: string | null;
   isAuthLoading?: boolean;
+  sessionExpiry: number;
 }
 
 const initialState: AuthState = {
@@ -15,13 +16,17 @@ const initialState: AuthState = {
   resetEmail: null,
   accessToken: null,
   isAuthLoading: true,
+  sessionExpiry: 0,
 };
 
 const authSlice = createSlice({
   name: "auth",
   initialState,
   reducers: {
-    login: (state, action: PayloadAction<AuthState>) => {
+    login: (
+      state,
+      action: PayloadAction<{ user: UserDTO; accessToken: string }>,
+    ) => {
       state.user = action.payload.user;
       state.isAuthenticated = action.payload.accessToken !== null;
       state.accessToken = action.payload.accessToken;
@@ -48,6 +53,9 @@ const authSlice = createSlice({
     setResetEmail: (state, action: PayloadAction<string>) => {
       state.resetEmail = action.payload;
     },
+    setSessionExpiry: (state, action: PayloadAction<number>) => {
+      state.sessionExpiry = action.payload;
+    },
     resetPassword: (state) => {
       state.resetEmail = null;
     },
@@ -60,6 +68,7 @@ export const {
   setUser,
   setUserId,
   setResetEmail,
+  setSessionExpiry,
   resetPassword,
 } = authSlice.actions;
 export default authSlice.reducer;
