@@ -15,7 +15,8 @@ const useAuthHooks = () => {
 
   const refreshResetPassword = async () => {
     try {
-      await userRefreshResetPassword().unwrap();
+      const response = await userRefreshResetPassword().unwrap();
+      return response.expiresIn;
     } catch (error) {
       console.log("Caught error:", error);
       router.push("/login");

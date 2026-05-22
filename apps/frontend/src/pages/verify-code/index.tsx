@@ -1,10 +1,7 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import { useState, useEffect } from "react";
 import { useRouter } from "next/router";
-import { motion } from "motion/react";
-import { useDispatch, useSelector } from "react-redux";
 import { resetPassword } from "@/store/slices/authSlice";
-import { RootState } from "@/store/store";
 import Button from "@/components/shared/Button";
 import {
   InputOTP,
@@ -20,16 +17,20 @@ import {
 } from "@/store/api/authApi";
 import useAuthHooks from "@/hooks/useAuth";
 import type { FetchBaseQueryError } from "@reduxjs/toolkit/query";
+import { selectAuth } from "@/store/selectors";
+import { useAppDispatch, useAppSelector } from "@/hooks/useRedux";
+import { setSessionExpiry } from "@/store/slices/authSlice";
+import { LoadingSpinner } from "@/components/shared/Loading";
 
 const VerifyCode = () => {
   const router = useRouter();
-  const dispatch = useDispatch();
-  const resetEmail = useSelector((state: RootState) => state.auth.resetEmail);
+  const dispatch = useAppDispatch();
+  const { resetEmail, sessionExpiry } = useAppSelector(selectAuth);
   const [code, setCode] = useState("");
-  const [resendCooldown, setResendCooldown] = useState(0);
-  const [userResendResetVerificationCode] =
+
+  const [userResendResetVerificationCode, { isLoading: isLoadingResend }] =
     useResendResetVerificationCodeMutation();
-  const [userVerifyResetPassword, { isLoading }] =
+  const [userVerifyResetPassword, { isLoading: isLoadingVerify }] =
     useVerifyResetPasswordMutation();
 
   const { user, refreshResetPassword } = useAuthHooks();
@@ -37,7 +38,7 @@ const VerifyCode = () => {
   const handleCodeChange = (value: string) => {
     setCode(value);
     // Auto-submit when 6 digits are entered
-    if (value.length === 6 && !isLoading) {
+    if (value.length === 6 && !isLoadingVerify) {
       // Small delay to show the last digit before verifying
       setTimeout(() => {
         handleVerifyWithCode(value);
@@ -76,13 +77,13 @@ const VerifyCode = () => {
   const handleVerify = () => handleVerifyWithCode();
 
   const handleResend = async () => {
-    if (resendCooldown > 0) return;
+    if (sessionExpiry > 0) return;
     try {
-      await userResendResetVerificationCode({
+      const response = await userResendResetVerificationCode({
         userId: user?.userId as string,
       }).unwrap();
       toast.success("New verification code sent!");
-      setResendCooldown(60); // 60 second cooldown
+      dispatch(setSessionExpiry(response.expiresIn));
       setCode("");
     } catch {
       toast.error("Failed to resend verification code.");
@@ -91,18 +92,25 @@ const VerifyCode = () => {
   };
 
   useEffect(() => {
-    if (user?.userId) return;
-    refreshResetPassword();
+    const load = async () => {
+      if (user?.userId) return;
+
+      const expiresIn = await refreshResetPassword();
+
+      dispatch(setSessionExpiry(expiresIn || 0));
+    };
+
+    load();
   }, []);
 
   useEffect(() => {
-    if (resendCooldown > 0) {
+    if (sessionExpiry > 0) {
       const timer = setTimeout(() => {
-        setResendCooldown(resendCooldown - 1);
+        dispatch(setSessionExpiry(sessionExpiry - 1));
       }, 1000);
       return () => clearTimeout(timer);
     }
-  }, [resendCooldown]);
+  }, [sessionExpiry]);
 
   return (
     <div className="auth-card">
@@ -133,7 +141,7 @@ const VerifyCode = () => {
               maxLength={6}
               value={code}
               onChange={handleCodeChange}
-              disabled={isLoading}
+              disabled={isLoadingVerify}
             >
               <InputOTPGroup>
                 <InputOTPSlot index={0} />
@@ -149,18 +157,10 @@ const VerifyCode = () => {
 
         <Button
           onClick={handleVerify}
-          className="w-full h-11"
-          disabled={isLoading || code.length !== 6}
+          className="w-full h-11 disabled:opacity-50 disabled:cursor-not-allowed"
+          disabled={isLoadingVerify || code.length !== 6}
         >
-          {isLoading ? (
-            <motion.div
-              animate={{ rotate: 360 }}
-              transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
-              className="w-5 h-5 border-2 border-white border-t-transparent rounded-full"
-            />
-          ) : (
-            "Verify Code"
-          )}
+          {isLoadingVerify ? <LoadingSpinner /> : "Verify Code"}
         </Button>
 
         <div className="text-center">
@@ -169,10 +169,15 @@ const VerifyCode = () => {
             <button
               type="button"
               onClick={handleResend}
-              disabled={resendCooldown > 0}
+              disabled={isLoadingResend || sessionExpiry > 0}
               className="text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300 font-medium disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
             >
-              {resendCooldown > 0 ? `Resend in ${resendCooldown}s` : "Resend"}
+              {sessionExpiry > 0 && `Resend in ${sessionExpiry}s`}
+              {sessionExpiry === 0 && (
+                <span className="flex items-center gap-1">
+                  Sign In {isLoadingResend && <LoadingSpinner />}
+                </span>
+              )}
             </button>
           </p>
         </div>

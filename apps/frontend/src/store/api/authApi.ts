@@ -103,7 +103,7 @@ export const authApi = createApi({
 
     // --- Forgot Password ---
     forgotPassword: builder.mutation<
-      { userId: UserDTO["userId"]; email: UserDTO["email"] },
+      { userId: UserDTO["userId"]; email: UserDTO["email"]; expiresIn: number },
       { email: string }
     >({
       query: (credentials) => ({
@@ -127,7 +127,7 @@ export const authApi = createApi({
 
     // --- Refresh Reset Password ---
     refreshResetPassword: builder.mutation<
-      { userId: UserDTO["userId"]; email: UserDTO["email"] },
+      { userId: UserDTO["userId"]; email: UserDTO["email"]; expiresIn: number },
       void
     >({
       query: () => ({
@@ -164,7 +164,7 @@ export const authApi = createApi({
 
     // --- Resend Verification Code ---
     resendResetVerificationCode: builder.mutation<
-      void,
+      { expiresIn: number },
       { userId: UserDTO["userId"] }
     >({
       query: ({ userId }) => ({

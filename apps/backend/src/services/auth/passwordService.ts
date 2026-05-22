@@ -14,6 +14,57 @@ import { generate6DigitCode } from "@/utils/globalUtils.js";
 import bcrypt from "bcrypt";
 import { generateSignToken } from "@/utils/generateSignToken.js";
 import { verifyJwt } from "@/lib/verifyJwt.js";
+import { getRemainingTime } from "@/utils/session.js";
+
+// --- Send Reset Password OTP Logic ---
+const sendResetPasswordOTP = async ({
+  user,
+}: {
+  user: { id: string; email: string };
+}) => {
+  const CODE_EXPIRES_IN = 2 * 60;
+  const CODE_EXPIRES_AT = Date.now() + CODE_EXPIRES_IN * 1000;
+  const TOKEN_EXPIRES_IN = 5 * 60;
+
+  // Generate a 6 random code and set expiration time (2 minutes) for reset token
+  const verificationCode = generate6DigitCode();
+  const verificationCodeExpires = new Date(Date.now() + CODE_EXPIRES_IN * 1000);
+
+  // Send the reset email
+  const emailSent = await sendResetPassword({
+    email: user.email,
+    resetCode: verificationCode,
+  });
+
+  if (!emailSent) {
+    throw new AppError("Failed to send reset email", 500);
+  }
+
+  // Generate a sign token
+  const signToken = await generateSignToken({
+    id: user.id,
+    type: "access",
+    purpose: "password-reset",
+    expiresIn: TOKEN_EXPIRES_IN,
+  });
+
+  const signTokenExpiresAt = Date.now() + TOKEN_EXPIRES_IN * 1000;
+
+  await prisma.user.update({
+    where: { id: user.id },
+    data: {
+      verificationCode: await bcrypt.hash(verificationCode, 10),
+      verificationCodeExpires,
+    },
+  });
+
+  return {
+    signToken,
+    signTokenExpiresAt,
+    expiresAt: CODE_EXPIRES_AT,
+    expiresIn: CODE_EXPIRES_IN,
+  };
+};
 
 const checkResetToken = (token?: string) => {
   if (!token) {
@@ -85,40 +136,18 @@ export const forgotPassword = async (email: string) => {
     return;
   }
 
-  // Generate a 6 digit random code and set expiration time (2 minutes)
-  const verificationCode = generate6DigitCode();
-  const verificationCodeExpires = new Date(Date.now() + 2 * 60 * 1000); // 2 minutes
-
-  // Send the reset email
-  const emailSent = await sendResetPassword({
-    email,
-    resetCode: verificationCode,
-  });
-
-  if (!emailSent) {
-    throw new AppError("Failed to send reset email", 500);
-  }
-
-  await prisma.user.update({
-    where: {
-      email: email,
-    },
-    data: {
-      verificationCode: await bcrypt.hash(verificationCode, 10),
-      verificationCodeExpires,
-    },
-  });
-
-  // Generate short-lived reset token (2 minutes)
-  const verificationCodeToken = await generateSignToken({
-    id: existingUser.id,
-    type: "access",
-    purpose: "password-reset",
-    expiresIn: "2m",
-  });
+  const {
+    signToken: verificationToken,
+    signTokenExpiresAt: verificationTokenExpiresAt,
+    expiresIn,
+    expiresAt,
+  } = await sendResetPasswordOTP({ user: existingUser });
 
   return {
-    verificationCodeToken,
+    verificationToken,
+    verificationTokenExpiresAt,
+    expiresIn,
+    expiresAt,
     userId: existingUser.id,
     email: maskEmail(email),
   };
@@ -128,8 +157,8 @@ export const forgotPassword = async (email: string) => {
 export const verifyResetPWVerificationCode = async (
   data: VerifyResetPWVerificationCodeDTO,
 ) => {
-  const { verificationCodeToken, userId, verificationCode } = data;
-  checkResetToken(verificationCodeToken);
+  const { verificationToken, userId, verificationCode } = data;
+  checkResetToken(verificationToken);
   if (!userId || !verificationCode) {
     throw new AppError("Email and verification code are required", 400);
   }
@@ -205,7 +234,13 @@ export const resetPassword = async (data: ResetPasswordDTO) => {
 };
 
 // --- Refresh Reset Password Logic ---
-export const refreshResetPassword = async (refreshToken: string) => {
+export const refreshResetPassword = async ({
+  refreshToken,
+  expiresAt,
+}: {
+  refreshToken: string;
+  expiresAt: number;
+}) => {
   const resetToken = checkResetToken(refreshToken);
   const user = await prisma.user.findUnique({
     where: { id: resetToken.id },
@@ -215,8 +250,11 @@ export const refreshResetPassword = async (refreshToken: string) => {
     },
   });
 
+  const expiresIn = getRemainingTime(expiresAt);
+
   return {
     userId: user?.id,
+    expiresIn,
     email: maskEmail(user?.email),
   };
 };
@@ -236,25 +274,17 @@ export const resendResetVerificationCode = async ({
     throw new AppError("User not found", 404);
   }
 
-  // Generate a 6 random code and set expiration time (2 minutes) for reset token
-  const verificationCode = generate6DigitCode();
-  const verificationCodeExpires = new Date(Date.now() + 2 * 60 * 1000);
+  const {
+    signToken: verificationToken,
+    signTokenExpiresAt: verificationTokenExpiresAt,
+    expiresIn,
+    expiresAt,
+  } = await sendResetPasswordOTP({ user: existingUser });
 
-  // Send the reset email
-  const emailSent = await sendResetPassword({
-    email: existingUser.email,
-    resetCode: verificationCode,
-  });
-
-  if (!emailSent) {
-    throw new AppError("Failed to send reset email", 500);
-  }
-
-  return await prisma.user.update({
-    where: { id: existingUser.id },
-    data: {
-      verificationCode: await bcrypt.hash(verificationCode, 10),
-      verificationCodeExpires: verificationCodeExpires,
-    },
-  });
+  return {
+    verificationToken,
+    verificationTokenExpiresAt,
+    expiresIn,
+    expiresAt,
+  };
 };

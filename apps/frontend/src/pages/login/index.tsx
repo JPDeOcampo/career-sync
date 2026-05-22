@@ -1,6 +1,5 @@
 "use client";
 import { useState } from "react";
-import { motion } from "motion/react";
 import { useAppDispatch } from "@/hooks/useRedux";
 import { login } from "@/store/slices/authSlice";
 import Logo from "@/components/shared/Logo";
@@ -14,6 +13,7 @@ import { useForm, FormProvider } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { loginSchema } from "@career-sync/shared";
+import { LoadingSpinner } from "@/components/shared/Loading";
 
 type LoginFormData = z.infer<typeof loginSchema>;
 
@@ -92,15 +92,7 @@ const Login = () => {
             className="w-full h-11"
             disabled={isSubmitting || isLoading}
           >
-            {isLoading ? (
-              <motion.div
-                animate={{ rotate: 360 }}
-                transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
-                className="w-5 h-5 border-2 border-white border-t-transparent rounded-full"
-              />
-            ) : (
-              "Sign In"
-            )}
+            {isLoading ? <LoadingSpinner /> : "Sign In"}
           </Button>
         </form>
       </FormProvider>
