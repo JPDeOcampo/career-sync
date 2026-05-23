@@ -1,4 +1,5 @@
 import nodemailer from "nodemailer";
+import path from "path";
 
 interface SendResetEmailParams {
   firstName: string;
@@ -165,7 +166,7 @@ export const sendResetPassword = async ({
       attachments: [
         {
           filename: "logo.png",
-          path: "../../apps/backend/public/images/logo/logo.png",
+          path: path.join(__dirname, "../../assets/images/logo/logo.png"),
           cid: "careersynclogo",
         },
       ],
