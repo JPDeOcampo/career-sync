@@ -8,6 +8,10 @@ interface SendResetEmailParams {
 }
 
 const isProduction = process.env.NODE_ENV === "production";
+const logoPath = path.resolve(
+  process.cwd(),
+  `${isProduction ? "dist" : "src"}/assets/images/logo/logo.png`,
+);
 
 const transporter = nodemailer.createTransport({
   host: isProduction ? "smtp-relay.brevo.com" : "smtp.gmail.com",
@@ -166,12 +170,11 @@ export const sendResetPassword = async ({
       attachments: [
         {
           filename: "logo.png",
-          path: path.join(__dirname, "../../assets/images/logo/logo.png"),
+          path: logoPath,
           cid: "careersynclogo",
         },
       ],
     });
-
     return true;
   } catch (error) {
     console.error("Error sending password reset email:", error);
