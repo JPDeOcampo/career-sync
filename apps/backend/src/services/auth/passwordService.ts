@@ -20,7 +20,7 @@ import { getRemainingTime } from "@/utils/session.js";
 const sendResetPasswordOTP = async ({
   user,
 }: {
-  user: { id: string; email: string };
+  user: { id: string; firstName: string; email: string };
 }) => {
   const CODE_EXPIRES_IN = 2 * 60;
   const CODE_EXPIRES_AT = Date.now() + CODE_EXPIRES_IN * 1000;
@@ -32,6 +32,7 @@ const sendResetPasswordOTP = async ({
 
   // Send the reset email
   const emailSent = await sendResetPassword({
+    firstName: user.firstName,
     email: user.email,
     resetCode: verificationCode,
   });

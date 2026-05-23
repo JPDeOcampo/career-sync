@@ -20,12 +20,12 @@ import type { FetchBaseQueryError } from "@reduxjs/toolkit/query";
 import { selectAuth } from "@/store/selectors";
 import { useAppDispatch, useAppSelector } from "@/hooks/useRedux";
 import { setSessionExpiry } from "@/store/slices/authSlice";
-import { LoadingSpinner } from "@/components/shared/Loading";
+import { LoadingSpinner, Skeleton } from "@/components/shared/Loading";
 
 const VerifyCode = () => {
   const router = useRouter();
   const dispatch = useAppDispatch();
-  const { resetEmail, sessionExpiry } = useAppSelector(selectAuth);
+  const { sessionExpiry } = useAppSelector(selectAuth);
   const [code, setCode] = useState("");
 
   const [userResendResetVerificationCode, { isLoading: isLoadingResend }] =
@@ -33,7 +33,8 @@ const VerifyCode = () => {
   const [userVerifyResetPassword, { isLoading: isLoadingVerify }] =
     useVerifyResetPasswordMutation();
 
-  const { user, refreshResetPassword } = useAuthHooks();
+  const { user, refreshResetPassword, isLoadingRefreshResetPassword } =
+    useAuthHooks();
 
   const handleCodeChange = (value: string) => {
     setCode(value);
@@ -125,10 +126,16 @@ const VerifyCode = () => {
       <div className="text-center mb-8">
         <LogoShield />
         <h1 className="text-3xl font-bold text-default mb-2">Verify Code</h1>
-        <p className="text-gray-600 dark:text-gray-400">
-          We sent a code to <span className="font-bold">{user?.email}</span>
-          <span className="font-medium text-default">{resetEmail}</span>
-        </p>
+        <span className="text-gray-600 dark:text-gray-400">
+          We sent a code to{" "}
+          <span className="font-bold">
+            {isLoadingRefreshResetPassword ? (
+              <Skeleton className="h-7 w-full" />
+            ) : (
+              user?.email
+            )}
+          </span>
+        </span>
       </div>
 
       <div className="space-y-6">
@@ -141,7 +148,7 @@ const VerifyCode = () => {
               maxLength={6}
               value={code}
               onChange={handleCodeChange}
-              disabled={isLoadingVerify}
+              disabled={isLoadingVerify || isLoadingRefreshResetPassword}
             >
               <InputOTPGroup>
                 <InputOTPSlot index={0} />
@@ -158,28 +165,43 @@ const VerifyCode = () => {
         <Button
           onClick={handleVerify}
           className="w-full h-11 disabled:opacity-50 disabled:cursor-not-allowed"
-          disabled={isLoadingVerify || code.length !== 6}
+          disabled={
+            isLoadingVerify ||
+            code.length !== 6 ||
+            isLoadingRefreshResetPassword
+          }
         >
           {isLoadingVerify ? <LoadingSpinner /> : "Verify Code"}
         </Button>
 
-        <div className="text-center">
+        <div className="flex justify-center items-center gap-2 text-center">
           <p className="text-sm text-gray-600 dark:text-gray-400">
             Didn&apos;t receive the code?{" "}
+          </p>
+
+          {/* Loading state */}
+          {isLoadingRefreshResetPassword && (
+            <span>
+              <Skeleton className="h-5 w-20" />
+            </span>
+          )}
+
+          {/* Normal state */}
+          {!isLoadingRefreshResetPassword && (
             <button
               type="button"
               onClick={handleResend}
               disabled={isLoadingResend || sessionExpiry > 0}
-              className="text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300 font-medium disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+              className="text-sm text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300 font-medium disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
             >
               {sessionExpiry > 0 && `Resend in ${sessionExpiry}s`}
               {sessionExpiry === 0 && (
                 <span className="flex items-center gap-1">
-                  Sign In {isLoadingResend && <LoadingSpinner />}
+                  Resend {isLoadingResend && <LoadingSpinner />}
                 </span>
               )}
             </button>
-          </p>
+          )}
         </div>
       </div>
     </div>
