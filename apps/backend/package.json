@@ -6,7 +6,7 @@
   "type": "module",
   "scripts": {
     "dev": "tsx watch src/server.ts",
-    "build": "tsc -b && tsc-alias && copyfiles -u 1 \"src/assets/**/*\" dist/assets",
+    "build": "tsc -b && tsc-alias && copyfiles -u 2 \"src/assets/**/*\" dist/assets",
     "start": "node dist/server.js",
     "preview": "npm run build && npm run start",
     "typecheck": "tsc --noEmit",
