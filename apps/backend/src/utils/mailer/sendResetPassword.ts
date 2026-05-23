@@ -1,5 +1,4 @@
 import nodemailer from "nodemailer";
-import path from "path";
 
 interface SendResetEmailParams {
   firstName: string;
@@ -8,10 +7,7 @@ interface SendResetEmailParams {
 }
 
 const isProduction = process.env.NODE_ENV === "production";
-const logoPath = path.resolve(
-  process.cwd(),
-  `${isProduction ? "dist" : "src"}/assets/images/logo/logo.png`,
-);
+const logoUrl = `${process.env.ORIGIN}/icons/briefcase_48x48.png`;
 
 const transporter = nodemailer.createTransport({
   host: isProduction ? "smtp-relay.brevo.com" : "smtp.gmail.com",
@@ -68,7 +64,7 @@ export const sendResetPassword = async ({
                   "
                 >
                   <img
-                    src="cid:careersynclogo"
+                    src=${logoUrl}
                     alt="CareerSync Logo"
                     width="48"
                     height="48"
@@ -167,13 +163,6 @@ export const sendResetPassword = async ({
       to: email,
       subject: "Password Reset Request",
       html: htmlContent,
-      attachments: [
-        {
-          filename: "logo.png",
-          path: logoPath,
-          cid: "careersynclogo",
-        },
-      ],
     });
     return true;
   } catch (error) {
