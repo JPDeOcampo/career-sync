@@ -1,6 +1,7 @@
 import nodemailer from "nodemailer";
 
 interface SendResetEmailParams {
+  firstName: string;
   email: string;
   resetCode: string;
 }
@@ -18,35 +19,137 @@ const transporter = nodemailer.createTransport({
 });
 
 export const sendResetPassword = async ({
+  firstName,
   email,
   resetCode,
 }: SendResetEmailParams): Promise<boolean> => {
   const htmlContent = `
     <html>
-      <head>
-        <style>
-          body { font-family: Arial, sans-serif; background-color: #f4f4f4; color: #333; margin: 0; padding: 0; }
-          .container { max-width: 600px; margin: 0 auto; padding: 20px; background-color: #fff; border-radius: 8px; box-shadow: 0 0 10px rgba(0, 0, 0, 0.1); }
-          .header { text-align: center; margin-bottom: 20px; }
-          .header h2 { color: #003366; }
-          .content { font-size: 16px; line-height: 1.6; margin-bottom: 20px; }
-          .otp-code { font-size: 24px; font-weight: bold; color: #003366; background-color: #f0f0f0; padding: 10px; border-radius: 5px; text-align: center; width: 100%; display: inline-block; margin: 20px 0; letter-spacing:18px; }
-          .footer { text-align: center; font-size: 14px; color: #888; margin-top: 20px; }
-        </style>
-      </head>
-      <body>
-        <div class="container">
-          <div class="header">
-            <h2>Password Reset Request</h2>
+      <body
+        style="
+          margin:0;
+          padding:24px 0;
+          background-color:#f4f4f4;
+          font-family:Arial,sans-serif;
+          color:#333333;
+        "
+      >
+        <div
+          style="
+            max-width:600px;
+            margin:0 auto;
+            padding:20px;
+            background-color:#ffffff;
+            border-radius:8px;
+          "
+        >
+
+          <!-- Header -->
+          <div style="text-align:center; margin-bottom:20px;">
+
+            <table
+              role="presentation"
+              cellpadding="0"
+              cellspacing="0"
+              border="0"
+              align="center"
+              style="margin:auto;"
+            >
+              <tr>
+                <td
+                  style="
+                    vertical-align:middle;
+                    padding-right:8px;
+                  "
+                >
+                  <img
+                    src="cid:careersynclogo"
+                    alt="CareerSync Logo"
+                    width="48"
+                    height="48"
+                    style="display:block;"
+                  />
+                </td>
+
+                <td style="vertical-align:middle;">
+                  <h1
+                    style="
+                      margin:0;
+                      color:#2b7fff;
+                      font-size:32px;
+                      font-weight:bold;
+                    "
+                  >
+                    CareerSync
+                  </h1>
+                </td>
+              </tr>
+            </table>
+
+            <h2
+              style="
+                color:#003366;
+                margin-top:16px;
+                margin-bottom:0;
+                font-size:22px;
+              "
+            >
+              Password Reset Request
+            </h2>
+
           </div>
-          <div class="content">
-            <p>Hi,</p>
-            <p>You requested a password reset. Please use the one-time code below to reset your password:</p>
-            <div class="otp-code">${resetCode}</div>
-            <p>This code will expire in 1 hour. If you didn't request a password reset, please ignore this email.</p>
+
+          <!-- Content -->
+          <div
+            style="
+              font-size:16px;
+              line-height:1.6;
+              margin-bottom:20px;
+            "
+          >
+            <p>Hi, ${firstName}</p>
+
+            <p>
+              You requested a password reset.
+              Please use the one-time code below to reset your password:
+            </p>
+
+            <div
+              style="
+                font-size:24px;
+                font-weight:bold;
+                color:#003366;
+                background-color:#f0f0f0;
+                padding:14px;
+                border-radius:5px;
+                text-align:center;
+                letter-spacing:18px;
+                margin:20px 0;
+              "
+            >
+              ${resetCode}
+            </div>
+
+            <p>
+              This code will expire in 2 minutes.
+              If you didn't request a password reset,
+              please ignore this email.
+            </p>
           </div>
-          <div class="footer">
-            <p>&copy; ${new Date().getFullYear()} CareerSync. All rights reserved.</p>
+
+          <!-- Footer -->
+          <div
+            style="
+              text-align:center;
+              font-size:14px;
+              color:#888888;
+              margin-top:20px;
+            "
+          >
+            <p>
+              &copy; ${new Date().getFullYear()}
+              CareerSync. All rights reserved.
+            </p>
           </div>
         </div>
       </body>
@@ -59,6 +162,13 @@ export const sendResetPassword = async ({
       to: email,
       subject: "Password Reset Request",
       html: htmlContent,
+      attachments: [
+        {
+          filename: "logo.png",
+          path: "../../apps/backend/public/images/logo/logo.png",
+          cid: "careersynclogo",
+        },
+      ],
     });
 
     return true;
