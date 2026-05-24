@@ -1,7 +1,7 @@
 import { motion, useMotionValue, useTransform, animate } from "motion/react";
 import { LucideIcon } from "lucide-react";
 import { useEffect } from "react";
-import Skeleton from "@/components/shared/Skeleton";
+import { Skeleton } from "@/components/shared/Loading";
 import { colorStyles } from "@/lib/colorStyles";
 
 interface StatCardProps {

@@ -5,7 +5,7 @@ import { Briefcase, Calendar, Gift, XCircle, AlertCircle } from "lucide-react";
 import { JobTagStatus, JobTagPriorityText } from "@/components/shared/JobTag";
 import useJobHooks from "@/hooks/useJob";
 import { useGetJobsQuery } from "@/store/api/jobsApi";
-import Skeleton from "@/components/shared/Skeleton";
+import { Skeleton } from "@/components/shared/Loading";
 import { EmptyState, ErrorState } from "@/components/shared/Placeholder";
 import Pagination from "@/components/shared/Pagination";
 import usePaginationHooks from "@/hooks/usePagination";

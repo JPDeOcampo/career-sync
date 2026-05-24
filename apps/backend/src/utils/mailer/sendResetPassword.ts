@@ -108,7 +108,7 @@ export const sendResetPassword = async ({
               margin-bottom:20px;
             "
           >
-            <p>Hi, ${firstName}</p>
+            <p>Hi ${firstName},</p>
 
             <p>
               You requested a password reset.

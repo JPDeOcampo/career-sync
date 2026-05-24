@@ -27,7 +27,9 @@ const poppins = Poppins({
 const AppContent = ({ Component, pageProps }: AppProps) => {
   const router = useRouter();
   const dispatch = useAppDispatch();
-  const hideHeader = publicRoutes.includes(router.pathname);
+  const isErrorPage = Component.name === "Custom404";
+  const hideHeader = publicRoutes.includes(router.pathname) || isErrorPage;
+
   const { selectedViewDocument } = useAppSelector(selectDocuments);
 
   const { isJobModalShow } = useJobHooks();

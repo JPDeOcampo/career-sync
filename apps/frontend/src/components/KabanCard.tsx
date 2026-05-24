@@ -1,7 +1,7 @@
 import { JobApplication, formatDate, statuses } from "@career-sync/shared";
-import { JobTagPriorityText } from "./shared/JobTag";
+import { JobTagPriorityText } from "@/components/shared/JobTag";
 import { Calendar, MapPin, Briefcase, DollarSign } from "lucide-react";
-import Skeleton from "./shared/Skeleton";
+import { Skeleton } from "@/components/shared/Loading";
 import { useDraggable } from "@dnd-kit/core";
 import { CSS } from "@dnd-kit/utilities";
 import { motion } from "motion/react";
