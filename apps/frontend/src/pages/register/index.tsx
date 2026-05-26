@@ -56,19 +56,14 @@ const Register = () => {
         password: password,
         confirmPassword: confirmPassword,
       });
-      toast.success("Account created successfully!");
+      toast.success(
+        "Confirmation email sent. Please check your inbox to verify your email address.",
+      );
       router.push("/");
     } catch (error) {
       const err = error as FetchBaseQueryError;
-      if ("status" in err) {
-        if (err.status === 500) {
-          toast.error("Server error. Please try again later.");
-        } else {
-          toast.error("Registration failed. Please try again later.");
-        }
-      } else {
-        toast.error("Unexpected error. Please try again later.");
-      }
+      const errorData = err.data as { message?: string };
+      toast.error(errorData.message);
     }
   };
 

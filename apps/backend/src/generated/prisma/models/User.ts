@@ -20,8 +20,20 @@ export type UserModel = runtime.Types.Result.DefaultSelection<Prisma.$UserPayloa
 
 export type AggregateUser = {
   _count: UserCountAggregateOutputType | null
+  _avg: UserAvgAggregateOutputType | null
+  _sum: UserSumAggregateOutputType | null
   _min: UserMinAggregateOutputType | null
   _max: UserMaxAggregateOutputType | null
+}
+
+export type UserAvgAggregateOutputType = {
+  loginCount: number | null
+  loginAttempts: number | null
+}
+
+export type UserSumAggregateOutputType = {
+  loginCount: number | null
+  loginAttempts: number | null
 }
 
 export type UserMinAggregateOutputType = {
@@ -31,8 +43,13 @@ export type UserMinAggregateOutputType = {
   email: string | null
   password: string | null
   socialAccount: boolean | null
+  emailVerified: boolean | null
+  loginCount: number | null
+  loginAttempts: number | null
+  lockoutUntil: Date | null
   verificationCode: string | null
   verificationCodeExpires: Date | null
+  verificationCodeSentAt: Date | null
   createdAt: Date | null
   updatedAt: Date | null
 }
@@ -44,8 +61,13 @@ export type UserMaxAggregateOutputType = {
   email: string | null
   password: string | null
   socialAccount: boolean | null
+  emailVerified: boolean | null
+  loginCount: number | null
+  loginAttempts: number | null
+  lockoutUntil: Date | null
   verificationCode: string | null
   verificationCodeExpires: Date | null
+  verificationCodeSentAt: Date | null
   createdAt: Date | null
   updatedAt: Date | null
 }
@@ -57,13 +79,28 @@ export type UserCountAggregateOutputType = {
   email: number
   password: number
   socialAccount: number
+  emailVerified: number
+  loginCount: number
+  loginAttempts: number
+  lockoutUntil: number
   verificationCode: number
   verificationCodeExpires: number
+  verificationCodeSentAt: number
   createdAt: number
   updatedAt: number
   _all: number
 }
 
+
+export type UserAvgAggregateInputType = {
+  loginCount?: true
+  loginAttempts?: true
+}
+
+export type UserSumAggregateInputType = {
+  loginCount?: true
+  loginAttempts?: true
+}
 
 export type UserMinAggregateInputType = {
   id?: true
@@ -72,8 +109,13 @@ export type UserMinAggregateInputType = {
   email?: true
   password?: true
   socialAccount?: true
+  emailVerified?: true
+  loginCount?: true
+  loginAttempts?: true
+  lockoutUntil?: true
   verificationCode?: true
   verificationCodeExpires?: true
+  verificationCodeSentAt?: true
   createdAt?: true
   updatedAt?: true
 }
@@ -85,8 +127,13 @@ export type UserMaxAggregateInputType = {
   email?: true
   password?: true
   socialAccount?: true
+  emailVerified?: true
+  loginCount?: true
+  loginAttempts?: true
+  lockoutUntil?: true
   verificationCode?: true
   verificationCodeExpires?: true
+  verificationCodeSentAt?: true
   createdAt?: true
   updatedAt?: true
 }
@@ -98,8 +145,13 @@ export type UserCountAggregateInputType = {
   email?: true
   password?: true
   socialAccount?: true
+  emailVerified?: true
+  loginCount?: true
+  loginAttempts?: true
+  lockoutUntil?: true
   verificationCode?: true
   verificationCodeExpires?: true
+  verificationCodeSentAt?: true
   createdAt?: true
   updatedAt?: true
   _all?: true
@@ -143,6 +195,18 @@ export type UserAggregateArgs<ExtArgs extends runtime.Types.Extensions.InternalA
   /**
    * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
    * 
+   * Select which fields to average
+  **/
+  _avg?: UserAvgAggregateInputType
+  /**
+   * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+   * 
+   * Select which fields to sum
+  **/
+  _sum?: UserSumAggregateInputType
+  /**
+   * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+   * 
    * Select which fields to find the minimum value
   **/
   _min?: UserMinAggregateInputType
@@ -173,6 +237,8 @@ export type UserGroupByArgs<ExtArgs extends runtime.Types.Extensions.InternalArg
   take?: number
   skip?: number
   _count?: UserCountAggregateInputType | true
+  _avg?: UserAvgAggregateInputType
+  _sum?: UserSumAggregateInputType
   _min?: UserMinAggregateInputType
   _max?: UserMaxAggregateInputType
 }
@@ -184,11 +250,18 @@ export type UserGroupByOutputType = {
   email: string
   password: string
   socialAccount: boolean
+  emailVerified: boolean
+  loginCount: number
+  loginAttempts: number
+  lockoutUntil: Date | null
   verificationCode: string | null
   verificationCodeExpires: Date | null
+  verificationCodeSentAt: Date | null
   createdAt: Date
   updatedAt: Date
   _count: UserCountAggregateOutputType | null
+  _avg: UserAvgAggregateOutputType | null
+  _sum: UserSumAggregateOutputType | null
   _min: UserMinAggregateOutputType | null
   _max: UserMaxAggregateOutputType | null
 }
@@ -218,8 +291,13 @@ export type UserWhereInput = {
   email?: Prisma.StringFilter<"User"> | string
   password?: Prisma.StringFilter<"User"> | string
   socialAccount?: Prisma.BoolFilter<"User"> | boolean
+  emailVerified?: Prisma.BoolFilter<"User"> | boolean
+  loginCount?: Prisma.IntFilter<"User"> | number
+  loginAttempts?: Prisma.IntFilter<"User"> | number
+  lockoutUntil?: Prisma.DateTimeNullableFilter<"User"> | Date | string | null
   verificationCode?: Prisma.StringNullableFilter<"User"> | string | null
   verificationCodeExpires?: Prisma.DateTimeNullableFilter<"User"> | Date | string | null
+  verificationCodeSentAt?: Prisma.DateTimeNullableFilter<"User"> | Date | string | null
   createdAt?: Prisma.DateTimeFilter<"User"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"User"> | Date | string
   refreshTokens?: Prisma.RefreshTokenListRelationFilter
@@ -234,8 +312,13 @@ export type UserOrderByWithRelationInput = {
   email?: Prisma.SortOrder
   password?: Prisma.SortOrder
   socialAccount?: Prisma.SortOrder
+  emailVerified?: Prisma.SortOrder
+  loginCount?: Prisma.SortOrder
+  loginAttempts?: Prisma.SortOrder
+  lockoutUntil?: Prisma.SortOrderInput | Prisma.SortOrder
   verificationCode?: Prisma.SortOrderInput | Prisma.SortOrder
   verificationCodeExpires?: Prisma.SortOrderInput | Prisma.SortOrder
+  verificationCodeSentAt?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   refreshTokens?: Prisma.RefreshTokenOrderByRelationAggregateInput
@@ -253,8 +336,13 @@ export type UserWhereUniqueInput = Prisma.AtLeast<{
   lastName?: Prisma.StringFilter<"User"> | string
   password?: Prisma.StringFilter<"User"> | string
   socialAccount?: Prisma.BoolFilter<"User"> | boolean
+  emailVerified?: Prisma.BoolFilter<"User"> | boolean
+  loginCount?: Prisma.IntFilter<"User"> | number
+  loginAttempts?: Prisma.IntFilter<"User"> | number
+  lockoutUntil?: Prisma.DateTimeNullableFilter<"User"> | Date | string | null
   verificationCode?: Prisma.StringNullableFilter<"User"> | string | null
   verificationCodeExpires?: Prisma.DateTimeNullableFilter<"User"> | Date | string | null
+  verificationCodeSentAt?: Prisma.DateTimeNullableFilter<"User"> | Date | string | null
   createdAt?: Prisma.DateTimeFilter<"User"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"User"> | Date | string
   refreshTokens?: Prisma.RefreshTokenListRelationFilter
@@ -269,13 +357,20 @@ export type UserOrderByWithAggregationInput = {
   email?: Prisma.SortOrder
   password?: Prisma.SortOrder
   socialAccount?: Prisma.SortOrder
+  emailVerified?: Prisma.SortOrder
+  loginCount?: Prisma.SortOrder
+  loginAttempts?: Prisma.SortOrder
+  lockoutUntil?: Prisma.SortOrderInput | Prisma.SortOrder
   verificationCode?: Prisma.SortOrderInput | Prisma.SortOrder
   verificationCodeExpires?: Prisma.SortOrderInput | Prisma.SortOrder
+  verificationCodeSentAt?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   _count?: Prisma.UserCountOrderByAggregateInput
+  _avg?: Prisma.UserAvgOrderByAggregateInput
   _max?: Prisma.UserMaxOrderByAggregateInput
   _min?: Prisma.UserMinOrderByAggregateInput
+  _sum?: Prisma.UserSumOrderByAggregateInput
 }
 
 export type UserScalarWhereWithAggregatesInput = {
@@ -288,8 +383,13 @@ export type UserScalarWhereWithAggregatesInput = {
   email?: Prisma.StringWithAggregatesFilter<"User"> | string
   password?: Prisma.StringWithAggregatesFilter<"User"> | string
   socialAccount?: Prisma.BoolWithAggregatesFilter<"User"> | boolean
+  emailVerified?: Prisma.BoolWithAggregatesFilter<"User"> | boolean
+  loginCount?: Prisma.IntWithAggregatesFilter<"User"> | number
+  loginAttempts?: Prisma.IntWithAggregatesFilter<"User"> | number
+  lockoutUntil?: Prisma.DateTimeNullableWithAggregatesFilter<"User"> | Date | string | null
   verificationCode?: Prisma.StringNullableWithAggregatesFilter<"User"> | string | null
   verificationCodeExpires?: Prisma.DateTimeNullableWithAggregatesFilter<"User"> | Date | string | null
+  verificationCodeSentAt?: Prisma.DateTimeNullableWithAggregatesFilter<"User"> | Date | string | null
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"User"> | Date | string
   updatedAt?: Prisma.DateTimeWithAggregatesFilter<"User"> | Date | string
 }
@@ -301,8 +401,13 @@ export type UserCreateInput = {
   email: string
   password: string
   socialAccount?: boolean
+  emailVerified?: boolean
+  loginCount?: number
+  loginAttempts?: number
+  lockoutUntil?: Date | string | null
   verificationCode?: string | null
   verificationCodeExpires?: Date | string | null
+  verificationCodeSentAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   refreshTokens?: Prisma.RefreshTokenCreateNestedManyWithoutUserInput
@@ -317,8 +422,13 @@ export type UserUncheckedCreateInput = {
   email: string
   password: string
   socialAccount?: boolean
+  emailVerified?: boolean
+  loginCount?: number
+  loginAttempts?: number
+  lockoutUntil?: Date | string | null
   verificationCode?: string | null
   verificationCodeExpires?: Date | string | null
+  verificationCodeSentAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   refreshTokens?: Prisma.RefreshTokenUncheckedCreateNestedManyWithoutUserInput
@@ -333,8 +443,13 @@ export type UserUpdateInput = {
   email?: Prisma.StringFieldUpdateOperationsInput | string
   password?: Prisma.StringFieldUpdateOperationsInput | string
   socialAccount?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  loginCount?: Prisma.IntFieldUpdateOperationsInput | number
+  loginAttempts?: Prisma.IntFieldUpdateOperationsInput | number
+  lockoutUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   verificationCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   verificationCodeExpires?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  verificationCodeSentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   refreshTokens?: Prisma.RefreshTokenUpdateManyWithoutUserNestedInput
@@ -349,8 +464,13 @@ export type UserUncheckedUpdateInput = {
   email?: Prisma.StringFieldUpdateOperationsInput | string
   password?: Prisma.StringFieldUpdateOperationsInput | string
   socialAccount?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  loginCount?: Prisma.IntFieldUpdateOperationsInput | number
+  loginAttempts?: Prisma.IntFieldUpdateOperationsInput | number
+  lockoutUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   verificationCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   verificationCodeExpires?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  verificationCodeSentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   refreshTokens?: Prisma.RefreshTokenUncheckedUpdateManyWithoutUserNestedInput
@@ -365,8 +485,13 @@ export type UserCreateManyInput = {
   email: string
   password: string
   socialAccount?: boolean
+  emailVerified?: boolean
+  loginCount?: number
+  loginAttempts?: number
+  lockoutUntil?: Date | string | null
   verificationCode?: string | null
   verificationCodeExpires?: Date | string | null
+  verificationCodeSentAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -378,8 +503,13 @@ export type UserUpdateManyMutationInput = {
   email?: Prisma.StringFieldUpdateOperationsInput | string
   password?: Prisma.StringFieldUpdateOperationsInput | string
   socialAccount?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  loginCount?: Prisma.IntFieldUpdateOperationsInput | number
+  loginAttempts?: Prisma.IntFieldUpdateOperationsInput | number
+  lockoutUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   verificationCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   verificationCodeExpires?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  verificationCodeSentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -391,8 +521,13 @@ export type UserUncheckedUpdateManyInput = {
   email?: Prisma.StringFieldUpdateOperationsInput | string
   password?: Prisma.StringFieldUpdateOperationsInput | string
   socialAccount?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  loginCount?: Prisma.IntFieldUpdateOperationsInput | number
+  loginAttempts?: Prisma.IntFieldUpdateOperationsInput | number
+  lockoutUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   verificationCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   verificationCodeExpires?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  verificationCodeSentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -404,10 +539,20 @@ export type UserCountOrderByAggregateInput = {
   email?: Prisma.SortOrder
   password?: Prisma.SortOrder
   socialAccount?: Prisma.SortOrder
+  emailVerified?: Prisma.SortOrder
+  loginCount?: Prisma.SortOrder
+  loginAttempts?: Prisma.SortOrder
+  lockoutUntil?: Prisma.SortOrder
   verificationCode?: Prisma.SortOrder
   verificationCodeExpires?: Prisma.SortOrder
+  verificationCodeSentAt?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
+}
+
+export type UserAvgOrderByAggregateInput = {
+  loginCount?: Prisma.SortOrder
+  loginAttempts?: Prisma.SortOrder
 }
 
 export type UserMaxOrderByAggregateInput = {
@@ -417,8 +562,13 @@ export type UserMaxOrderByAggregateInput = {
   email?: Prisma.SortOrder
   password?: Prisma.SortOrder
   socialAccount?: Prisma.SortOrder
+  emailVerified?: Prisma.SortOrder
+  loginCount?: Prisma.SortOrder
+  loginAttempts?: Prisma.SortOrder
+  lockoutUntil?: Prisma.SortOrder
   verificationCode?: Prisma.SortOrder
   verificationCodeExpires?: Prisma.SortOrder
+  verificationCodeSentAt?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -430,10 +580,20 @@ export type UserMinOrderByAggregateInput = {
   email?: Prisma.SortOrder
   password?: Prisma.SortOrder
   socialAccount?: Prisma.SortOrder
+  emailVerified?: Prisma.SortOrder
+  loginCount?: Prisma.SortOrder
+  loginAttempts?: Prisma.SortOrder
+  lockoutUntil?: Prisma.SortOrder
   verificationCode?: Prisma.SortOrder
   verificationCodeExpires?: Prisma.SortOrder
+  verificationCodeSentAt?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
+}
+
+export type UserSumOrderByAggregateInput = {
+  loginCount?: Prisma.SortOrder
+  loginAttempts?: Prisma.SortOrder
 }
 
 export type UserScalarRelationFilter = {
@@ -449,12 +609,20 @@ export type BoolFieldUpdateOperationsInput = {
   set?: boolean
 }
 
-export type NullableStringFieldUpdateOperationsInput = {
-  set?: string | null
+export type IntFieldUpdateOperationsInput = {
+  set?: number
+  increment?: number
+  decrement?: number
+  multiply?: number
+  divide?: number
 }
 
 export type NullableDateTimeFieldUpdateOperationsInput = {
   set?: Date | string | null
+}
+
+export type NullableStringFieldUpdateOperationsInput = {
+  set?: string | null
 }
 
 export type DateTimeFieldUpdateOperationsInput = {
@@ -510,8 +678,13 @@ export type UserCreateWithoutRefreshTokensInput = {
   email: string
   password: string
   socialAccount?: boolean
+  emailVerified?: boolean
+  loginCount?: number
+  loginAttempts?: number
+  lockoutUntil?: Date | string | null
   verificationCode?: string | null
   verificationCodeExpires?: Date | string | null
+  verificationCodeSentAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   jobs?: Prisma.JobCreateNestedManyWithoutUserInput
@@ -525,8 +698,13 @@ export type UserUncheckedCreateWithoutRefreshTokensInput = {
   email: string
   password: string
   socialAccount?: boolean
+  emailVerified?: boolean
+  loginCount?: number
+  loginAttempts?: number
+  lockoutUntil?: Date | string | null
   verificationCode?: string | null
   verificationCodeExpires?: Date | string | null
+  verificationCodeSentAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   jobs?: Prisma.JobUncheckedCreateNestedManyWithoutUserInput
@@ -556,8 +734,13 @@ export type UserUpdateWithoutRefreshTokensInput = {
   email?: Prisma.StringFieldUpdateOperationsInput | string
   password?: Prisma.StringFieldUpdateOperationsInput | string
   socialAccount?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  loginCount?: Prisma.IntFieldUpdateOperationsInput | number
+  loginAttempts?: Prisma.IntFieldUpdateOperationsInput | number
+  lockoutUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   verificationCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   verificationCodeExpires?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  verificationCodeSentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   jobs?: Prisma.JobUpdateManyWithoutUserNestedInput
@@ -571,8 +754,13 @@ export type UserUncheckedUpdateWithoutRefreshTokensInput = {
   email?: Prisma.StringFieldUpdateOperationsInput | string
   password?: Prisma.StringFieldUpdateOperationsInput | string
   socialAccount?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  loginCount?: Prisma.IntFieldUpdateOperationsInput | number
+  loginAttempts?: Prisma.IntFieldUpdateOperationsInput | number
+  lockoutUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   verificationCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   verificationCodeExpires?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  verificationCodeSentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   jobs?: Prisma.JobUncheckedUpdateManyWithoutUserNestedInput
@@ -586,8 +774,13 @@ export type UserCreateWithoutJobsInput = {
   email: string
   password: string
   socialAccount?: boolean
+  emailVerified?: boolean
+  loginCount?: number
+  loginAttempts?: number
+  lockoutUntil?: Date | string | null
   verificationCode?: string | null
   verificationCodeExpires?: Date | string | null
+  verificationCodeSentAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   refreshTokens?: Prisma.RefreshTokenCreateNestedManyWithoutUserInput
@@ -601,8 +794,13 @@ export type UserUncheckedCreateWithoutJobsInput = {
   email: string
   password: string
   socialAccount?: boolean
+  emailVerified?: boolean
+  loginCount?: number
+  loginAttempts?: number
+  lockoutUntil?: Date | string | null
   verificationCode?: string | null
   verificationCodeExpires?: Date | string | null
+  verificationCodeSentAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   refreshTokens?: Prisma.RefreshTokenUncheckedCreateNestedManyWithoutUserInput
@@ -632,8 +830,13 @@ export type UserUpdateWithoutJobsInput = {
   email?: Prisma.StringFieldUpdateOperationsInput | string
   password?: Prisma.StringFieldUpdateOperationsInput | string
   socialAccount?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  loginCount?: Prisma.IntFieldUpdateOperationsInput | number
+  loginAttempts?: Prisma.IntFieldUpdateOperationsInput | number
+  lockoutUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   verificationCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   verificationCodeExpires?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  verificationCodeSentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   refreshTokens?: Prisma.RefreshTokenUpdateManyWithoutUserNestedInput
@@ -647,8 +850,13 @@ export type UserUncheckedUpdateWithoutJobsInput = {
   email?: Prisma.StringFieldUpdateOperationsInput | string
   password?: Prisma.StringFieldUpdateOperationsInput | string
   socialAccount?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  loginCount?: Prisma.IntFieldUpdateOperationsInput | number
+  loginAttempts?: Prisma.IntFieldUpdateOperationsInput | number
+  lockoutUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   verificationCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   verificationCodeExpires?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  verificationCodeSentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   refreshTokens?: Prisma.RefreshTokenUncheckedUpdateManyWithoutUserNestedInput
@@ -662,8 +870,13 @@ export type UserCreateWithoutDocumentsInput = {
   email: string
   password: string
   socialAccount?: boolean
+  emailVerified?: boolean
+  loginCount?: number
+  loginAttempts?: number
+  lockoutUntil?: Date | string | null
   verificationCode?: string | null
   verificationCodeExpires?: Date | string | null
+  verificationCodeSentAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   refreshTokens?: Prisma.RefreshTokenCreateNestedManyWithoutUserInput
@@ -677,8 +890,13 @@ export type UserUncheckedCreateWithoutDocumentsInput = {
   email: string
   password: string
   socialAccount?: boolean
+  emailVerified?: boolean
+  loginCount?: number
+  loginAttempts?: number
+  lockoutUntil?: Date | string | null
   verificationCode?: string | null
   verificationCodeExpires?: Date | string | null
+  verificationCodeSentAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   refreshTokens?: Prisma.RefreshTokenUncheckedCreateNestedManyWithoutUserInput
@@ -708,8 +926,13 @@ export type UserUpdateWithoutDocumentsInput = {
   email?: Prisma.StringFieldUpdateOperationsInput | string
   password?: Prisma.StringFieldUpdateOperationsInput | string
   socialAccount?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  loginCount?: Prisma.IntFieldUpdateOperationsInput | number
+  loginAttempts?: Prisma.IntFieldUpdateOperationsInput | number
+  lockoutUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   verificationCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   verificationCodeExpires?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  verificationCodeSentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   refreshTokens?: Prisma.RefreshTokenUpdateManyWithoutUserNestedInput
@@ -723,8 +946,13 @@ export type UserUncheckedUpdateWithoutDocumentsInput = {
   email?: Prisma.StringFieldUpdateOperationsInput | string
   password?: Prisma.StringFieldUpdateOperationsInput | string
   socialAccount?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  loginCount?: Prisma.IntFieldUpdateOperationsInput | number
+  loginAttempts?: Prisma.IntFieldUpdateOperationsInput | number
+  lockoutUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   verificationCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   verificationCodeExpires?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  verificationCodeSentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   refreshTokens?: Prisma.RefreshTokenUncheckedUpdateManyWithoutUserNestedInput
@@ -787,8 +1015,13 @@ export type UserSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = r
   email?: boolean
   password?: boolean
   socialAccount?: boolean
+  emailVerified?: boolean
+  loginCount?: boolean
+  loginAttempts?: boolean
+  lockoutUntil?: boolean
   verificationCode?: boolean
   verificationCodeExpires?: boolean
+  verificationCodeSentAt?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   refreshTokens?: boolean | Prisma.User$refreshTokensArgs<ExtArgs>
@@ -804,8 +1037,13 @@ export type UserSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensio
   email?: boolean
   password?: boolean
   socialAccount?: boolean
+  emailVerified?: boolean
+  loginCount?: boolean
+  loginAttempts?: boolean
+  lockoutUntil?: boolean
   verificationCode?: boolean
   verificationCodeExpires?: boolean
+  verificationCodeSentAt?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }, ExtArgs["result"]["user"]>
@@ -817,8 +1055,13 @@ export type UserSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensio
   email?: boolean
   password?: boolean
   socialAccount?: boolean
+  emailVerified?: boolean
+  loginCount?: boolean
+  loginAttempts?: boolean
+  lockoutUntil?: boolean
   verificationCode?: boolean
   verificationCodeExpires?: boolean
+  verificationCodeSentAt?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }, ExtArgs["result"]["user"]>
@@ -830,13 +1073,18 @@ export type UserSelectScalar = {
   email?: boolean
   password?: boolean
   socialAccount?: boolean
+  emailVerified?: boolean
+  loginCount?: boolean
+  loginAttempts?: boolean
+  lockoutUntil?: boolean
   verificationCode?: boolean
   verificationCodeExpires?: boolean
+  verificationCodeSentAt?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }
 
-export type UserOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "firstName" | "lastName" | "email" | "password" | "socialAccount" | "verificationCode" | "verificationCodeExpires" | "createdAt" | "updatedAt", ExtArgs["result"]["user"]>
+export type UserOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "firstName" | "lastName" | "email" | "password" | "socialAccount" | "emailVerified" | "loginCount" | "loginAttempts" | "lockoutUntil" | "verificationCode" | "verificationCodeExpires" | "verificationCodeSentAt" | "createdAt" | "updatedAt", ExtArgs["result"]["user"]>
 export type UserInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   refreshTokens?: boolean | Prisma.User$refreshTokensArgs<ExtArgs>
   jobs?: boolean | Prisma.User$jobsArgs<ExtArgs>
@@ -860,8 +1108,13 @@ export type $UserPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs =
     email: string
     password: string
     socialAccount: boolean
+    emailVerified: boolean
+    loginCount: number
+    loginAttempts: number
+    lockoutUntil: Date | null
     verificationCode: string | null
     verificationCodeExpires: Date | null
+    verificationCodeSentAt: Date | null
     createdAt: Date
     updatedAt: Date
   }, ExtArgs["result"]["user"]>
@@ -1296,8 +1549,13 @@ export interface UserFieldRefs {
   readonly email: Prisma.FieldRef<"User", 'String'>
   readonly password: Prisma.FieldRef<"User", 'String'>
   readonly socialAccount: Prisma.FieldRef<"User", 'Boolean'>
+  readonly emailVerified: Prisma.FieldRef<"User", 'Boolean'>
+  readonly loginCount: Prisma.FieldRef<"User", 'Int'>
+  readonly loginAttempts: Prisma.FieldRef<"User", 'Int'>
+  readonly lockoutUntil: Prisma.FieldRef<"User", 'DateTime'>
   readonly verificationCode: Prisma.FieldRef<"User", 'String'>
   readonly verificationCodeExpires: Prisma.FieldRef<"User", 'DateTime'>
+  readonly verificationCodeSentAt: Prisma.FieldRef<"User", 'DateTime'>
   readonly createdAt: Prisma.FieldRef<"User", 'DateTime'>
   readonly updatedAt: Prisma.FieldRef<"User", 'DateTime'>
 }
