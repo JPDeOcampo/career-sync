@@ -7,7 +7,8 @@ import { getCookieConfig } from "@/config/cookieConfig";
 export const userRegister = async (req: Request, res: Response) => {
   await authService.registerUser(req.body);
   return res.status(201).json({
-    message: "User registered successfully! You can now log in.",
+    message:
+      "Confirmation email sent. Please check your inbox to verify your email address.",
   });
 };
 
@@ -29,6 +30,7 @@ export const userLogin = async (req: Request, res: Response) => {
       firstName: user?.firstName,
       lastName: user?.lastName,
       email: user?.email,
+      loginCount: user?.loginCount,
     },
   });
 };
@@ -50,4 +52,23 @@ export const userUpdate = async (
     message: "User information updated successfully",
     user: updatedUser,
   });
+};
+
+export const userVerifyEmail = async (
+  req: Request,
+  res: Response,
+): Promise<void> => {
+  const token = req.query.token as string;
+
+  const isVerified = await authService.userVerifyEmail(token);
+
+  res.setHeader("Set-Cookie", [
+    serialize(
+      "is_verified",
+      isVerified.toString(),
+      getCookieConfig({ httpOnly: false, maxAge: 2 }),
+    ),
+  ]);
+
+  return res.redirect(`${process.env.ORIGIN}/login`);
 };

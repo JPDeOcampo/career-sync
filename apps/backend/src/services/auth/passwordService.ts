@@ -9,7 +9,8 @@ import type {
   RefreshResetPasswordCodeDTO,
   ResendResetVerificationCodeDTO,
 } from "@/@types/password.types.js";
-import { sendResetPassword } from "@/utils/mailer/sendResetPassword.js";
+import { resetPasswordTemplate } from "@/utils/mailer/templates/resetPassword.js";
+import { sendEmail } from "@/utils/mailer/sendEmail.js";
 import { generate6DigitCode } from "@/utils/globalUtils.js";
 import bcrypt from "bcrypt";
 import { generateSignToken } from "@/utils/generateSignToken.js";
@@ -31,10 +32,13 @@ const sendResetPasswordOTP = async ({
   const verificationCodeExpires = new Date(Date.now() + CODE_EXPIRES_IN * 1000);
 
   // Send the reset email
-  const emailSent = await sendResetPassword({
-    firstName: user.firstName,
-    email: user.email,
-    resetCode: verificationCode,
+  const emailSent = await sendEmail({
+    to: user.email,
+    subject: "Password Reset Request",
+    html: resetPasswordTemplate({
+      firstName: user.firstName,
+      resetCode: verificationCode,
+    }),
   });
 
   if (!emailSent) {

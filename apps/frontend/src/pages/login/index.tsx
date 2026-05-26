@@ -1,5 +1,5 @@
 "use client";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useAppDispatch } from "@/hooks/useRedux";
 import { login } from "@/store/slices/authSlice";
 import Logo from "@/components/shared/Logo";
@@ -14,6 +14,7 @@ import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { loginSchema } from "@career-sync/shared";
 import { LoadingSpinner } from "@/components/shared/Loading";
+import { getVerifiedStatus } from "@/utils/cookies";
 
 type LoginFormData = z.infer<typeof loginSchema>;
 
@@ -43,23 +44,37 @@ const Login = () => {
       const response = await userLogin({ email, password }).unwrap();
       dispatch(login(response));
       router.push("/dashboard");
-      toast.success(`Welcome, ${response.user.firstName}!`);
+      const welcome =
+        (response.user.loginCount ?? 0 > 0) ? "Welcome back" : "Welcome";
+      toast.success(`${welcome}, ${response.user.firstName}!`);
     } catch (error) {
       const err = error as FetchBaseQueryError;
-
-      if ("status" in err) {
-        if (err.status === 401) {
-          toast.error("Invalid email or password");
-        } else if (err.status === 500) {
-          toast.error("Server error");
-        } else {
-          toast.error("Login failed");
-        }
-      } else {
-        toast.error("Unexpected error");
-      }
+      const errorData = err.data as { message?: string };
+      toast.error(errorData.message);
     }
   };
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      const status = getVerifiedStatus();
+
+      if (!status) return;
+
+      switch (status) {
+        case "true":
+          toast.success("Email verified successfully! You can now log in.");
+          break;
+        case "false":
+          toast.error(
+            "Invalid or expired verification link, please try again later.",
+          );
+          break;
+      }
+      document.cookie = "is_verified=; max-age=0; path=/;";
+    }, 100);
+
+    return () => clearTimeout(timer);
+  }, []);
 
   return (
     <div className="auth-card">
