@@ -45,7 +45,7 @@ const Login = () => {
       dispatch(login(response));
       router.push("/dashboard");
       const welcome =
-        (response.user.loginCount ?? 0 > 0) ? "Welcome back" : "Welcome";
+        (response.user.loginCount || 0) > 1 ? "Welcome back" : "Welcome";
       toast.success(`${welcome}, ${response.user.firstName}!`);
     } catch (error) {
       const err = error as FetchBaseQueryError;

@@ -49,16 +49,14 @@ const Register = () => {
     if (isLoading) return;
 
     try {
-      await userRegister({
+      const response = await userRegister({
         firstName: firstName,
         lastName: lastName,
         email: email,
         password: password,
         confirmPassword: confirmPassword,
-      });
-      toast.success(
-        "Confirmation email sent. Please check your inbox to verify your email address.",
-      );
+      }).unwrap();
+      toast.success(response.message);
       router.push("/");
     } catch (error) {
       const err = error as FetchBaseQueryError;

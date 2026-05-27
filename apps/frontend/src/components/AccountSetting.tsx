@@ -11,6 +11,7 @@ import Button from "@/components/shared/Button";
 import {
   userUpdateSchema,
   updatePasswordSchema,
+  passwordSchema,
   UserDTO,
   UpdatePasswordDTO,
 } from "@career-sync/shared";
@@ -21,15 +22,18 @@ import { SquarePen } from "lucide-react";
 import {
   useUpdateUserMutation,
   useUpdatePasswordMutation,
+  useDeleteUserMutation,
 } from "@/store/api/authApi";
 import useAuthHooks from "@/hooks/useAuth";
 import { useAppDispatch } from "@/hooks/useRedux";
 import { setUser } from "@/store/slices/authSlice";
 import { toast } from "sonner";
 import type { FetchBaseQueryError } from "@reduxjs/toolkit/query";
+import { useRouter } from "next/router";
 
 type UserUpdateFormData = z.infer<typeof userUpdateSchema>;
 type UpdatePasswordFormData = z.infer<typeof updatePasswordSchema>;
+type DeleteAccountFormData = z.infer<typeof passwordSchema>;
 
 const ModalSectionHeader = ({
   title,
@@ -101,19 +105,8 @@ const PersonalInformation = ({
       toast.success("Profile updated successfully!");
     } catch (error) {
       const err = error as FetchBaseQueryError;
-
-      if ("status" in err) {
-        if (err.status === 400) {
-          const errorData = err.data as { message?: string };
-          toast.error(errorData?.message || "Email already exists.");
-        } else if (err.status === 500) {
-          toast.error("Server error");
-        } else {
-          toast.error("Profile update failed");
-        }
-      } else {
-        toast.error("Unexpected error");
-      }
+      const errorData = err.data as { message?: string };
+      toast.error(errorData.message);
     }
   };
 
@@ -244,17 +237,8 @@ const UpdatePassword = ({
       toast.success("Password updated successfully!");
     } catch (error) {
       const err = error as FetchBaseQueryError;
-
-      if ("status" in err) {
-        const errorData = err.data as { message?: string };
-        if (err.status === 500) {
-          toast.error("Server error");
-        } else {
-          toast.error(errorData?.message);
-        }
-      } else {
-        toast.error("Unexpected error");
-      }
+      const errorData = err.data as { message?: string };
+      toast.error(errorData.message);
     }
   };
 
@@ -346,10 +330,124 @@ const UpdatePassword = ({
   );
 };
 
+const DeleteAccount = ({
+  isViewOnly,
+  onViewOnly,
+}: {
+  isViewOnly: boolean;
+  onViewOnly: () => void;
+}) => {
+  const router = useRouter();
+  const [showPassword, setShowPassword] = useState(false);
+
+  const { user } = useAuthHooks();
+  const [deleteUser, { isLoading: isDeleting }] = useDeleteUserMutation();
+
+  const methods = useForm<DeleteAccountFormData>({
+    resolver: zodResolver(passwordSchema),
+    reValidateMode: "onChange",
+  });
+
+  const {
+    register,
+    handleSubmit,
+    formState: { errors, isSubmitting },
+  } = methods;
+
+  const onSubmit = async (data: { password: string }) => {
+    const { password } = data;
+    if (isDeleting) return;
+
+    try {
+      await deleteUser({
+        id: user?.userId as string,
+        password,
+      }).unwrap();
+
+      onViewOnly();
+      router.push("/login");
+      toast.success("Account deleted successfully!");
+    } catch (error) {
+      const err = error as FetchBaseQueryError;
+      const errorData = err.data as { message?: string };
+      toast.error(errorData.message);
+    }
+  };
+
+  return (
+    <div>
+      <ModalSectionHeader
+        title="Delete Account"
+        isViewOnly={isViewOnly}
+        onClick={onViewOnly}
+      />
+
+      <FormProvider {...methods}>
+        <form
+          onSubmit={handleSubmit(onSubmit)}
+          // onSubmit={handleSubmit(
+          //   (data) => {
+          //     console.log("VALID SUBMIT", data);
+          //   },
+          //   (errors) => {
+          //     console.log("FORM ERRORS", errors);
+          //   },
+          // )}
+          className="space-y-5"
+        >
+          {!isViewOnly && (
+            <div className="max-w-85 space-y-5">
+              <InputPassword
+                {...register("password")}
+                label="Password"
+                showPassword={showPassword}
+                setShowPassword={() => setShowPassword(!showPassword)}
+                error={errors.password?.message}
+                isRequired
+              />
+              <div className="flex gap-2 max-w-45">
+                <Button
+                  type="button"
+                  className="w-full h-10"
+                  onClick={onViewOnly}
+                  disabled={isDeleting || isSubmitting}
+                  variant="ghost"
+                >
+                  Cancel
+                </Button>
+                <Button
+                  type="submit"
+                  variant="destructive"
+                  className="w-full h-10"
+                  disabled={isDeleting || isSubmitting}
+                >
+                  Delete Account{" "}
+                  {isDeleting && (
+                    <motion.div
+                      animate={{ rotate: 360 }}
+                      transition={{
+                        duration: 1,
+                        repeat: Infinity,
+                        ease: "linear",
+                      }}
+                      className="w-4 h-4 border-2 border-white border-t-transparent rounded-full"
+                    />
+                  )}
+                </Button>
+              </div>
+            </div>
+          )}
+        </form>
+      </FormProvider>
+    </div>
+  );
+};
+
 const AccountSetting = () => {
   const [viewOnly, setViewOnly] = useState({
     personalInformation: true,
     password: true,
+    deleteAccount: true,
   });
 
   const handleViewOnly = (field: string) => {
@@ -358,6 +456,8 @@ const AccountSetting = () => {
         field === "personalInformation" ? !prev.personalInformation : true,
 
       password: field === "password" ? !prev.password : true,
+
+      deleteAccount: field === "deleteAccount" ? !prev.deleteAccount : true,
     }));
   };
 
@@ -370,6 +470,10 @@ const AccountSetting = () => {
       <UpdatePassword
         isViewOnly={viewOnly.password}
         onViewOnly={() => handleViewOnly("password")}
+      />
+      <DeleteAccount
+        isViewOnly={viewOnly.deleteAccount}
+        onViewOnly={() => handleViewOnly("deleteAccount")}
       />
     </div>
   );

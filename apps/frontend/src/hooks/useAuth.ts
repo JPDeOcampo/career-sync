@@ -3,6 +3,7 @@ import { useRefreshResetPasswordMutation } from "../store/api/authApi";
 import { useAppSelector } from "./useRedux";
 import { selectAuth } from "../store/selectors";
 import { toast } from "sonner";
+import type { FetchBaseQueryError } from "@reduxjs/toolkit/query";
 
 const useAuthHooks = () => {
   const router = useRouter();
@@ -18,9 +19,10 @@ const useAuthHooks = () => {
       const response = await userRefreshResetPassword().unwrap();
       return response.expiresIn;
     } catch (error) {
-      console.log("Caught error:", error);
+      const err = error as FetchBaseQueryError;
+      const errorData = err.data as { message?: string };
+      toast.error(errorData.message);
       router.push("/login");
-      toast.error("Session expired");
     }
   };
 

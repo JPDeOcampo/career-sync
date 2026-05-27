@@ -8,6 +8,7 @@ import {
   userUpdateSchema,
   updatePasswordSchema,
   resetPasswordSchema,
+  passwordSchema,
 } from "@career-sync/shared";
 import { asyncHandler } from "@/utils/asyncHandler.js";
 
@@ -17,14 +18,15 @@ import {
   userLogin,
   userUpdate,
   userVerifyEmail,
+  userDeleteAccount,
 } from "@/controllers/auth/authController.js";
 
 // -- Password Controllers --
 import {
   updatePassword,
   forgotPassword,
-  verifyResetPWVerificationCode,
-  resendResetVerificationCode,
+  verifyResetPassword,
+  resendResetPassword,
   refreshResetPassword,
   resetPassword,
 } from "@/controllers/auth/passwordController.js";
@@ -55,6 +57,14 @@ router.put(
   asyncHandler(userUpdate),
 );
 
+router.delete(
+  "/delete-user/:id",
+  authLimiter,
+  protect,
+  validate(passwordSchema),
+  asyncHandler(userDeleteAccount),
+);
+
 router.post("/refresh-token", authLimiter, asyncHandler(refreshToken));
 
 // -- Password Routes --
@@ -75,11 +85,11 @@ router.post(
 );
 router.post(
   "/reset/verify-reset-password/:id",
-  asyncHandler(verifyResetPWVerificationCode),
+  asyncHandler(verifyResetPassword),
 );
 router.post(
-  "/reset/resend-reset-verification-code/:id",
-  asyncHandler(resendResetVerificationCode),
+  "/reset/resend-reset-password/:id",
+  asyncHandler(resendResetPassword),
 );
 
 router.get("/reset/refresh-reset-password", asyncHandler(refreshResetPassword));

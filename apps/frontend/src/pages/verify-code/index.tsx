@@ -47,8 +47,8 @@ const VerifyCode = () => {
     }
   };
 
-  const handleVerifyWithCode = async (verificationCode: string = code) => {
-    if (verificationCode.length !== 6) {
+  const handleVerifyWithCode = async (otp: string = code) => {
+    if (otp.length !== 6) {
       toast.error("Please enter the complete 6-digit code");
       return;
     }
@@ -56,22 +56,15 @@ const VerifyCode = () => {
     try {
       await userVerifyResetPassword({
         userId: user?.userId as string,
-        verificationCode,
+        otp,
       }).unwrap();
       toast.success("Verification successful!");
       router.replace("/reset-password");
       dispatch(resetPassword());
     } catch (error) {
       const err = error as FetchBaseQueryError;
-      if ("status" in err) {
-        if (err.status === 500) {
-          toast.error("Server error. Please try again later.");
-        } else {
-          toast.error("Verification code is invalid or expired.");
-        }
-      } else {
-        toast.error("Unexpected error. Please try again later.");
-      }
+      const errorData = err.data as { message?: string };
+      toast.error(errorData.message);
     }
   };
 
@@ -86,9 +79,10 @@ const VerifyCode = () => {
       toast.success("New verification code sent!");
       dispatch(setSessionExpiry(response.expiresIn));
       setCode("");
-    } catch {
-      toast.error("Failed to resend verification code.");
-      return;
+    } catch (error) {
+      const err = error as FetchBaseQueryError;
+      const errorData = err.data as { message?: string };
+      toast.error(errorData.message);
     }
   };
 
