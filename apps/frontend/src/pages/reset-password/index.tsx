@@ -1,6 +1,5 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import { useState, useEffect } from "react";
-import { motion } from "motion/react";
 import Button from "@/components/shared/Button";
 import { toast } from "sonner";
 import LogoShield from "@/components/shared/LogoShield";
@@ -49,15 +48,8 @@ const ResetPassword = () => {
       router.push("/");
     } catch (error) {
       const err = error as FetchBaseQueryError;
-      if ("status" in err) {
-        if (err.status === 500) {
-          toast.error("Server error. Please try again later.");
-        } else {
-          toast.error("Password reset failed. Please try again later.");
-        }
-      } else {
-        toast.error("Unexpected error. Please try again later.");
-      }
+      const errorData = err.data as { message?: string };
+      toast.error(errorData.message);
     }
   };
 

@@ -16,16 +16,24 @@ export const updatePassword = async (
 
 // --- Forgot Password ---
 export const forgotPassword = async (req: Request, res: Response) => {
+  const ipAddress =
+    (req.headers["x-forwarded-for"] as string)?.split(",")[0] ||
+    req.socket.remoteAddress;
+  const userAgent = req.headers["user-agent"];
   const {
-    verificationToken,
-    verificationTokenExpiresAt,
+    newSignToken,
+    signTokenExpiresAt,
     expiresAt,
     expiresIn,
     userId,
     email,
-  } = (await passwordService.forgotPassword(req.body.email)) as {
-    verificationToken: string;
-    verificationTokenExpiresAt: number;
+  } = (await passwordService.forgotPassword({
+    email: req.body.email,
+    ipAddress,
+    userAgent,
+  })) as {
+    newSignToken: string;
+    signTokenExpiresAt: number;
     expiresIn: number;
     expiresAt: number;
     userId: string;
@@ -35,8 +43,8 @@ export const forgotPassword = async (req: Request, res: Response) => {
   res.setHeader("Set-Cookie", [
     serialize(
       "verificationToken",
-      verificationToken,
-      getCookieConfig({ maxAge: verificationTokenExpiresAt }),
+      newSignToken,
+      getCookieConfig({ maxAge: signTokenExpiresAt }),
     ),
     serialize(
       "expiresAt",
@@ -50,23 +58,23 @@ export const forgotPassword = async (req: Request, res: Response) => {
     email,
     expiresIn,
     expiresAt,
-    message: "Reset code is sent to your email",
+    message: "Reset code is sent to your email.",
   });
 };
 
 // --- Verify Reset Password ---
-export const verifyResetPWVerificationCode = async (
+export const verifyResetPassword = async (
   req: Request,
   res: Response,
 ): Promise<Response> => {
-  const verificationToken = req.cookies.verificationToken;
+  const signToken = req.cookies.verificationToken;
   const userId = req.params.id;
-  const { verificationCode } = req.body;
+  const { otp } = req.body;
 
-  const resetToken = await passwordService.verifyResetPWVerificationCode({
-    verificationToken,
+  const resetToken = await passwordService.verifyResetPassword({
+    signToken,
     userId,
-    verificationCode,
+    otp,
   });
 
   res.setHeader("Set-Cookie", [
@@ -82,11 +90,11 @@ export const verifyResetPWVerificationCode = async (
 
 // --- Reset Password ---
 export const resetPassword = async (req: Request, res: Response) => {
-  const resetToken = req.cookies.resetToken;
+  const signToken = req.cookies.resetToken;
   const userId = req.params.id;
   const { newPassword } = req.body;
 
-  await passwordService.resetPassword({ resetToken, userId, newPassword });
+  await passwordService.resetPassword({ signToken, userId, newPassword });
 
   res.cookie("resetToken", "", clearCookieConfig({}));
 
@@ -97,7 +105,7 @@ export const resetPassword = async (req: Request, res: Response) => {
 export const refreshResetPassword = async (req: Request, res: Response) => {
   const { userId, email, expiresIn } =
     await passwordService.refreshResetPassword({
-      refreshToken: req.cookies.verificationToken || req.cookies.resetToken,
+      signToken: req.cookies.verificationToken || req.cookies.resetToken,
       expiresAt: req.cookies.expiresAt,
     });
 
@@ -109,28 +117,28 @@ export const refreshResetPassword = async (req: Request, res: Response) => {
   });
 };
 
-// --- Resend Reset Verification Code ---
-export const resendResetVerificationCode = async (
-  req: Request,
-  res: Response,
-) => {
-  const resetToken = req.cookies.verificationToken || req.cookies.resetToken;
+// --- Resend Reset Password Code ---
+export const resendResetPassword = async (req: Request, res: Response) => {
+  const ipAddress =
+    (req.headers["x-forwarded-for"] as string)?.split(",")[0] ||
+    req.socket.remoteAddress;
+  const userAgent = req.headers["user-agent"];
+  const signToken = req.cookies.verificationToken || req.cookies.resetToken;
   const userId = req.params.id;
-  const {
-    expiresIn,
-    verificationToken,
-    verificationTokenExpiresAt,
-    expiresAt,
-  } = await passwordService.resendResetVerificationCode({
-    userId,
-    resetToken,
-  });
+
+  const { expiresIn, newSignToken, signTokenExpiresAt, expiresAt } =
+    await passwordService.resendResetPassword({
+      ipAddress,
+      userAgent,
+      userId,
+      signToken,
+    });
 
   res.setHeader("Set-Cookie", [
     serialize(
       "verificationToken",
-      verificationToken,
-      getCookieConfig({ maxAge: verificationTokenExpiresAt }),
+      newSignToken,
+      getCookieConfig({ maxAge: signTokenExpiresAt }),
     ),
     serialize(
       "expiresAt",

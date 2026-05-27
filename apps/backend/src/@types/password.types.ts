@@ -4,13 +4,13 @@ export interface UpdatePasswordDTO {
   newPassword: string;
 }
 
-export interface VerifyResetPWVerificationCodeDTO {
-  verificationToken: string | undefined;
+export interface VerifyResetPasswordDTO {
+  signToken: string | undefined;
   userId: string | string[] | undefined;
-  verificationCode: string;
+  otp: string;
 }
 
-export interface RefreshResetPasswordCodeDTO {
+export interface RefreshResetPasswordDTO {
   id: string;
   purpose: "password-reset";
   iat?: number;
@@ -18,12 +18,14 @@ export interface RefreshResetPasswordCodeDTO {
 }
 
 export interface ResetPasswordDTO {
-  resetToken: string | undefined;
+  signToken: string | undefined;
   userId: string | string[] | undefined;
   newPassword: string;
 }
 
-export interface ResendResetVerificationCodeDTO {
+export interface ResendResetPasswordDTO {
+  ipAddress: string | undefined;
+  userAgent: string | undefined;
   userId: string | string[] | undefined;
-  resetToken: string | undefined;
+  signToken: string | undefined;
 }

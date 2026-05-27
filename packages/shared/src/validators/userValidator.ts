@@ -41,6 +41,10 @@ export const userUpdateSchema = z.object({
   email: z.string().email("Invalid email format"),
 });
 
+export const passwordSchema = z.object({
+  password: password,
+});
+
 export const registerSchema = z
   .object({
     firstName: z

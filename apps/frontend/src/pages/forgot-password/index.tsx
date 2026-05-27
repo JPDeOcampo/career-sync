@@ -43,17 +43,8 @@ const ForgotPassword = () => {
       router.push(`/verify-code`);
     } catch (error) {
       const err = error as FetchBaseQueryError;
-      if ("status" in err) {
-        if (err.status === 500) {
-          toast.error("Server error. Please try again later.");
-        } else {
-          toast.error(
-            "Failed to send verification code. Please try again later.",
-          );
-        }
-      } else {
-        toast.error("Unexpected error. Please try again later.");
-      }
+      const errorData = err.data as { message?: string };
+      toast.error(errorData.message);
     }
   };
 

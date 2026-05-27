@@ -3,6 +3,8 @@ export interface RegisterUserDTO {
   lastName: string;
   email: string;
   password: string;
+  ipAddress?: string;
+  userAgent?: string;
 }
 
 export interface UserDTO {
@@ -16,6 +18,8 @@ export interface UserDTO {
 export interface LoginUserDTO {
   email: string;
   password: string;
+  ipAddress?: string;
+  userAgent?: string;
 }
 
 export interface UpdatePasswordDTO {

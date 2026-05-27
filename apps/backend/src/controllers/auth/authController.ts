@@ -2,21 +2,35 @@ import type { Request, Response } from "express";
 import * as authService from "@/services/auth/authService.js";
 import { serialize } from "cookie";
 import { getCookieConfig } from "@/config/cookieConfig";
+import { clearCookieConfig } from "@/config/cookieConfig";
 
 // --- User Registration ---
 export const userRegister = async (req: Request, res: Response) => {
-  await authService.registerUser(req.body);
+  const ipAddress =
+    (req.headers["x-forwarded-for"] as string)?.split(",")[0] ||
+    req.socket.remoteAddress;
+  const userAgent = req.headers["user-agent"];
+
+  await authService.registerUser({ ...req.body, ipAddress, userAgent });
+
   return res.status(201).json({
     message:
-      "Confirmation email sent. Please check your inbox to verify your email address.",
+      "Registration was successful. Please check your inbox to verify your email address before logging in.",
   });
 };
 
 // --- User Login ---
 export const userLogin = async (req: Request, res: Response) => {
-  const { user, accessToken, refreshToken } = await authService.loginUser(
-    req.body,
-  );
+  const ipAddress =
+    (req.headers["x-forwarded-for"] as string)?.split(",")[0] ||
+    req.socket.remoteAddress;
+  const userAgent = req.headers["user-agent"];
+
+  const { user, accessToken, refreshToken } = await authService.loginUser({
+    ...req.body,
+    ipAddress,
+    userAgent,
+  });
 
   res.setHeader("Set-Cookie", [
     serialize("refreshToken", refreshToken, getCookieConfig({})),
@@ -71,4 +85,21 @@ export const userVerifyEmail = async (
   ]);
 
   return res.redirect(`${process.env.ORIGIN}/login`);
+};
+
+export const userDeleteAccount = async (
+  req: Request,
+  res: Response,
+): Promise<Response> => {
+  const { id } = req.params;
+  const { password } = req.body;
+
+  await authService.userDeleteAccount({ userId: id as string, password });
+
+  res.setHeader("Set-Cookie", [
+    serialize("refreshToken", "", clearCookieConfig({})),
+    serialize("is_logged_in", "", clearCookieConfig({})),
+  ]);
+
+  return res.status(200).json({ message: "Account deleted successfully!" });
 };

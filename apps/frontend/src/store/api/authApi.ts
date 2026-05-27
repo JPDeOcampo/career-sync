@@ -60,9 +60,22 @@ export const authApi = createApi({
         }
       },
     }),
+
+    // --- Delete User ---
+    deleteUser: builder.mutation<void, { id: string; password: string }>({
+      query: ({ id, password }) => ({
+        url: `${path}/delete-user/${id}`,
+        method: "DELETE",
+        body: { password },
+      }),
+      extraOptions: {
+        skipReauth: true,
+      },
+    }),
+
     // --- Register ---
     register: builder.mutation<
-      void,
+      { message: string },
       {
         firstName: string;
         lastName: string;
@@ -83,7 +96,7 @@ export const authApi = createApi({
 
     // --- update Password ---
     updatePassword: builder.mutation<
-      void,
+      { message: string },
       {
         id: string;
         currentPassword: string;
@@ -150,25 +163,25 @@ export const authApi = createApi({
     // --- Verify Reset Password ---
     verifyResetPassword: builder.mutation<
       void,
-      { userId: UserDTO["userId"]; verificationCode: string }
+      { userId: UserDTO["userId"]; otp: string }
     >({
-      query: ({ userId, verificationCode }) => ({
+      query: ({ userId, otp }) => ({
         url: `${path}/reset/verify-reset-password/${userId}`,
         method: "POST",
-        body: { verificationCode },
+        body: { otp },
       }),
       extraOptions: {
         skipReauth: true,
       },
     }),
 
-    // --- Resend Verification Code ---
+    // --- Resend Reset Password Code ---
     resendResetVerificationCode: builder.mutation<
       { expiresIn: number },
       { userId: UserDTO["userId"] }
     >({
       query: ({ userId }) => ({
-        url: `${path}/reset/resend-reset-verification-code/${userId}`,
+        url: `${path}/reset/resend-reset-password/${userId}`,
         method: "POST",
       }),
       extraOptions: {
@@ -218,6 +231,7 @@ export const {
   useUpdateUserMutation,
   useRegisterMutation,
   useUpdatePasswordMutation,
+  useDeleteUserMutation,
   useForgotPasswordMutation,
   useVerifyResetPasswordMutation,
   useResendResetVerificationCodeMutation,

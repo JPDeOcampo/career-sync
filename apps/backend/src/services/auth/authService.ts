@@ -13,7 +13,8 @@ import { verifyEmailTemplate } from "@/utils/mailer/templates/verifyEmail.js";
 
 // --- Registration Logic ---
 export const registerUser = async (userData: RegisterUserDTO) => {
-  const { firstName, lastName, email, password } = userData;
+  const { firstName, lastName, email, password, ipAddress, userAgent } =
+    userData;
 
   const normalizedEmail = email.toLowerCase().trim();
 
@@ -38,11 +39,28 @@ export const registerUser = async (userData: RegisterUserDTO) => {
       firstName,
       lastName,
       email: normalizedEmail,
-      password: hashedPassword,
 
-      emailVerified: false,
-      verificationCode: hashedToken,
-      verificationCodeExpires: expiresAt,
+      accounts: {
+        create: {
+          provider: "LOCAL",
+          providerAccountId: normalizedEmail,
+          passwordHash: hashedPassword,
+        },
+      },
+
+      authTokens: {
+        create: {
+          tokenHash: hashedToken,
+          type: "EMAIL_VERIFICATION",
+          expiresAt,
+          ipAddress,
+          userAgent,
+        },
+      },
+    },
+
+    include: {
+      accounts: true,
     },
   });
 
@@ -64,56 +82,95 @@ export const registerUser = async (userData: RegisterUserDTO) => {
 export const userVerifyEmail = async (token: string) => {
   const hashedToken = crypto.createHash("sha256").update(token).digest("hex");
 
-  const user = await prisma.user.findFirst({
+  const authToken = await prisma.authToken.findFirst({
     where: {
-      verificationCode: hashedToken,
-      verificationCodeExpires: {
+      tokenHash: hashedToken,
+
+      type: "EMAIL_VERIFICATION",
+
+      usedAt: null,
+      revokedAt: null,
+
+      expiresAt: {
         gt: new Date(),
       },
     },
+
+    include: {
+      user: true,
+    },
   });
 
-  if (!user) {
-    // throw new AppError("Invalid verification token.", 400);
+  if (!authToken) {
     return false;
   }
 
-  await prisma.user.update({
-    where: {
-      id: user.id,
-    },
-    data: {
-      emailVerified: true,
-      verificationCode: null,
-      verificationCodeExpires: null,
-    },
-  });
+  await prisma.$transaction([
+    prisma.user.update({
+      where: {
+        id: authToken.user.id,
+      },
+      data: {
+        emailVerified: true,
+      },
+    }),
+
+    prisma.authToken.delete({
+      where: {
+        id: authToken.id,
+      },
+      // data: {
+      //   usedAt: new Date(),
+      // },
+    }),
+  ]);
 
   return true;
 };
 
 // --- Login Logic ---
 export const loginUser = async (credentials: LoginUserDTO) => {
-  const { email, password } = credentials;
+  const { email, password, ipAddress, userAgent } = credentials;
+  const normalizedEmail = email.toLowerCase().trim();
+
   const authError = new AppError("Invalid email or password.", 401);
 
-  const user = await prisma.user.findUnique({
-    where: { email: email.toLowerCase() },
+  // Find LOCAL account + user
+  const account = await prisma.account.findFirst({
+    where: {
+      provider: "LOCAL",
+      providerAccountId: normalizedEmail,
+    },
+    include: {
+      user: true,
+    },
   });
 
-  if (!user) throw authError;
+  if (!account || !account.user) {
+    throw authError;
+  }
+
+  const user = account.user;
 
   const now = new Date();
 
-  // If user is locked, throw error
+  // Check account status
+  if (user.status !== "ACTIVE") {
+    throw new AppError("Account is not active.", 403);
+  }
+
+  // Lockout check
   if (user.lockoutUntil && user.lockoutUntil > now) {
+    const msLeft = user.lockoutUntil.getTime() - now.getTime();
+    const minutesLeft = Math.ceil(msLeft / 1000 / 60);
+
     throw new AppError(
-      `Too many failed attempts. Account locked. Try again after ${user.lockoutUntil.toLocaleTimeString()}.`,
+      `Too many failed attempts. Try again in ${minutesLeft} minute(s).`,
       403,
     );
   }
 
-  // If lockout expired, reset user login attempts and lockout status
+  // Reset lockout if expired
   if (user.lockoutUntil && user.lockoutUntil <= now) {
     await prisma.user.update({
       where: { id: user.id },
@@ -126,30 +183,40 @@ export const loginUser = async (credentials: LoginUserDTO) => {
 
   // Email verification check
   if (!user.emailVerified) {
+    const token = await prisma.authToken.findFirst({
+      where: {
+        userId: user.id as unknown as string,
+        type: "EMAIL_VERIFICATION",
+        usedAt: null,
+        revokedAt: null,
+      },
+    });
+
     const verificationExpired =
-      !user.verificationCodeExpires ||
-      user.verificationCodeExpires < new Date();
+      !token || !token.expiresAt || token.expiresAt < new Date();
 
     if (verificationExpired) {
-      const token = crypto.randomBytes(32).toString("hex");
+      const newToken = crypto.randomBytes(32).toString("hex");
 
       const hashedToken = crypto
         .createHash("sha256")
-        .update(token)
+        .update(newToken)
         .digest("hex");
 
       const expires = new Date(Date.now() + 15 * 60 * 1000);
 
-      await prisma.user.update({
+      await prisma.authToken.update({
         where: {
-          id: user.id,
+          id: token?.id,
         },
         data: {
-          verificationCode: hashedToken,
-          verificationCodeExpires: expires,
+          tokenHash: hashedToken,
+          expiresAt: expires,
+          ipAddress,
+          userAgent,
         },
       });
-      const verificationLink = `${process.env.BACKEND_URL}/api/v1/auth/verify-email?token=${token}`;
+      const verificationLink = `${process.env.BACKEND_URL}/api/v1/auth/verify-email?token=${newToken}`;
 
       await sendEmail({
         to: user.email,
@@ -161,20 +228,29 @@ export const loginUser = async (credentials: LoginUserDTO) => {
       });
 
       throw new AppError(
-        "Verification expired. A new email has been sent.",
+        "A new verification email has been sent. Please check your inbox and verify your email before logging in.",
         403,
       );
     }
 
-    throw new AppError("Please verify your email. Check your inbox.", 403);
+    throw new AppError(
+      "Please check your inbox and verify your email before logging in.",
+      403,
+    );
   }
 
-  const isValid = await verifyPassword(password, user.password);
+  // Validate password
+  if (!account.passwordHash) {
+    throw authError;
+  }
+
+  const isValid = await verifyPassword(password, account.passwordHash);
 
   if (!isValid) {
     const maxAttempts = 5;
     const newAttempts = user.loginAttempts + 1;
     const attemptsLeft = maxAttempts - newAttempts;
+
     let lockoutUntil: Date | null = null;
 
     // Trigger 15-minute lockout on the 5th failed attempt
@@ -190,16 +266,15 @@ export const loginUser = async (credentials: LoginUserDTO) => {
       },
     });
 
-    // If user has reached the maximum number of attempts, locked out
     if (newAttempts >= maxAttempts) {
       throw new AppError(
-        "Too many failed attempts. Your account has been locked for 15 minutes.",
+        "Too many failed attempts. Account locked for 15 minutes.",
         403,
       );
     }
 
     throw new AppError(
-      `Invalid email or password. You have ${attemptsLeft} ${attemptsLeft === 1 ? "attempt" : "attempts"} left before your account is locked.`,
+      `Invalid email or password. ${attemptsLeft} attempt(s) left.`,
       401,
     );
   }
@@ -210,6 +285,7 @@ export const loginUser = async (credentials: LoginUserDTO) => {
     type: "access",
     expiresIn: "15m",
   });
+
   const refreshToken = await generateSignToken({
     id: user.id,
     type: "refresh",
@@ -223,8 +299,9 @@ export const loginUser = async (credentials: LoginUserDTO) => {
 
   const expiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
 
+  // Session + user update transaction
   const updatedUser = await prisma.$transaction(async (tx) => {
-    // Delete anything already expired
+    // Clean expired sessions
     await tx.refreshToken.deleteMany({
       where: {
         userId: user.id,
@@ -232,39 +309,48 @@ export const loginUser = async (credentials: LoginUserDTO) => {
       },
     });
 
-    // Delete expired sessions OR excess sessions in one go if possible
-    // To prevent a growing list, we fetch current count within the transaction
-    const activeSessions = await tx.refreshToken.findMany({
+    // Get active sessions
+    const sessions = await tx.refreshToken.findMany({
       where: { userId: user.id },
-      orderBy: { createdAt: "desc" }, // Newest first
+      orderBy: { createdAt: "desc" },
     });
 
-    // If at limit, remove the oldest (FIFO)
-    if (activeSessions.length >= 5) {
-      const oldestSessions = activeSessions.slice(4); // Keep top 4, delete rest
+    // Keep max 5 sessions
+    if (sessions.length >= 5) {
+      const toDelete = sessions.slice(4);
+
       await tx.refreshToken.deleteMany({
-        where: { id: { in: oldestSessions.map((s) => s.id) } },
+        where: {
+          id: { in: toDelete.map((s) => s.id) },
+        },
       });
     }
 
-    // Create the new session
+    // Create new session
     await tx.refreshToken.create({
       data: {
         token: hashedRefreshToken,
         userId: user.id,
-        expiresAt: expiresAt,
+        expiresAt,
       },
     });
 
+    // Update user login state
     return tx.user.update({
       where: { id: user.id },
-      data: { loginCount: { increment: 1 } },
+      data: {
+        loginCount: { increment: 1 },
+        loginAttempts: 0,
+        lockoutUntil: null,
+        lastLoginAt: new Date(),
+      },
       select: {
         id: true,
         email: true,
         firstName: true,
         lastName: true,
-        refreshTokens: true,
+        status: true,
+        emailVerified: true,
         loginCount: true,
       },
     });
@@ -315,4 +401,48 @@ export const userUpdate = async (
     updatedAt: updatedUser.updatedAt,
     createdAt: updatedUser.createdAt,
   };
+};
+
+export const userDeleteAccount = async ({
+  userId,
+  password,
+}: {
+  userId: string;
+  password: string;
+}) => {
+  const account = await prisma.account.findFirst({
+    where: {
+      userId,
+      provider: "LOCAL",
+    },
+    select: {
+      id: true,
+      passwordHash: true,
+    },
+  });
+
+  if (!account?.passwordHash) {
+    throw new AppError(
+      "Password verification unavailable for this account.",
+      400,
+    );
+  }
+
+  const valid = await verifyPassword(password, account.passwordHash);
+
+  if (!valid) {
+    throw new AppError("Incorrect password.", 401);
+  }
+
+  return prisma.$transaction(async (tx) => {
+    await tx.refreshToken.deleteMany({
+      where: { userId },
+    });
+
+    const deletedUser = await tx.user.delete({
+      where: { id: userId },
+    });
+
+    return deletedUser;
+  });
 };
