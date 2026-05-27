@@ -5,7 +5,7 @@ import {
   FieldValues,
   Path,
 } from "react-hook-form";
-import { JobFormField } from "./shared/JobFormField";
+import { JobFormField } from "@/components/shared/JobFormField";
 import {
   Dropdown,
   DropdownItem,
@@ -16,12 +16,11 @@ import {
   priorities,
   statuses,
 } from "@/constant/jobSelectList";
-import CustomDatePicker from "./shared/CustomDatePicker";
+import CustomDatePicker from "@/components/shared/CustomDatePicker";
 import { selectDocuments } from "@/store/selectors";
 import { useAppSelector } from "@/hooks/useRedux";
-import ProgressBar from "./shared/ProgressBar";
+import { LoadingSpinner, ProgressBar } from "@/components/shared/Loading";
 import { getTodayString } from "@career-sync/shared";
-import { LoadingSpinner } from "./shared/Loading";
 import useDocumentsHooks from "@/hooks/useDocuments";
 import { toast } from "sonner";
 

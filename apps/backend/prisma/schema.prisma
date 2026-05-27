@@ -14,9 +14,14 @@ model User {
   email                   String         @unique
   password                String
   socialAccount           Boolean        @default(false)
+  emailVerified           Boolean        @default(false)
+  loginCount              Int            @default(0)
+  loginAttempts           Int            @default(0)
+  lockoutUntil            DateTime?
   refreshTokens           RefreshToken[]
   verificationCode        String?
   verificationCodeExpires DateTime?
+  verificationCodeSentAt  DateTime?
   jobs                    Job[]
   documents               Document[]
 

@@ -51,7 +51,7 @@ const Kanban = () => {
 
       handleSaveJob(result.data);
 
-      toast.success("Job updated successfully.");
+      toast.success("Job updated successfully!");
     } catch (error) {
       console.error("Error updating job:", error);
 

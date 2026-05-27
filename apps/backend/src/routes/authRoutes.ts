@@ -16,6 +16,7 @@ import {
   userRegister,
   userLogin,
   userUpdate,
+  userVerifyEmail,
 } from "@/controllers/auth/authController.js";
 
 // -- Password Controllers --
@@ -41,6 +42,9 @@ router.post(
   validate(registerSchema),
   asyncHandler(userRegister),
 );
+
+router.get("/verify-email", authLimiter, asyncHandler(userVerifyEmail));
+
 router.post("/login", asyncHandler(userLogin));
 
 router.put(

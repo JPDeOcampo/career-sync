@@ -5,7 +5,7 @@ import useDocumentsHooks from "@/hooks/useDocuments";
 import { selectDocuments } from "@/store/selectors";
 import { useAppSelector, useAppDispatch } from "@/hooks/useRedux";
 import { ArrowUpDown, Trash2 } from "lucide-react";
-import { Skeleton } from "@/components/shared/Loading";
+import { Skeleton, ProgressBar } from "@/components/shared/Loading";
 import { motion } from "motion/react";
 import { Checkbox } from "@/components/shared/Checkbox";
 import { EmptyState } from "@/components/shared/Placeholder";
@@ -21,7 +21,6 @@ import {
   DropdownFilters,
   ActionFilters,
 } from "@/components/shared/Filters";
-import { ProgressBar } from "@/components/shared/Loading";
 import { useDebounce } from "@/hooks/useDebounce";
 import CustomTooltip from "@/components/shared/CustomTooltip";
 

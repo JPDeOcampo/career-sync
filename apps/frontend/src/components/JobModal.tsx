@@ -439,9 +439,9 @@ const JobModal = () => {
 
       handleSaveJob(result.data);
       if (selectedJob) {
-        toast.success("Job updated successfully.");
+        toast.success("Job updated successfully!");
       } else {
-        toast.success("Job added successfully.");
+        toast.success("Job added successfully!");
       }
     } catch (error) {
       console.error("Error adding job:", error);

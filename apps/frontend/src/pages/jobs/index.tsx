@@ -1,6 +1,6 @@
 import { useMemo } from "react";
 import { JobTagStatus, JobTagPriorityText } from "@/components/shared/JobTag";
-import { Search, Trash2, ArrowUpDown } from "lucide-react";
+import { Trash2, ArrowUpDown } from "lucide-react";
 import {
   formatDate,
   getTimeAgo,
@@ -22,10 +22,9 @@ import {
 import { useGetJobsQuery, useDeleteJobMutation } from "@/store/api/jobsApi";
 import Pagination from "@/components/shared/Pagination";
 import usePaginationHooks from "@/hooks/usePagination";
-import Skeleton from "@/components/shared/Skeleton";
+import { Skeleton } from "@/components/shared/Loading";
 import { EmptyState, ErrorState } from "@/components/shared/Placeholder";
 import useJobHooks from "@/hooks/useJob";
-import { Dropdown, DropdownItem } from "@/components/shared/CustomDropdown";
 import { useDebounce } from "@/hooks/useDebounce";
 import { resetPagination } from "@/store/slices/paginationSlice";
 import { useGlobalModal } from "@/context/GlobalModalContext";

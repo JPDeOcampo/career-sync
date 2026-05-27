@@ -44,18 +44,31 @@ const CustomTimePicker = ({
   const [minute, setMinute] = useState(parsed.minute);
   const [period, setPeriod] = useState(parsed.period);
 
+  const handleApply = () => {
+    const formatted = `${String(hour).padStart(2, "0")}:${String(minute).padStart(2, "0")} ${period}`;
+    onChange(formatted);
+    setOpen(false);
+  };
+
+  const getNowTime = () => {
+    const now = new Date();
+    const h = now.getHours();
+    const m = now.getMinutes();
+    const p = h >= 12 ? "PM" : "AM";
+    const hour12 = h % 12 || 12;
+
+    const formatted = `${String(hour12).padStart(2, "0")}:${String(m).padStart(2, "0")} ${p}`;
+
+    onChange(formatted);
+    return formatted;
+  };
+
   useEffect(() => {
     const parsed = parseTime(value);
     setHour(parsed.hour);
     setMinute(parsed.minute);
     setPeriod(parsed.period);
   }, [value]);
-
-  const handleApply = () => {
-    const formatted = `${String(hour).padStart(2, "0")}:${String(minute).padStart(2, "0")} ${period}`;
-    onChange(formatted);
-    setOpen(false);
-  };
 
   return (
     <div className="flex flex-col gap-1 w-full">
@@ -82,7 +95,7 @@ const CustomTimePicker = ({
               )}
             >
               <Clock className="mr-2 h-4 w-4" />
-              {value || "Pick a time"}
+              {value || (getNowTime() as unknown as string)}
             </button>
           </Popover.Trigger>
 
@@ -164,15 +177,7 @@ const CustomTimePicker = ({
               <button
                 type="button"
                 onClick={() => {
-                  const now = new Date();
-                  const h = now.getHours();
-                  const m = now.getMinutes();
-                  const p = h >= 12 ? "PM" : "AM";
-                  const hour12 = h % 12 || 12;
-
-                  const formatted = `${String(hour12).padStart(2, "0")}:${String(m).padStart(2, "0")} ${p}`;
-
-                  onChange(formatted);
+                  getNowTime();
                   setOpen(false);
                 }}
                 className="text-xs font-bold text-default hover:text-white/80"

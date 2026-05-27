@@ -10,6 +10,7 @@ export interface UserDTO {
   firstName?: string;
   lastName?: string;
   email?: string;
+  loginCount?: number;
 }
 
 export interface LoginUserDTO {
