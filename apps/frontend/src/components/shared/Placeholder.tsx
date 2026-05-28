@@ -36,8 +36,13 @@ export const EmptyState = ({
   return (
     <div className={containerClass}>
       {icon}
-      <p>{title}</p>
-      {description && <p className={descriptionClass}>{description}</p>}
+      <p dangerouslySetInnerHTML={{ __html: title }} />
+      {description && (
+        <p
+          className={descriptionClass}
+          dangerouslySetInnerHTML={{ __html: description }}
+        />
+      )}
       {children && <div className={childrenClass}>{children}</div>}
     </div>
   );

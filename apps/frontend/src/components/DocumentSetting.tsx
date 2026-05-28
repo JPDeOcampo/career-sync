@@ -377,7 +377,7 @@ const DocumentSetting = () => {
     if (getDocumentsQuery.search) {
       return `No document matches your search for "${getDocumentsQuery.search}".`;
     }
-    return "No documents found. Start by adding your first document!";
+    return "No documents found. <br/> Start by adding your first document!";
   };
 
   useEffect(() => {

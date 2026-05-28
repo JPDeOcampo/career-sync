@@ -7,7 +7,7 @@ const Modal = ({
   headerText,
   onClose,
   containerClassName = "max-w-5xl min-h-[75vh] max-h-[90vh]",
-  headerClassName,
+  headerClassName = "text-xl font-bold text-default",
   children,
 }: {
   headerText: string;
@@ -47,10 +47,9 @@ const Modal = ({
           <div
             className={cn(
               "px-6 py-4 border-b border-gray-100 dark:border-gray-700 flex items-center justify-between shadow-[0_-4px_6px_rgba(0,0,0,0.05),0_10px_20px_rgba(0,0,0,0.03)]",
-              headerClassName,
             )}
           >
-            <h2 className="text-xl font-bold text-default">{headerText}</h2>
+            <h2 className={cn(headerClassName)}>{headerText}</h2>
             <button
               onClick={onClose}
               className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-full transition-colors"
