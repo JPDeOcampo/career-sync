@@ -411,40 +411,44 @@ const DeleteAccount = () => {
       </div>
       {isShowConfirm && (
         <Modal
-          headerText={`Delete Account `}
+          headerText="Delete Account"
           headerClassName="text-md font-semibold text-default"
           containerClassName={cn(
-            "w-full",
+            "w-full flex flex-col",
             isShowForm ? "max-w-md h-[35vh]" : "max-w-2xl h-[40vh]",
           )}
           onClose={handleCloseModal}
         >
-          <div className="space-y-5 px-6 py-6 h-full">
+          <div className="flex-1 overflow-y-auto px-6 my-6">
             {!isShowForm && (
-              <div className="flex flex-col justify-between h-full gap-4">
-                <div className="flex flex-col justify-center items-center gap-4 h-full">
+              <div className="flex flex-col h-full justify-between gap-6">
+                <div className="flex flex-col items-center justify-center gap-4 flex-1">
                   <span className="text-center text-9xl">
                     <TriangleAlert className="h-16 w-16 text-red-400" />
                   </span>
+
                   <p className="text-center">
                     Are you sure you want to delete your account{" "}
                     <b>{user?.email}</b>?
                   </p>
                 </div>
+
                 <Button
                   type="button"
                   variant="destructive"
-                  className="w-full h-10"
+                  className="w-full h-10 shrink-0"
                   onClick={() => setIsShowForm(true)}
                 >
                   Yes, delete my account
                 </Button>
               </div>
             )}
+
             {isShowForm && (
               <FormProvider {...methods}>
-                <div className="flex flex-col gap-4 h-full">
-                  <p>Please enter your password to confirm.</p>
+                <div className="flex flex-col h-full">
+                  <p className="mb-4">Please enter your password to confirm.</p>
+
                   <form
                     onSubmit={handleSubmit(onSubmit)}
                     // onSubmit={handleSubmit(
@@ -455,47 +459,47 @@ const DeleteAccount = () => {
                     //     console.log("FORM ERRORS", errors);
                     //   },
                     // )}
-                    className="space-y-5 h-full"
+                    className="flex flex-col flex-1 justify-between gap-5"
                   >
-                    <div className="w-full h-full flex flex-col justify-between gap-4">
-                      <InputPassword
-                        {...register("password")}
-                        label="Password"
-                        showPassword={showPassword}
-                        setShowPassword={() => setShowPassword(!showPassword)}
-                        error={errors.password?.message}
-                        isRequired
-                      />
-                      <div className="flex gap-2">
-                        <Button
-                          type="button"
-                          className="w-full h-10"
-                          onClick={handleCloseModal}
-                          disabled={isDeleting || isSubmitting}
-                          variant="secondary"
-                        >
-                          Cancel
-                        </Button>
-                        <Button
-                          type="submit"
-                          variant="destructive"
-                          className="w-full h-10"
-                          disabled={isDeleting || isSubmitting}
-                        >
-                          Delete Account{" "}
-                          {isDeleting && (
-                            <motion.div
-                              animate={{ rotate: 360 }}
-                              transition={{
-                                duration: 1,
-                                repeat: Infinity,
-                                ease: "linear",
-                              }}
-                              className="w-4 h-4 border-2 border-white border-t-transparent rounded-full"
-                            />
-                          )}
-                        </Button>
-                      </div>
+                    <InputPassword
+                      {...register("password")}
+                      label="Password"
+                      showPassword={showPassword}
+                      setShowPassword={() => setShowPassword(!showPassword)}
+                      error={errors.password?.message}
+                      isRequired
+                    />
+
+                    <div className="flex gap-2 pt-2">
+                      <Button
+                        type="button"
+                        className="w-full h-10"
+                        onClick={handleCloseModal}
+                        disabled={isDeleting || isSubmitting}
+                        variant="secondary"
+                      >
+                        Cancel
+                      </Button>
+
+                      <Button
+                        type="submit"
+                        variant="destructive"
+                        className="w-full h-10"
+                        disabled={isDeleting || isSubmitting}
+                      >
+                        Delete Account
+                        {isDeleting && (
+                          <motion.div
+                            animate={{ rotate: 360 }}
+                            transition={{
+                              duration: 1,
+                              repeat: Infinity,
+                              ease: "linear",
+                            }}
+                            className="w-4 h-4 border-2 border-white border-t-transparent rounded-full"
+                          />
+                        )}
+                      </Button>
                     </div>
                   </form>
                 </div>
