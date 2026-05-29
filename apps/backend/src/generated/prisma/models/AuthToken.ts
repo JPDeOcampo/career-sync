@@ -220,7 +220,7 @@ export type AuthTokenWhereInput = {
   revokedAt?: Prisma.DateTimeNullableFilter<"AuthToken"> | Date | string | null
   ipAddress?: Prisma.StringNullableFilter<"AuthToken"> | string | null
   userAgent?: Prisma.StringNullableFilter<"AuthToken"> | string | null
-  userId?: Prisma.StringFilter<"AuthToken"> | string
+  userId?: Prisma.UuidFilter<"AuthToken"> | string
   createdAt?: Prisma.DateTimeFilter<"AuthToken"> | Date | string
   user?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
 }
@@ -251,7 +251,7 @@ export type AuthTokenWhereUniqueInput = Prisma.AtLeast<{
   revokedAt?: Prisma.DateTimeNullableFilter<"AuthToken"> | Date | string | null
   ipAddress?: Prisma.StringNullableFilter<"AuthToken"> | string | null
   userAgent?: Prisma.StringNullableFilter<"AuthToken"> | string | null
-  userId?: Prisma.StringFilter<"AuthToken"> | string
+  userId?: Prisma.UuidFilter<"AuthToken"> | string
   createdAt?: Prisma.DateTimeFilter<"AuthToken"> | Date | string
   user?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
 }, "id" | "tokenHash">
@@ -284,7 +284,7 @@ export type AuthTokenScalarWhereWithAggregatesInput = {
   revokedAt?: Prisma.DateTimeNullableWithAggregatesFilter<"AuthToken"> | Date | string | null
   ipAddress?: Prisma.StringNullableWithAggregatesFilter<"AuthToken"> | string | null
   userAgent?: Prisma.StringNullableWithAggregatesFilter<"AuthToken"> | string | null
-  userId?: Prisma.StringWithAggregatesFilter<"AuthToken"> | string
+  userId?: Prisma.UuidWithAggregatesFilter<"AuthToken"> | string
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"AuthToken"> | Date | string
 }
 
@@ -535,7 +535,7 @@ export type AuthTokenScalarWhereInput = {
   revokedAt?: Prisma.DateTimeNullableFilter<"AuthToken"> | Date | string | null
   ipAddress?: Prisma.StringNullableFilter<"AuthToken"> | string | null
   userAgent?: Prisma.StringNullableFilter<"AuthToken"> | string | null
-  userId?: Prisma.StringFilter<"AuthToken"> | string
+  userId?: Prisma.UuidFilter<"AuthToken"> | string
   createdAt?: Prisma.DateTimeFilter<"AuthToken"> | Date | string
 }
 

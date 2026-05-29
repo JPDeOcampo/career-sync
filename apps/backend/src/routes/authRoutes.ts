@@ -16,6 +16,7 @@ import { asyncHandler } from "@/utils/asyncHandler.js";
 import {
   userRegister,
   userLogin,
+  userOAuthLogin,
   userUpdate,
   userVerifyEmail,
   userDeleteAccount,
@@ -47,7 +48,9 @@ router.post(
 
 router.get("/verify-email", authLimiter, asyncHandler(userVerifyEmail));
 
-router.post("/login", asyncHandler(userLogin));
+router.post("/login", authLimiter, asyncHandler(userLogin));
+
+router.post("/oauth-login", authLimiter, asyncHandler(userOAuthLogin));
 
 router.put(
   "/update-user/:id",

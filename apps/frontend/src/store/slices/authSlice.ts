@@ -46,7 +46,7 @@ const authSlice = createSlice({
     setUserId: (state, action: PayloadAction<UserDTO>) => {
       state.user = {
         ...state.user,
-        userId: action.payload.userId,
+        id: action.payload.id,
         email: action.payload.email,
       };
     },

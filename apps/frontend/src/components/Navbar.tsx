@@ -23,6 +23,7 @@ const Navbar = () => {
   const router = useRouter();
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const { user, isAuthLoading } = useAppSelector(selectAuth);
+  console.log(user);
 
   const [singleLogout] = useLogoutMutation();
 

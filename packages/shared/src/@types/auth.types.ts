@@ -8,7 +8,7 @@ export interface RegisterUserDTO {
 }
 
 export interface UserDTO {
-  userId?: string;
+  id?: string;
   firstName?: string;
   lastName?: string;
   email?: string;

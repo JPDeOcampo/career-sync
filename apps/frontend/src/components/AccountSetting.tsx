@@ -96,7 +96,7 @@ const PersonalInformation = ({
 
     try {
       const response = (await updateUser({
-        id: user?.userId as string,
+        id: user?.id as string,
         firstName: firstName || "",
         lastName: lastName || "",
         email: email || "",
@@ -229,7 +229,7 @@ const UpdatePassword = ({
 
     try {
       await updatePassword({
-        id: user?.userId as string,
+        id: user?.id as string,
         currentPassword,
         newPassword,
         confirmPassword,
@@ -358,7 +358,7 @@ const DeleteAccount = () => {
 
     try {
       await deleteUser({
-        id: user?.userId as string,
+        id: user?.id as string,
         password,
       }).unwrap();
 

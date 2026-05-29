@@ -58,7 +58,8 @@ export const forgotPassword = async (req: Request, res: Response) => {
     email,
     expiresIn,
     expiresAt,
-    message: "Reset code is sent to your email.",
+    message:
+      "If an account exists, a reset OTP has been sent. Please check your email.",
   });
 };
 

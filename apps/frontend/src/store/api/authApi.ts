@@ -29,6 +29,20 @@ export const authApi = createApi({
       },
     }),
 
+    oAuthLogin: builder.mutation<
+      UserResponseType,
+      { idToken: string; provider: "GOOGLE" | "GITHUB" }
+    >({
+      query: (credentials) => ({
+        url: `${path}/oauth-login`,
+        method: "POST",
+        body: credentials,
+      }),
+      extraOptions: {
+        skipReauth: true,
+      },
+    }),
+
     // --- Update User ---
     updateUser: builder.mutation<
       {
@@ -116,7 +130,12 @@ export const authApi = createApi({
 
     // --- Forgot Password ---
     forgotPassword: builder.mutation<
-      { userId: UserDTO["userId"]; email: UserDTO["email"]; expiresIn: number },
+      {
+        userId: UserDTO["id"];
+        email: UserDTO["email"];
+        expiresIn: number;
+        message: string;
+      },
       { email: string }
     >({
       query: (credentials) => ({
@@ -130,7 +149,7 @@ export const authApi = createApi({
       async onQueryStarted(_, { dispatch, queryFulfilled }) {
         try {
           const { data } = await queryFulfilled;
-          dispatch(setUserId({ userId: data.userId, email: data.email }));
+          dispatch(setUserId({ id: data.userId, email: data.email }));
         } catch (err) {
           console.error("Forgot password failed", err);
           dispatch(logout());
@@ -140,7 +159,7 @@ export const authApi = createApi({
 
     // --- Refresh Reset Password ---
     refreshResetPassword: builder.mutation<
-      { userId: UserDTO["userId"]; email: UserDTO["email"]; expiresIn: number },
+      { userId: UserDTO["id"]; email: UserDTO["email"]; expiresIn: number },
       void
     >({
       query: () => ({
@@ -153,7 +172,7 @@ export const authApi = createApi({
       async onQueryStarted(_, { dispatch, queryFulfilled }) {
         try {
           const { data } = await queryFulfilled;
-          dispatch(setUserId({ userId: data.userId, email: data.email }));
+          dispatch(setUserId({ id: data.userId, email: data.email }));
         } catch (err) {
           console.error("Refresh reset password failed", err);
         }
@@ -163,7 +182,7 @@ export const authApi = createApi({
     // --- Verify Reset Password ---
     verifyResetPassword: builder.mutation<
       void,
-      { userId: UserDTO["userId"]; otp: string }
+      { userId: UserDTO["id"]; otp: string }
     >({
       query: ({ userId, otp }) => ({
         url: `${path}/reset/verify-reset-password/${userId}`,
@@ -177,8 +196,8 @@ export const authApi = createApi({
 
     // --- Resend Reset Password Code ---
     resendResetVerificationCode: builder.mutation<
-      { expiresIn: number },
-      { userId: UserDTO["userId"] }
+      { expiresIn: number; message: string },
+      { userId: UserDTO["id"] }
     >({
       query: ({ userId }) => ({
         url: `${path}/reset/resend-reset-password/${userId}`,
@@ -193,7 +212,7 @@ export const authApi = createApi({
     resetPassword: builder.mutation<
       void,
       {
-        userId: UserDTO["userId"];
+        userId: UserDTO["id"];
         newPassword: string;
         confirmPassword: string;
       }
@@ -228,6 +247,7 @@ export const authApi = createApi({
 
 export const {
   useLoginMutation,
+  useOAuthLoginMutation,
   useUpdateUserMutation,
   useRegisterMutation,
   useUpdatePasswordMutation,

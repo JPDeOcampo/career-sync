@@ -1,13 +1,24 @@
 import { useRouter } from "next/router";
-import { useRefreshResetPasswordMutation } from "../store/api/authApi";
-import { useAppSelector } from "./useRedux";
-import { selectAuth } from "../store/selectors";
+import {
+  useRefreshResetPasswordMutation,
+  useOAuthLoginMutation,
+} from "@/store/api/authApi";
+import { useAppSelector, useAppDispatch } from "@/hooks/useRedux";
+import { login } from "@/store/slices/authSlice";
+import { selectAuth } from "@/store/selectors";
 import { toast } from "sonner";
-import type { FetchBaseQueryError } from "@reduxjs/toolkit/query";
+import { GoogleAuthProvider, signInWithPopup } from "firebase/auth";
+import { auth } from "@/firebase/firebase";
+import { handleApiError } from "@/utils/handleApi";
 
 const useAuthHooks = () => {
   const router = useRouter();
+  const dispatch = useAppDispatch();
   const user = useAppSelector(selectAuth).user;
+  const googleProvider = new GoogleAuthProvider();
+
+  const [userOAuthLogin, { isLoading: isLoadingAuthLogin }] =
+    useOAuthLoginMutation();
 
   const [
     userRefreshResetPassword,
@@ -19,10 +30,32 @@ const useAuthHooks = () => {
       const response = await userRefreshResetPassword().unwrap();
       return response.expiresIn;
     } catch (error) {
-      const err = error as FetchBaseQueryError;
-      const errorData = err.data as { message?: string };
-      toast.error(errorData.message);
+      toast.error(handleApiError(error));
       router.push("/login");
+    }
+  };
+
+  const oAuthLogin = async (provider: "GOOGLE") => {
+    try {
+      const result = await signInWithPopup(auth, googleProvider);
+      const idToken = await result.user.getIdToken();
+
+      if (result) {
+        try {
+          const response = await userOAuthLogin({
+            idToken,
+            provider,
+          }).unwrap();
+          if (response) {
+            dispatch(login(response));
+            router.push("/dashboard");
+          }
+        } catch (error) {
+          toast.error(handleApiError(error));
+        }
+      }
+    } catch (error) {
+      console.error("Auth Login Error: Please try again later.", error);
     }
   };
 
@@ -30,6 +63,8 @@ const useAuthHooks = () => {
     user,
     refreshResetPassword,
     isLoadingRefreshResetPassword,
+    oAuthLogin,
+    isLoadingAuthLogin,
   };
 };
 

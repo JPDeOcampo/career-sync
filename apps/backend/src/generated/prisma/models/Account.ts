@@ -195,7 +195,7 @@ export type AccountWhereInput = {
   provider?: Prisma.EnumAuthProviderFilter<"Account"> | $Enums.AuthProvider
   providerAccountId?: Prisma.StringFilter<"Account"> | string
   passwordHash?: Prisma.StringNullableFilter<"Account"> | string | null
-  userId?: Prisma.StringFilter<"Account"> | string
+  userId?: Prisma.UuidFilter<"Account"> | string
   createdAt?: Prisma.DateTimeFilter<"Account"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Account"> | Date | string
   user?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
@@ -222,7 +222,7 @@ export type AccountWhereUniqueInput = Prisma.AtLeast<{
   provider?: Prisma.EnumAuthProviderFilter<"Account"> | $Enums.AuthProvider
   providerAccountId?: Prisma.StringFilter<"Account"> | string
   passwordHash?: Prisma.StringNullableFilter<"Account"> | string | null
-  userId?: Prisma.StringFilter<"Account"> | string
+  userId?: Prisma.UuidFilter<"Account"> | string
   createdAt?: Prisma.DateTimeFilter<"Account"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Account"> | Date | string
   user?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
@@ -249,7 +249,7 @@ export type AccountScalarWhereWithAggregatesInput = {
   provider?: Prisma.EnumAuthProviderWithAggregatesFilter<"Account"> | $Enums.AuthProvider
   providerAccountId?: Prisma.StringWithAggregatesFilter<"Account"> | string
   passwordHash?: Prisma.StringNullableWithAggregatesFilter<"Account"> | string | null
-  userId?: Prisma.StringWithAggregatesFilter<"Account"> | string
+  userId?: Prisma.UuidWithAggregatesFilter<"Account"> | string
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"Account"> | Date | string
   updatedAt?: Prisma.DateTimeWithAggregatesFilter<"Account"> | Date | string
 }
@@ -419,10 +419,6 @@ export type EnumAuthProviderFieldUpdateOperationsInput = {
   set?: $Enums.AuthProvider
 }
 
-export type NullableStringFieldUpdateOperationsInput = {
-  set?: string | null
-}
-
 export type AccountCreateWithoutUserInput = {
   id?: string
   provider: $Enums.AuthProvider
@@ -475,7 +471,7 @@ export type AccountScalarWhereInput = {
   provider?: Prisma.EnumAuthProviderFilter<"Account"> | $Enums.AuthProvider
   providerAccountId?: Prisma.StringFilter<"Account"> | string
   passwordHash?: Prisma.StringNullableFilter<"Account"> | string | null
-  userId?: Prisma.StringFilter<"Account"> | string
+  userId?: Prisma.UuidFilter<"Account"> | string
   createdAt?: Prisma.DateTimeFilter<"Account"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Account"> | Date | string
 }

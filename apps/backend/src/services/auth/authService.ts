@@ -10,6 +10,8 @@ import crypto from "crypto";
 import { prisma } from "@/lib/prisma.js";
 import { sendEmail } from "@/utils/mailer/sendEmail.js";
 import { verifyEmailTemplate } from "@/utils/mailer/templates/verifyEmail.js";
+import { randomColorHex } from "@/utils/colors";
+import { firebaseAdmin } from "@/config/firebase.js";
 
 // --- Registration Logic ---
 export const registerUser = async (userData: RegisterUserDTO) => {
@@ -46,6 +48,17 @@ export const registerUser = async (userData: RegisterUserDTO) => {
           providerAccountId: normalizedEmail,
           passwordHash: hashedPassword,
         },
+      },
+
+      profile: {
+        create: {
+          profileType: "COLOR",
+          profileValue: randomColorHex(),
+        },
+      },
+
+      settings: {
+        create: {},
       },
 
       authTokens: {
@@ -349,15 +362,204 @@ export const loginUser = async (credentials: LoginUserDTO) => {
         email: true,
         firstName: true,
         lastName: true,
-        status: true,
-        emailVerified: true,
         loginCount: true,
+
+        profile: {
+          select: {
+            profileType: true,
+            profileValue: true,
+            coverType: true,
+            coverValue: true,
+          },
+        },
+
+        settings: {
+          select: {
+            darkMode: true,
+          },
+        },
+
+        accounts: {
+          select: {
+            provider: true,
+            providerAccountId: true,
+          },
+        },
       },
     });
   });
 
   return {
     user: updatedUser,
+    accessToken,
+    refreshToken,
+  };
+};
+
+export const userOAuthLogin = async ({
+  idToken,
+  provider,
+}: {
+  idToken: string;
+  provider: "GOOGLE" | "GITHUB";
+}) => {
+  const decoded = await firebaseAdmin.auth().verifyIdToken(idToken);
+
+  const { uid, email, name, picture, email_verified } = decoded;
+
+  if (!email) {
+    throw new AppError("OAuth account email not found.", 400);
+  }
+
+  const normalizedEmail = email.toLowerCase().trim();
+
+  let user = await prisma.user.findUnique({
+    where: { email: normalizedEmail },
+    select: {
+      id: true,
+      email: true,
+      firstName: true,
+      lastName: true,
+      loginCount: true,
+
+      accounts: {
+        select: {
+          provider: true,
+          providerAccountId: true,
+        },
+      },
+
+      profile: {
+        select: {
+          profileType: true,
+          profileValue: true,
+          coverType: true,
+          coverValue: true,
+        },
+      },
+
+      settings: {
+        select: {
+          darkMode: true,
+        },
+      },
+    },
+  });
+
+  if (!user) {
+    const nameParts = (name ?? "").split(" ");
+    const firstName = nameParts[0] || "User";
+    const lastName = nameParts.slice(1).join(" ") || "";
+
+    user = await prisma.user.create({
+      data: {
+        firstName,
+        lastName,
+        email: normalizedEmail,
+        emailVerified: email_verified ?? true,
+
+        accounts: {
+          create: {
+            provider,
+            providerAccountId: uid,
+          },
+        },
+
+        profile: {
+          create: {
+            profileType: picture ? "IMAGE" : "COLOR",
+            profileValue: picture || randomColorHex(),
+          },
+        },
+
+        settings: {
+          create: {},
+        },
+      },
+
+      select: {
+        id: true,
+        email: true,
+        firstName: true,
+        lastName: true,
+        loginCount: true,
+        accounts: {
+          select: {
+            provider: true,
+            providerAccountId: true,
+          },
+        },
+        profile: {
+          select: {
+            profileType: true,
+            profileValue: true,
+            coverType: true,
+            coverValue: true,
+          },
+        },
+        settings: {
+          select: {
+            darkMode: true,
+          },
+        },
+      },
+    });
+  } else {
+    // User already exists, linked account
+    const existingAccount = await prisma.account.findFirst({
+      where: {
+        userId: user.id,
+        provider,
+      },
+    });
+
+    if (!existingAccount) {
+      await prisma.account.create({
+        data: {
+          userId: user.id,
+          provider,
+          providerAccountId: uid,
+        },
+      });
+    }
+
+    if (email_verified) {
+      await prisma.user.update({
+        where: { id: user.id },
+        data: { emailVerified: true },
+      });
+    }
+  }
+
+  const accessToken = await generateSignToken({
+    id: user.id,
+    type: "access",
+    expiresIn: "15m",
+  });
+
+  const refreshToken = await generateSignToken({
+    id: user.id,
+    type: "refresh",
+    expiresIn: "7d",
+  });
+
+  const hashedRefreshToken = crypto
+    .createHash("sha256")
+    .update(refreshToken)
+    .digest("hex");
+
+  const expiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
+
+  await prisma.refreshToken.create({
+    data: {
+      token: hashedRefreshToken,
+      userId: user.id,
+      expiresAt,
+    },
+  });
+
+  return {
+    user,
     accessToken,
     refreshToken,
   };
@@ -406,9 +608,11 @@ export const userUpdate = async (
 export const userDeleteAccount = async ({
   userId,
   password,
+  idToken,
 }: {
   userId: string;
-  password: string;
+  password?: string;
+  idToken?: string;
 }) => {
   const account = await prisma.account.findFirst({
     where: {
@@ -421,17 +625,54 @@ export const userDeleteAccount = async ({
     },
   });
 
-  if (!account?.passwordHash) {
-    throw new AppError(
-      "Password verification unavailable for this account.",
-      400,
+  //LOCAL ACCOUNT FLOW
+  if (account?.passwordHash) {
+    if (!password) {
+      throw new AppError("Password is required.", 400);
+    }
+
+    const valid = await verifyPassword(password, account.passwordHash);
+
+    if (!valid) {
+      throw new AppError("Incorrect password.", 401);
+    }
+  } else {
+    // OAUTH
+    if (!idToken) {
+      throw new AppError("Reauthentication required.", 401);
+    }
+
+    const decoded = await firebaseAdmin.auth().verifyIdToken(idToken);
+
+    const user = await prisma.user.findUnique({
+      where: { id: userId },
+      select: {
+        email: true,
+        accounts: {
+          select: {
+            providerAccountId: true,
+          },
+        },
+      },
+    });
+
+    const hasMatchingAccount = user?.accounts.some(
+      (account) => account.providerAccountId === decoded.uid,
     );
-  }
 
-  const valid = await verifyPassword(password, account.passwordHash);
+    if (!user || !hasMatchingAccount) {
+      throw new AppError("Unauthorized.", 401);
+    }
 
-  if (!valid) {
-    throw new AppError("Incorrect password.", 401);
+    // Require recent login (5 mins)
+    const authTime = decoded.auth_time * 1000;
+    const now = Date.now();
+
+    const FIVE_MINUTES = 5 * 60 * 1000;
+
+    if (now - authTime > FIVE_MINUTES) {
+      throw new AppError("Recent login required.", 401);
+    }
   }
 
   return prisma.$transaction(async (tx) => {

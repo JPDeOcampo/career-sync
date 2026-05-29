@@ -12,7 +12,7 @@ export const refreshToken = async (token: string) => {
   try {
     decoded = jwt.verify(token, process.env.JWT_REFRESH_SECRET!) as JwtPayload;
   } catch {
-    throw new AppError("Invalid or expired refresh token", 401);
+    throw new AppError("Invalid or session expired.", 401);
   }
 
   const hashedIncomingToken = crypto
@@ -22,7 +22,12 @@ export const refreshToken = async (token: string) => {
 
   const user = await prisma.user.findUnique({
     where: { id: decoded.id },
-    include: { refreshTokens: true },
+    include: {
+      refreshTokens: true,
+      accounts: true,
+      profile: true,
+      settings: true,
+    },
   });
 
   const tokenExists = user?.refreshTokens.find(

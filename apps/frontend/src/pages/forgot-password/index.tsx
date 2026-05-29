@@ -10,7 +10,7 @@ import { emailSchema } from "@career-sync/shared";
 import { useForm, FormProvider } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
-import type { FetchBaseQueryError } from "@reduxjs/toolkit/query";
+import { handleApiResponse, handleApiError } from "@/utils/handleApi";
 import { useAppDispatch } from "@/hooks/useRedux";
 import { setSessionExpiry } from "@/store/slices/authSlice";
 import { LoadingSpinner } from "@/components/shared/Loading";
@@ -38,13 +38,12 @@ const ForgotPassword = () => {
 
     try {
       const response = await userForgotPassword({ email }).unwrap();
-      dispatch(setSessionExpiry(response.expiresIn));
-      toast.success("Verification code sent to your email!");
-      router.push(`/verify-code`);
+      handleApiResponse(response, (data) => {
+        dispatch(setSessionExpiry(data.expiresIn));
+        router.push(`/verify-code`);
+      });
     } catch (error) {
-      const err = error as FetchBaseQueryError;
-      const errorData = err.data as { message?: string };
-      toast.error(errorData.message);
+      toast.error(handleApiError(error));
     }
   };
 

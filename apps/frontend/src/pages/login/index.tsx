@@ -15,6 +15,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { loginSchema } from "@career-sync/shared";
 import { LoadingSpinner } from "@/components/shared/Loading";
 import { getVerifiedStatus } from "@/utils/cookies";
+import useAuthHooks from "@/hooks/useAuth";
 
 type LoginFormData = z.infer<typeof loginSchema>;
 
@@ -23,6 +24,7 @@ const Login = () => {
   const router = useRouter();
   const [showPassword, setShowPassword] = useState(false);
   const [userLogin, { isLoading }] = useLoginMutation();
+  const { oAuthLogin } = useAuthHooks();
 
   const methods = useForm<LoginFormData>({
     resolver: zodResolver(loginSchema),
@@ -124,6 +126,13 @@ const Login = () => {
         </p>
       </div>
 
+      <div>
+        <button onClick={() => oAuthLogin("GOOGLE")}>
+          <span className="text-gray-600 dark:text-gray-400">
+            Sign in with Google
+          </span>
+        </button>
+      </div>
       <div className="mt-8 pt-6 border-t border-gray-200 dark:border-gray-700">
         <p className="text-xs text-center text-gray-500 dark:text-gray-500">
           &copy; {new Date().getFullYear()} CareerSync. All rights reserved.
