@@ -5,9 +5,9 @@ import {
   getDocumentController,
   deleteDocumentController,
   getCleanedURLDocument,
-} from "@/controllers/document/documentController";
-import { protect } from "@/middleware/authenticate";
-import { authLimiter } from "@/middleware/rateLimiters";
+} from "@/controllers/document/document.controller";
+import { protect } from "@/middleware/authenticate.middleware";
+import { authLimiter } from "@/middleware/rate-limiters.middleware";
 
 const router = express.Router();
 const upload = multer({ storage: multer.memoryStorage() });

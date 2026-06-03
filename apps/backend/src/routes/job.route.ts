@@ -5,11 +5,11 @@ import {
   createJobController,
   updateJobController,
   deleteJobController,
-} from "@/controllers/job/jobController";
+} from "@/controllers/job/job.controller";
 import { jobSchema } from "@career-sync/shared";
-import { protect } from "@/middleware/authenticate";
-import { authLimiter } from "@/middleware/rateLimiters";
-import { validate } from "@/middleware/validate";
+import { protect } from "@/middleware/authenticate.middleware";
+import { authLimiter } from "@/middleware/rate-limiters.middleware";
+import { validate } from "@/middleware/validate.middleware";
 import { asyncHandler } from "@/utils/asyncHandler";
 
 const router: Router = express.Router();

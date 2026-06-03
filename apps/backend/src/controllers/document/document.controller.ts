@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import * as documentService from "@/services/document/documentServices";
+import * as documentService from "@/services/document/document.service";
 
 export const uploadDocumentController = async (req: Request, res: Response) => {
   const userId = req.user?.id as string;

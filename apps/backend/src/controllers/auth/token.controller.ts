@@ -1,7 +1,7 @@
 import type { Request, Response } from "express";
 import { serialize } from "cookie";
-import * as tokenService from "@/services/auth/tokenService.js";
-import { getCookieConfig } from "@/config/cookieConfig.js";
+import * as tokenService from "@/services/auth/token.service.js";
+import { getCookieConfig } from "@/config/cookie.config.js";
 
 export const refreshToken = async (req: Request, res: Response) => {
   const { user, newAccessToken, newRefreshToken } =
@@ -18,6 +18,7 @@ export const refreshToken = async (req: Request, res: Response) => {
       firstName: user.firstName,
       lastName: user.lastName,
       email: user.email,
+      loginCount: user.loginCount,
       profile: {
         profileType: user.profile?.profileType,
         profileValue: user.profile?.profileValue,

@@ -1,7 +1,7 @@
 import { createApi } from "@reduxjs/toolkit/query/react";
 import { baseQueryWithReauth } from "./baseQueryWithReauth";
 import { setUser, setUserId, logout } from "../slices/authSlice";
-import { UserDTO } from "@career-sync/shared";
+import { UserDTO, OAuthProviderDTO } from "@career-sync/shared";
 
 const path = "/auth";
 
@@ -9,7 +9,6 @@ interface UserResponseType {
   user: UserDTO;
   accessToken: string;
 }
-
 export const authApi = createApi({
   reducerPath: "authApi",
   baseQuery: baseQueryWithReauth,
@@ -31,7 +30,7 @@ export const authApi = createApi({
 
     oAuthLogin: builder.mutation<
       UserResponseType,
-      { idToken: string; provider: "GOOGLE" | "GITHUB" }
+      { idToken: string; provider: OAuthProviderDTO }
     >({
       query: (credentials) => ({
         url: `${path}/oauth-login`,
@@ -76,12 +75,34 @@ export const authApi = createApi({
     }),
 
     // --- Delete User ---
-    deleteUser: builder.mutation<void, { id: string; password: string }>({
-      query: ({ id, password }) => ({
-        url: `${path}/delete-user/${id}`,
-        method: "DELETE",
-        body: { password },
-      }),
+    deleteLocalAccount: builder.mutation<
+      { message: string },
+      { id: string; password: string }
+    >({
+      query: ({ id, password }) => {
+        return {
+          url: `${path}/delete-user/${id}`,
+          method: "POST",
+          body: { password },
+        };
+      },
+      extraOptions: {
+        skipReauth: true,
+      },
+    }),
+
+    deleteAccountOAuth: builder.mutation<
+      { message: string },
+      { id: string; idToken: string }
+    >({
+      query: ({ id, idToken }) => {
+        console.log("idToken", id, idToken);
+        return {
+          url: `${path}/delete-user-oauth/${id}`,
+          method: "POST",
+          body: { idToken },
+        };
+      },
       extraOptions: {
         skipReauth: true,
       },
@@ -251,7 +272,8 @@ export const {
   useUpdateUserMutation,
   useRegisterMutation,
   useUpdatePasswordMutation,
-  useDeleteUserMutation,
+  useDeleteLocalAccountMutation,
+  useDeleteAccountOAuthMutation,
   useForgotPasswordMutation,
   useVerifyResetPasswordMutation,
   useResendResetVerificationCodeMutation,

@@ -1,10 +1,10 @@
 import express, { type Express } from "express";
 import cors from "cors";
-import authRoutes from "@/routes/authRoutes.js";
-import jobRoutes from "@/routes/jobRoutes.js";
+import authRoutes from "@/routes/auth.route.js";
+import jobRoutes from "@/routes/job.route.js";
 import cookieParser from "cookie-parser";
-import { errorHandler } from "@/middleware/errorHandler.js";
-import documentRoutes from "./routes/documentRoutes.js";
+import { errorHandler } from "@/middleware/error-handler.middleware.js";
+import documentRoutes from "./routes/document.route.js";
 
 const app: Express = express();
 

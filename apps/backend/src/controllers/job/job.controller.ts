@@ -1,5 +1,5 @@
 import type { Request, Response } from "express";
-import * as jobService from "@/services/job/jobService.js";
+import * as jobService from "@/services/job/job.service.js";
 
 // --- Add Job ---
 export const createJobController = async (req: Request, res: Response) => {

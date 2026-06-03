@@ -1,7 +1,7 @@
 import express, { type Router } from "express";
-import { authLimiter } from "@/middleware/rateLimiters.js";
-import { protect } from "@/middleware/authenticate.js";
-import { validate } from "@/middleware/validate.js";
+import { authLimiter } from "@/middleware/rate-limiters.middleware.js";
+import { protect } from "@/middleware/authenticate.middleware.js";
+import { validate } from "@/middleware/validate.middleware.js";
 import {
   registerSchema,
   emailSchema,
@@ -19,8 +19,9 @@ import {
   userOAuthLogin,
   userUpdate,
   userVerifyEmail,
-  userDeleteAccount,
-} from "@/controllers/auth/authController.js";
+  userLocalDeleteAccount,
+  userOAuthDeleteAccount,
+} from "@/controllers/auth/auth.controller.js";
 
 // -- Password Controllers --
 import {
@@ -30,11 +31,11 @@ import {
   resendResetPassword,
   refreshResetPassword,
   resetPassword,
-} from "@/controllers/auth/passwordController.js";
+} from "@/controllers/auth/password.controller.js";
 
-import { userSingleLogout } from "@/controllers/auth/logoutController.js";
+import { userSingleLogout } from "@/controllers/auth/logout.controller.js";
 
-import { refreshToken } from "@/controllers/auth/tokenController.js";
+import { refreshToken } from "@/controllers/auth/token.controller.js";
 
 const router: Router = express.Router();
 
@@ -60,12 +61,19 @@ router.put(
   asyncHandler(userUpdate),
 );
 
-router.delete(
+router.post(
   "/delete-user/:id",
   authLimiter,
   protect,
   validate(passwordSchema),
-  asyncHandler(userDeleteAccount),
+  asyncHandler(userLocalDeleteAccount),
+);
+
+router.post(
+  "/delete-user-oauth/:id",
+  authLimiter,
+  protect,
+  asyncHandler(userOAuthDeleteAccount),
 );
 
 router.post("/refresh-token", authLimiter, asyncHandler(refreshToken));

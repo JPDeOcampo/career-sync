@@ -5,6 +5,25 @@ import crypto from "crypto";
 import { generateSignToken } from "@/utils/generateSignToken.js";
 import { AppError } from "@/utils/errors/appError.js";
 
+export const generateAuthTokens = async (userId: string) => {
+  const accessToken = await generateSignToken({
+    id: userId,
+    type: "access",
+    expiresIn: "15m",
+  });
+
+  const refreshToken = await generateSignToken({
+    id: userId,
+    type: "refresh",
+    expiresIn: "7d",
+  });
+
+  return {
+    accessToken,
+    refreshToken,
+  };
+};
+
 export const refreshToken = async (token: string) => {
   if (!token) throw new AppError("No refresh token", 401);
 

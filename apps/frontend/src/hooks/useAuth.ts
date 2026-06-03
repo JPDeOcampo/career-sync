@@ -7,15 +7,19 @@ import { useAppSelector, useAppDispatch } from "@/hooks/useRedux";
 import { login } from "@/store/slices/authSlice";
 import { selectAuth } from "@/store/selectors";
 import { toast } from "sonner";
-import { GoogleAuthProvider, signInWithPopup } from "firebase/auth";
+import {
+  GoogleAuthProvider,
+  signInWithPopup,
+  AuthProvider,
+} from "firebase/auth";
 import { auth } from "@/firebase/firebase";
 import { handleApiError } from "@/utils/handleApi";
+import { OAuthProviderDTO, UserDTO } from "@career-sync/shared";
 
 const useAuthHooks = () => {
   const router = useRouter();
   const dispatch = useAppDispatch();
   const user = useAppSelector(selectAuth).user;
-  const googleProvider = new GoogleAuthProvider();
 
   const [userOAuthLogin, { isLoading: isLoadingAuthLogin }] =
     useOAuthLoginMutation();
@@ -24,6 +28,11 @@ const useAuthHooks = () => {
     userRefreshResetPassword,
     { isLoading: isLoadingRefreshResetPassword },
   ] = useRefreshResetPasswordMutation();
+
+  const welcomeMessage = (user: UserDTO) => {
+    const welcome = (user.loginCount || 0) > 1 ? "Welcome back" : "Welcome";
+    toast.success(`${welcome}, ${user.firstName}!`);
+  };
 
   const refreshResetPassword = async () => {
     try {
@@ -35,34 +44,54 @@ const useAuthHooks = () => {
     }
   };
 
-  const oAuthLogin = async (provider: "GOOGLE") => {
+  const oAuth = async (provider: OAuthProviderDTO) => {
     try {
-      const result = await signInWithPopup(auth, googleProvider);
-      const idToken = await result.user.getIdToken();
+      let authProvider: AuthProvider;
 
-      if (result) {
-        try {
-          const response = await userOAuthLogin({
-            idToken,
-            provider,
-          }).unwrap();
-          if (response) {
-            dispatch(login(response));
-            router.push("/dashboard");
-          }
-        } catch (error) {
-          toast.error(handleApiError(error));
-        }
+      switch (provider) {
+        case "GOOGLE":
+          authProvider = new GoogleAuthProvider();
+          break;
+        default:
+          throw new Error("Unsupported provider.");
       }
+
+      const result = await signInWithPopup(auth, authProvider);
+      return await result.user.getIdToken();
     } catch (error) {
       console.error("Auth Login Error: Please try again later.", error);
+      toast.error("Authentication failed. Please try again later.");
+      return null;
+    }
+  };
+
+  const oAuthLogin = async (provider: OAuthProviderDTO) => {
+    const authData = await oAuth(provider);
+
+    if (!authData) return;
+
+    const idToken = authData;
+
+    try {
+      const response = await userOAuthLogin({
+        idToken,
+        provider,
+      }).unwrap();
+
+      dispatch(login(response));
+      router.push("/dashboard");
+      welcomeMessage(response.user);
+    } catch (error) {
+      toast.error(handleApiError(error));
     }
   };
 
   return {
     user,
+    welcomeMessage,
     refreshResetPassword,
     isLoadingRefreshResetPassword,
+    oAuth,
     oAuthLogin,
     isLoadingAuthLogin,
   };
