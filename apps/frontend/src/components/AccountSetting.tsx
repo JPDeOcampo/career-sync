@@ -14,6 +14,7 @@ import {
   passwordSchema,
   UserDTO,
   UpdatePasswordDTO,
+  OAuthProviderDTO,
 } from "@career-sync/shared";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -22,7 +23,8 @@ import { SquarePen, Trash2, TriangleAlert } from "lucide-react";
 import {
   useUpdateUserMutation,
   useUpdatePasswordMutation,
-  useDeleteUserMutation,
+  useDeleteLocalAccountMutation,
+  useDeleteAccountOAuthMutation,
 } from "@/store/api/authApi";
 import useAuthHooks from "@/hooks/useAuth";
 import { useAppDispatch } from "@/hooks/useRedux";
@@ -32,6 +34,8 @@ import type { FetchBaseQueryError } from "@reduxjs/toolkit/query";
 import { useRouter } from "next/router";
 import Modal from "./shared/Modal";
 import { cn } from "@/utils/cn";
+import OAuthButton from "@/components/shared/OAuthButton";
+import { handleApiResponse, handleApiError } from "@/utils/handleApi";
 
 type UserUpdateFormData = z.infer<typeof userUpdateSchema>;
 type UpdatePasswordFormData = z.infer<typeof updatePasswordSchema>;
@@ -96,7 +100,7 @@ const PersonalInformation = ({
 
     try {
       const response = (await updateUser({
-        id: user?.userId as string,
+        id: user?.id as string,
         firstName: firstName || "",
         lastName: lastName || "",
         email: email || "",
@@ -229,7 +233,7 @@ const UpdatePassword = ({
 
     try {
       await updatePassword({
-        id: user?.userId as string,
+        id: user?.id as string,
         currentPassword,
         newPassword,
         confirmPassword,
@@ -338,8 +342,15 @@ const DeleteAccount = () => {
   const [isShowForm, setIsShowForm] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
 
-  const { user } = useAuthHooks();
-  const [deleteUser, { isLoading: isDeleting }] = useDeleteUserMutation();
+  const { user, oAuth } = useAuthHooks();
+  const hasLocalAccount = user?.accounts?.some(
+    (acc) => acc.provider === "LOCAL",
+  );
+  const [deleteLocalAccount, { isLoading: isDeletingLocal }] =
+    useDeleteLocalAccountMutation();
+
+  const [deleteAccountOAuth, { isLoading: isDeletingOAuth }] =
+    useDeleteAccountOAuthMutation();
 
   const methods = useForm<DeleteAccountFormData>({
     resolver: zodResolver(passwordSchema),
@@ -352,23 +363,77 @@ const DeleteAccount = () => {
     formState: { errors, isSubmitting },
   } = methods;
 
-  const onSubmit = async (data: { password: string }) => {
+  const handleDeleteAccount =
+    ({
+      password,
+      provider,
+    }: {
+      password?: string;
+      provider?: OAuthProviderDTO;
+    }) =>
+    async () => {
+      if (isDeletingLocal || isDeletingOAuth) return;
+
+      if (!user?.id) {
+        toast.error("User not found");
+        return;
+      }
+
+      let response: string | { message: string } = "";
+
+      try {
+        if (password) {
+          response = await deleteLocalAccount({
+            id: user.id,
+            password,
+          }).unwrap();
+        } else {
+          if (!provider) {
+            toast.error("OAuth provider is required");
+            return;
+          }
+
+          const token = await oAuth(provider);
+
+          if (!token) {
+            toast.error("Missing OAuth token");
+            return;
+          }
+
+          response = await deleteAccountOAuth({
+            id: user.id,
+            idToken: token,
+          }).unwrap();
+        }
+
+        handleApiResponse(response, () => {
+          setTimeout(() => {
+            let seconds = 3;
+            const toastId = toast(`Redirecting to login in ${seconds}...`);
+
+            const interval = setInterval(() => {
+              seconds -= 1;
+
+              if (seconds > 0) {
+                toast.loading(`Redirecting to login in ${seconds}...`, {
+                  id: toastId,
+                });
+              } else {
+                clearInterval(interval);
+                toast.dismiss(toastId);
+                router.push("/login");
+              }
+            }, 1000);
+          }, 1200);
+        });
+      } catch (error) {
+        toast.error(handleApiError(error));
+      }
+    };
+
+  const onSubmit = (data: { password: string }) => {
     const { password } = data;
-    if (isDeleting) return;
-
-    try {
-      await deleteUser({
-        id: user?.userId as string,
-        password,
-      }).unwrap();
-
-      router.push("/login");
-      toast.success("Account deleted successfully!");
-    } catch (error) {
-      const err = error as FetchBaseQueryError;
-      const errorData = err.data as { message?: string };
-      toast.error(errorData.message);
-    }
+    handleDeleteAccount({ password })();
   };
 
   const handleCloseModal = () => {
@@ -414,8 +479,8 @@ const DeleteAccount = () => {
           headerText="Delete Account"
           headerClassName="text-md font-semibold text-default"
           containerClassName={cn(
-            "w-full flex flex-col",
-            isShowForm ? "max-w-md h-[35vh]" : "max-w-2xl h-[40vh]",
+            "w-full flex flex-col h-auto",
+            isShowForm ? "max-w-md max-h-[35vh]" : "max-w-2xl max-h-[40vh]",
           )}
           onClose={handleCloseModal}
         >
@@ -445,65 +510,102 @@ const DeleteAccount = () => {
             )}
 
             {isShowForm && (
-              <FormProvider {...methods}>
-                <div className="flex flex-col h-full">
-                  <p className="mb-4">Please enter your password to confirm.</p>
+              <>
+                {user?.accounts?.length && user?.accounts?.length > 1 && (
+                  <p className="mb-4 text-sm text-foreground">
+                    This account is linked with <b>{user?.accounts?.length}</b>{" "}
+                    provider(s). Once you delete your account, all linked
+                    accounts will also be deleted.
+                  </p>
+                )}
 
-                  <form
-                    onSubmit={handleSubmit(onSubmit)}
-                    // onSubmit={handleSubmit(
-                    //   (data) => {
-                    //     console.log("VALID SUBMIT", data);
-                    //   },
-                    //   (errors) => {
-                    //     console.log("FORM ERRORS", errors);
-                    //   },
-                    // )}
-                    className="flex flex-col flex-1 justify-between gap-5"
-                  >
-                    <InputPassword
-                      {...register("password")}
-                      label="Password"
-                      showPassword={showPassword}
-                      setShowPassword={() => setShowPassword(!showPassword)}
-                      error={errors.password?.message}
-                      isRequired
+                {!hasLocalAccount && (
+                  <div>
+                    <p className="mb-4 text-sm text-foreground">
+                      You don&apos;t have a local account linked to this
+                      account. Please sign in to confirm and to proceed with
+                      deleting your account. Action cannot be undone.
+                    </p>
+                    <OAuthButton
+                      oauthType="Google"
+                      buttonText="Confirm with"
+                      onClick={() => {
+                        handleDeleteAccount({
+                          password: undefined,
+                          provider: "GOOGLE",
+                        })();
+                      }}
+                      isLoading={isDeletingLocal || isDeletingOAuth}
                     />
+                  </div>
+                )}
 
-                    <div className="flex gap-2 pt-2">
-                      <Button
-                        type="button"
-                        className="w-full h-10"
-                        onClick={handleCloseModal}
-                        disabled={isDeleting || isSubmitting}
-                        variant="secondary"
-                      >
-                        Cancel
-                      </Button>
+                {hasLocalAccount && (
+                  <FormProvider {...methods}>
+                    <div className="flex flex-col h-full">
+                      <p className="mb-4 text-sm text-foreground">
+                        You have a local account linked to this account. Please
+                        confirm your password to proceed with deleting your
+                        account. Action cannot be undone.
+                      </p>
 
-                      <Button
-                        type="submit"
-                        variant="destructive"
-                        className="w-full h-10"
-                        disabled={isDeleting || isSubmitting}
+                      <form
+                        onSubmit={handleSubmit(onSubmit)}
+                        // onSubmit={handleSubmit(
+                        //   (data) => {
+                        //     console.log("VALID SUBMIT", data);
+                        //   },
+                        //   (errors) => {
+                        //     console.log("FORM ERRORS", errors);
+                        //   },
+                        // )}
+                        className="flex flex-col flex-1 justify-between gap-5"
                       >
-                        Delete Account
-                        {isDeleting && (
-                          <motion.div
-                            animate={{ rotate: 360 }}
-                            transition={{
-                              duration: 1,
-                              repeat: Infinity,
-                              ease: "linear",
-                            }}
-                            className="w-4 h-4 border-2 border-white border-t-transparent rounded-full"
-                          />
-                        )}
-                      </Button>
+                        <InputPassword
+                          {...register("password")}
+                          label="Password"
+                          showPassword={showPassword}
+                          setShowPassword={() => setShowPassword(!showPassword)}
+                          error={errors.password?.message}
+                          isRequired
+                        />
+
+                        <div className="flex gap-2 pt-2">
+                          <Button
+                            type="button"
+                            className="w-full h-10"
+                            onClick={handleCloseModal}
+                            disabled={isDeletingLocal || isSubmitting}
+                            variant="secondary"
+                          >
+                            Cancel
+                          </Button>
+
+                          <Button
+                            type="submit"
+                            variant="destructive"
+                            className="w-full h-10"
+                            disabled={isDeletingLocal || isSubmitting}
+                          >
+                            Delete Account
+                            {isDeletingLocal && (
+                              <motion.div
+                                animate={{ rotate: 360 }}
+                                transition={{
+                                  duration: 1,
+                                  repeat: Infinity,
+                                  ease: "linear",
+                                }}
+                                className="w-4 h-4 border-2 border-white border-t-transparent rounded-full"
+                              />
+                            )}
+                          </Button>
+                        </div>
+                      </form>
                     </div>
-                  </form>
-                </div>
-              </FormProvider>
+                  </FormProvider>
+                )}
+              </>
             )}
           </div>
         </Modal>

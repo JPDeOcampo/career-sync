@@ -269,7 +269,7 @@ const JobModal = () => {
     mode: "onChange",
     reValidateMode: "onChange",
     defaultValues: {
-      userId: user?.userId as string,
+      userId: user?.id as string,
     },
   });
 

@@ -15,7 +15,7 @@ import { generate6DigitCode } from "@/utils/globalUtils.js";
 import { generateSignToken } from "@/utils/generateSignToken.js";
 import { verifyJwt } from "@/lib/verifyJwt.js";
 import { getRemainingTime } from "@/utils/session.js";
-import crypto from "crypto";
+import crypto, { randomUUID } from "crypto";
 
 // --- Send Reset Password OTP Logic ---
 const sendResetPasswordOTP = async ({
@@ -84,7 +84,7 @@ const sendResetPasswordOTP = async ({
 
 const checkSignToken = (token?: string) => {
   if (!token) {
-    throw new AppError("Token is missing or expired.", 400);
+    throw new AppError("Invalid or expired session.", 400);
   }
   let payload: RefreshResetPasswordDTO;
   try {
@@ -160,10 +160,11 @@ export const forgotPassword = async (data: {
 
   // Create fake/mock tokens and expiry dates ahead of time.
   // This ensures that even if the user doesn't exist, the response structure match.
-  const mockExpiresIn = 3600;
+  const mockExpiresIn = 2 * 60;
   const mockExpiresAt = Date.now() + mockExpiresIn * 1000;
+  const mockUUID = randomUUID();
   const mockSignToken = await generateSignToken({
-    id: normalizedEmail,
+    id: mockUUID,
     type: "access",
     purpose: "password-reset",
     expiresIn: mockExpiresIn,
@@ -174,8 +175,8 @@ export const forgotPassword = async (data: {
     signTokenExpiresAt: mockExpiresAt,
     expiresIn: mockExpiresIn,
     expiresAt: mockExpiresAt,
-    userId: null,
-    email: null,
+    userId: mockUUID,
+    email: maskEmail(normalizedEmail),
   };
 
   // Find user
@@ -337,9 +338,10 @@ export const refreshResetPassword = async ({
   expiresAt: number;
 }) => {
   const token = checkSignToken(signToken);
+  const expiresIn = getRemainingTime(expiresAt);
 
   if (!token.id) {
-    throw new AppError("User ID is required", 400);
+    throw new AppError("Invalid or expired session.", 400);
   }
 
   const user = await prisma.user.findUnique({
@@ -351,10 +353,7 @@ export const refreshResetPassword = async ({
   });
 
   if (!user) {
-    return {
-      valid: false,
-      message: "User not found",
-    };
+    throw new AppError("Invalid or expired session.", 401);
   }
 
   // Check if there is still a valid reset token
@@ -374,8 +373,6 @@ export const refreshResetPassword = async ({
   //   throw new AppError("Session expired.", 400);
   // }
 
-  const expiresIn = getRemainingTime(expiresAt);
-
   return {
     userId: user.id,
     expiresIn,
@@ -393,7 +390,7 @@ export const resendResetPassword = async ({
   checkSignToken(signToken);
 
   if (!userId) {
-    throw new AppError("User ID is required", 400);
+    throw new AppError("Invalid or expired session.", 400);
   }
 
   const user = await prisma.user.findUnique({
@@ -401,7 +398,7 @@ export const resendResetPassword = async ({
   });
 
   if (!user) {
-    throw new AppError("User not found", 404);
+    throw new AppError("Invalid or expired session.", 404);
   }
 
   // Invalidate previous reset tokens

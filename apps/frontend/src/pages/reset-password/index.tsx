@@ -11,7 +11,7 @@ import { resetPasswordSchema } from "@career-sync/shared";
 import { useForm, FormProvider } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
-import type { FetchBaseQueryError } from "@reduxjs/toolkit/query";
+import { handleApiError } from "@/utils/handleApi";
 import { LoadingSpinner } from "@/components/shared/Loading";
 
 type ResetPasswordFormData = z.infer<typeof resetPasswordSchema>;
@@ -40,21 +40,19 @@ const ResetPassword = () => {
 
     try {
       await userResetPassword({
-        userId: user?.userId as string,
+        userId: user?.id as string,
         newPassword: newPassword,
         confirmPassword: confirmPassword,
       }).unwrap();
       toast.success("Password reset successfully!");
       router.push("/");
     } catch (error) {
-      const err = error as FetchBaseQueryError;
-      const errorData = err.data as { message?: string };
-      toast.error(errorData.message);
+      toast.error(handleApiError(error));
     }
   };
 
   useEffect(() => {
-    if (user?.userId) return;
+    if (user?.id) return;
     refreshResetPassword();
   }, []);
 

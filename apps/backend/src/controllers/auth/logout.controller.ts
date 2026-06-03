@@ -1,7 +1,7 @@
 import type { Request, Response } from "express";
 import { serialize } from "cookie";
-import * as logoutService from "@/services/auth/logoutService.js";
-import { clearCookieConfig } from "@/config/cookieConfig.js";
+import * as logoutService from "@/services/auth/logout.service.js";
+import { clearCookieConfig } from "@/config/cookie.config.js";
 
 // --- Single Logout Controller ---
 export const userSingleLogout = async (req: Request, res: Response) => {

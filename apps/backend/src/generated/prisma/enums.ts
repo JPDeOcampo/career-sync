@@ -28,6 +28,14 @@ export const UserStatus = {
 export type UserStatus = (typeof UserStatus)[keyof typeof UserStatus]
 
 
+export const AppearanceType = {
+  COLOR: 'COLOR',
+  IMAGE: 'IMAGE'
+} as const
+
+export type AppearanceType = (typeof AppearanceType)[keyof typeof AppearanceType]
+
+
 export const AuthTokenType = {
   PASSWORD_RESET: 'PASSWORD_RESET',
   EMAIL_VERIFICATION: 'EMAIL_VERIFICATION'

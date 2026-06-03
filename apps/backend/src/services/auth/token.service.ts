@@ -5,6 +5,25 @@ import crypto from "crypto";
 import { generateSignToken } from "@/utils/generateSignToken.js";
 import { AppError } from "@/utils/errors/appError.js";
 
+export const generateAuthTokens = async (userId: string) => {
+  const accessToken = await generateSignToken({
+    id: userId,
+    type: "access",
+    expiresIn: "15m",
+  });
+
+  const refreshToken = await generateSignToken({
+    id: userId,
+    type: "refresh",
+    expiresIn: "7d",
+  });
+
+  return {
+    accessToken,
+    refreshToken,
+  };
+};
+
 export const refreshToken = async (token: string) => {
   if (!token) throw new AppError("No refresh token", 401);
 
@@ -12,7 +31,7 @@ export const refreshToken = async (token: string) => {
   try {
     decoded = jwt.verify(token, process.env.JWT_REFRESH_SECRET!) as JwtPayload;
   } catch {
-    throw new AppError("Invalid or expired refresh token", 401);
+    throw new AppError("Invalid or session expired.", 401);
   }
 
   const hashedIncomingToken = crypto
@@ -22,7 +41,12 @@ export const refreshToken = async (token: string) => {
 
   const user = await prisma.user.findUnique({
     where: { id: decoded.id },
-    include: { refreshTokens: true },
+    include: {
+      refreshTokens: true,
+      accounts: true,
+      profile: true,
+      settings: true,
+    },
   });
 
   const tokenExists = user?.refreshTokens.find(

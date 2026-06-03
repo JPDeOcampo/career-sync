@@ -16,7 +16,7 @@ import {
   useResendResetVerificationCodeMutation,
 } from "@/store/api/authApi";
 import useAuthHooks from "@/hooks/useAuth";
-import type { FetchBaseQueryError } from "@reduxjs/toolkit/query";
+import { handleApiResponse, handleApiError } from "@/utils/handleApi";
 import { selectAuth } from "@/store/selectors";
 import { useAppDispatch, useAppSelector } from "@/hooks/useRedux";
 import { setSessionExpiry } from "@/store/slices/authSlice";
@@ -55,16 +55,14 @@ const VerifyCode = () => {
 
     try {
       await userVerifyResetPassword({
-        userId: user?.userId as string,
+        userId: user?.id as string,
         otp,
       }).unwrap();
       toast.success("Verification successful!");
       router.replace("/reset-password");
       dispatch(resetPassword());
     } catch (error) {
-      const err = error as FetchBaseQueryError;
-      const errorData = err.data as { message?: string };
-      toast.error(errorData.message);
+      toast.error(handleApiError(error));
     }
   };
 
@@ -74,21 +72,21 @@ const VerifyCode = () => {
     if (sessionExpiry > 0) return;
     try {
       const response = await userResendResetVerificationCode({
-        userId: user?.userId as string,
+        userId: user?.id as string,
       }).unwrap();
-      toast.success("New verification code sent!");
-      dispatch(setSessionExpiry(response.expiresIn));
-      setCode("");
+      handleApiResponse(response, (data) => {
+        dispatch(setSessionExpiry(data.expiresIn));
+        setCode("");
+      });
     } catch (error) {
-      const err = error as FetchBaseQueryError;
-      const errorData = err.data as { message?: string };
-      toast.error(errorData.message);
+      toast.error(handleApiError(error));
+      router.push("/login");
     }
   };
 
   useEffect(() => {
     const load = async () => {
-      if (user?.userId) return;
+      if (user?.id) return;
 
       const expiresIn = await refreshResetPassword();
 

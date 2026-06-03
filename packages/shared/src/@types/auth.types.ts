@@ -1,3 +1,5 @@
+export type OAuthProviderDTO = "LOCAL" | "GOOGLE" | "GITHUB";
+
 export interface RegisterUserDTO {
   firstName: string;
   lastName: string;
@@ -8,11 +10,32 @@ export interface RegisterUserDTO {
 }
 
 export interface UserDTO {
-  userId?: string;
+  id?: string;
   firstName?: string;
   lastName?: string;
   email?: string;
   loginCount?: number;
+  accounts?: {
+    provider: string;
+    providerAccountId: string;
+  }[];
+  profile?: {
+    coverType: string;
+    coverValue: string;
+    profileType: string;
+    profileValue: string;
+  };
+  settings?: { darkMode: boolean };
+}
+
+export interface UserUpdateDTO {
+  firstName?: string;
+  lastName?: string;
+  email?: string;
+}
+
+export interface UserUpdateSettingsDTO {
+  darkMode: boolean;
 }
 
 export interface LoginUserDTO {

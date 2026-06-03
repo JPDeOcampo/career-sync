@@ -15,6 +15,8 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { loginSchema } from "@career-sync/shared";
 import { LoadingSpinner } from "@/components/shared/Loading";
 import { getVerifiedStatus } from "@/utils/cookies";
+import useAuthHooks from "@/hooks/useAuth";
+import OAuthButton from "@/components/shared/OAuthButton";
 
 type LoginFormData = z.infer<typeof loginSchema>;
 
@@ -23,6 +25,7 @@ const Login = () => {
   const router = useRouter();
   const [showPassword, setShowPassword] = useState(false);
   const [userLogin, { isLoading }] = useLoginMutation();
+  const { welcomeMessage, oAuthLogin, isLoadingAuthLogin } = useAuthHooks();
 
   const methods = useForm<LoginFormData>({
     resolver: zodResolver(loginSchema),
@@ -44,9 +47,7 @@ const Login = () => {
       const response = await userLogin({ email, password }).unwrap();
       dispatch(login(response));
       router.push("/dashboard");
-      const welcome =
-        (response.user.loginCount || 0) > 1 ? "Welcome back" : "Welcome";
-      toast.success(`${welcome}, ${response.user.firstName}!`);
+      welcomeMessage(response.user);
     } catch (error) {
       const err = error as FetchBaseQueryError;
       const errorData = err.data as { message?: string };
@@ -124,8 +125,25 @@ const Login = () => {
         </p>
       </div>
 
-      <div className="mt-8 pt-6 border-t border-gray-200 dark:border-gray-700">
-        <p className="text-xs text-center text-gray-500 dark:text-gray-500">
+      <div className="pt-6">
+        <div className="flex items-center">
+          <div className="flex-1 border-t border-gray-200 dark:border-gray-700"></div>
+          <span className="px-4 text-xs text-gray-500 dark:text-gray-500">
+            OR
+          </span>
+          <div className="flex-1 border-t border-gray-200 dark:border-gray-700"></div>
+        </div>
+
+        <div className="mt-6">
+          <OAuthButton
+            oauthType="Google"
+            onClick={() => oAuthLogin("GOOGLE")}
+            buttonText="Sign in with"
+            isLoading={isLoadingAuthLogin}
+          />
+        </div>
+
+        <p className="mt-6 text-xs text-center text-gray-500 dark:text-gray-500">
           &copy; {new Date().getFullYear()} CareerSync. All rights reserved.
         </p>
       </div>

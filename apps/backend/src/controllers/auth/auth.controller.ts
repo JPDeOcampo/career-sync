@@ -1,8 +1,8 @@
 import type { Request, Response } from "express";
-import * as authService from "@/services/auth/authService.js";
+import * as authService from "@/services/auth/auth.service.js";
 import { serialize } from "cookie";
-import { getCookieConfig } from "@/config/cookieConfig";
-import { clearCookieConfig } from "@/config/cookieConfig";
+import { getCookieConfig } from "@/config/cookie.config";
+import { clearCookieConfig } from "@/config/cookie.config";
 
 // --- User Registration ---
 export const userRegister = async (req: Request, res: Response) => {
@@ -39,13 +39,29 @@ export const userLogin = async (req: Request, res: Response) => {
 
   return res.status(200).json({
     accessToken,
-    user: {
-      userId: user?.id,
-      firstName: user?.firstName,
-      lastName: user?.lastName,
-      email: user?.email,
-      loginCount: user?.loginCount,
-    },
+    user,
+  });
+};
+
+export const userOAuthLogin = async (req: Request, res: Response) => {
+  const result = await authService.userOAuthLogin({
+    ...req.body,
+  });
+
+  if (!result) {
+    return res.status(401).json({ message: "Authentication failed" });
+  }
+
+  const { user, accessToken, refreshToken } = result;
+
+  res.setHeader("Set-Cookie", [
+    serialize("refreshToken", refreshToken, getCookieConfig({})),
+    serialize("is_logged_in", "true", getCookieConfig({ httpOnly: false })),
+  ]);
+
+  return res.status(200).json({
+    accessToken,
+    user,
   });
 };
 
@@ -87,14 +103,37 @@ export const userVerifyEmail = async (
   return res.redirect(`${process.env.ORIGIN}/login`);
 };
 
-export const userDeleteAccount = async (
+export const userLocalDeleteAccount = async (
   req: Request,
   res: Response,
 ): Promise<Response> => {
   const { id } = req.params;
   const { password } = req.body;
 
-  await authService.userDeleteAccount({ userId: id as string, password });
+  await authService.userDeleteAccount({
+    userId: id as string,
+    password,
+  });
+
+  res.setHeader("Set-Cookie", [
+    serialize("refreshToken", "", clearCookieConfig({})),
+    serialize("is_logged_in", "", clearCookieConfig({})),
+  ]);
+
+  return res.status(200).json({ message: "Account deleted successfully!" });
+};
+
+export const userOAuthDeleteAccount = async (
+  req: Request,
+  res: Response,
+): Promise<Response> => {
+  const { id } = req.params;
+  const { idToken } = req.body;
+
+  await authService.userDeleteAccount({
+    userId: id as string,
+    idToken,
+  });
 
   res.setHeader("Set-Cookie", [
     serialize("refreshToken", "", clearCookieConfig({})),

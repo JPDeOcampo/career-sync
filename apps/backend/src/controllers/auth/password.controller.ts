@@ -1,7 +1,7 @@
 import type { Request, Response } from "express";
 import { serialize } from "cookie";
-import * as passwordService from "@/services/auth/passwordService.js";
-import { clearCookieConfig, getCookieConfig } from "@/config/cookieConfig.js";
+import * as passwordService from "@/services/auth/password.service.js";
+import { clearCookieConfig, getCookieConfig } from "@/config/cookie.config.js";
 
 // --- User Update Password ---
 export const updatePassword = async (
@@ -58,7 +58,8 @@ export const forgotPassword = async (req: Request, res: Response) => {
     email,
     expiresIn,
     expiresAt,
-    message: "Reset code is sent to your email.",
+    message:
+      "If an account exists, a reset OTP has been sent. Please check your email.",
   });
 };
 
