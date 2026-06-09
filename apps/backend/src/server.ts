@@ -1,10 +1,12 @@
 import express, { type Express } from "express";
 import cors from "cors";
 import authRoutes from "@/routes/auth.route.js";
+import userRoutes from "@/routes/user.route.js";
 import jobRoutes from "@/routes/job.route.js";
+import documentRoutes from "./routes/document.route.js";
 import cookieParser from "cookie-parser";
 import { errorHandler } from "@/middleware/error-handler.middleware.js";
-import documentRoutes from "./routes/document.route.js";
+import { clientInfoMiddleware } from "@/middleware/clientInfo.middleware.js";
 
 const app: Express = express();
 
@@ -18,9 +20,11 @@ app.use(
 
 app.use(cookieParser());
 app.use(express.json());
+app.use(clientInfoMiddleware);
 
 // Routes
 app.use("/api/v1/auth", authRoutes);
+app.use("/api/v1/user", userRoutes);
 app.use("/api/v1/jobs", jobRoutes);
 app.use("/api/v1/document", documentRoutes);
 

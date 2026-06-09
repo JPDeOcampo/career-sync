@@ -1,8 +1,9 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
-import { UserDTO } from "@career-sync/shared";
+import { UserDTO, EmailChangeRequestDTO } from "@career-sync/shared";
 
 interface AuthState {
   user: UserDTO | null;
+  newEmail?: string | null;
   isAuthenticated?: boolean;
   resetEmail?: string | null;
   accessToken: string | null;
@@ -50,6 +51,35 @@ const authSlice = createSlice({
         email: action.payload.email,
       };
     },
+    updateSettings: (state, action: PayloadAction<UserDTO>) => {
+      state.user = {
+        ...state.user,
+        settings: action.payload.settings,
+      };
+    },
+    addEmailChangeRequest: (
+      state,
+      action: PayloadAction<EmailChangeRequestDTO>,
+    ) => {
+      if (!state.user) {
+        return;
+      }
+      state.user = {
+        ...state.user,
+        emailChangeRequests: [
+          ...(state.user.emailChangeRequests ?? []),
+          action.payload,
+        ],
+      };
+    },
+    clearEmailChangeRequests: (
+      state,
+      action: PayloadAction<EmailChangeRequestDTO[]>,
+    ) => {
+      if (!state.user) return;
+
+      state.user.emailChangeRequests = action.payload;
+    },
     setResetEmail: (state, action: PayloadAction<string>) => {
       state.resetEmail = action.payload;
     },
@@ -67,6 +97,9 @@ export const {
   logout,
   setUser,
   setUserId,
+  updateSettings,
+  addEmailChangeRequest,
+  clearEmailChangeRequests,
   setResetEmail,
   setSessionExpiry,
   resetPassword,

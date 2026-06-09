@@ -2,7 +2,7 @@ import type { JwtPayload } from "jsonwebtoken";
 import { prisma } from "@/lib/prisma.js";
 import jwt from "jsonwebtoken";
 import crypto from "crypto";
-import { generateSignToken } from "@/utils/generateSignToken.js";
+import { generateSignToken } from "@/utils/token.js";
 import { AppError } from "@/utils/errors/appError.js";
 
 export const generateAuthTokens = async (userId: string) => {
@@ -44,6 +44,7 @@ export const refreshToken = async (token: string) => {
     include: {
       refreshTokens: true,
       accounts: true,
+      emailChangeRequests: true,
       profile: true,
       settings: true,
     },
@@ -53,7 +54,7 @@ export const refreshToken = async (token: string) => {
     (t) => t.token === hashedIncomingToken,
   );
 
-  // If the JWT is valid but NOT in our database, someone else used it already.
+  // If the JWT is valid but NOT in database, someone else used it already.
   if (!user || !tokenExists) {
     if (user) {
       // Clear all sessions for this user (compromised account)

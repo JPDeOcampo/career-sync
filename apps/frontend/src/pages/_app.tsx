@@ -1,3 +1,5 @@
+/* eslint-disable react-hooks/exhaustive-deps */
+import { useEffect } from "react";
 import { useRouter } from "next/router";
 import type { AppProps } from "next/app";
 import { Poppins } from "next/font/google";
@@ -16,6 +18,13 @@ import DocumentModal from "@/components/shared/DocumentModal";
 import { useAppSelector, useAppDispatch } from "@/hooks/useRedux";
 import { setSelectedViewDocument } from "@/store/slices/documentSlice";
 import { selectDocuments } from "@/store/selectors";
+import { getVerifiedStatus } from "@/utils/cookies";
+import {
+  VERIFICATION_EMAIL_REGISTER,
+  VERIFICATION_EMAIL_CHANGE,
+} from "@/constant/verifyStatus";
+import { handleStatusToast } from "@/utils/toast";
+import { initTheme } from "@/store/initTheme";
 
 const poppins = Poppins({
   subsets: ["latin"],
@@ -33,6 +42,29 @@ const AppContent = ({ Component, pageProps }: AppProps) => {
   const { selectedViewDocument } = useAppSelector(selectDocuments);
 
   const { isJobModalShow } = useJobHooks();
+
+  useEffect(() => {
+    if (router.pathname !== "/login") return;
+    if (typeof window !== "undefined") {
+      initTheme(store);
+    }
+  }, [router.pathname]);
+
+  useEffect(() => {
+    const hasVerified = getVerifiedStatus();
+    const isLoginPage = router.pathname === "login";
+    const verificationMessage = isLoginPage
+      ? VERIFICATION_EMAIL_REGISTER
+      : VERIFICATION_EMAIL_CHANGE;
+
+    const timer = setTimeout(() => {
+      handleStatusToast(hasVerified, verificationMessage, {
+        clearCookie: "is_verified",
+      });
+    }, 100);
+
+    return () => clearTimeout(timer);
+  }, []);
 
   return (
     <div

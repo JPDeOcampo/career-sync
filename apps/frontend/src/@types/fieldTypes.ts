@@ -8,4 +8,8 @@ export type BaseFormFieldProps = {
   isRequired?: boolean;
   subtext?: string;
   isViewOnly?: boolean;
+  showIcon?: {
+    isVisible: boolean;
+    status: "VERIFIED" | "UNVERIFIED";
+  };
 } & UseFormRegisterReturn;

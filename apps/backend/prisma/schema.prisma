@@ -20,6 +20,12 @@ enum UserStatus {
   DELETED
 }
 
+enum EmailStatus {
+  UNVERIFIED
+  VERIFIED
+  BLOCKED
+}
+
 enum AppearanceType {
   COLOR
   IMAGE
@@ -41,9 +47,10 @@ model User {
   lastName  String
   email     String @unique
 
-  accounts      Account[]
-  status        UserStatus @default(ACTIVE)
-  emailVerified Boolean    @default(false)
+  accounts            Account[]
+  status              UserStatus           @default(ACTIVE)
+  emailStatus         EmailStatus          @default(UNVERIFIED)
+  emailChangeRequests EmailChangeRequest[]
 
   loginCount    Int @default(0)
   loginAttempts Int @default(0)
@@ -64,6 +71,24 @@ model User {
   updatedAt DateTime @updatedAt
 
   @@index([status])
+}
+
+model EmailChangeRequest {
+  id String @id @default(uuid())
+
+  newEmail String @unique
+
+  userId String @db.Uuid
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  ipAddress String?
+  userAgent String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([userId])
+  @@index([newEmail])
 }
 
 model UserProfile {
@@ -132,6 +157,7 @@ model AuthToken {
   user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   @@index([userId])
   @@index([expiresAt])

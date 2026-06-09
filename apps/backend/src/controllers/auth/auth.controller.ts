@@ -1,17 +1,13 @@
 import type { Request, Response } from "express";
 import * as authService from "@/services/auth/auth.service.js";
 import { serialize } from "cookie";
-import { getCookieConfig } from "@/config/cookie.config";
-import { clearCookieConfig } from "@/config/cookie.config";
+import { getCookieConfig, clearCookieConfig } from "@/config/cookie.config";
 
 // --- User Registration ---
-export const userRegister = async (req: Request, res: Response) => {
-  const ipAddress =
-    (req.headers["x-forwarded-for"] as string)?.split(",")[0] ||
-    req.socket.remoteAddress;
-  const userAgent = req.headers["user-agent"];
+export const register = async (req: Request, res: Response) => {
+  const { ipAddress, userAgent } = req;
 
-  await authService.registerUser({ ...req.body, ipAddress, userAgent });
+  await authService.register({ ...req.body, ipAddress, userAgent });
 
   return res.status(201).json({
     message:
@@ -19,14 +15,60 @@ export const userRegister = async (req: Request, res: Response) => {
   });
 };
 
-// --- User Login ---
-export const userLogin = async (req: Request, res: Response) => {
-  const ipAddress =
-    (req.headers["x-forwarded-for"] as string)?.split(",")[0] ||
-    req.socket.remoteAddress;
-  const userAgent = req.headers["user-agent"];
+export const resendVerificationEmail = async (
+  req: Request,
+  res: Response,
+): Promise<Response> => {
+  const { id: userId } = req.params;
+  const { email, ipAddress, userAgent } = req.body;
 
-  const { user, accessToken, refreshToken } = await authService.loginUser({
+  const result = await authService.resendVerificationEmail(
+    userId as string,
+    email,
+    ipAddress,
+    userAgent,
+  );
+
+  res.setHeader("Set-Cookie", [
+    serialize(
+      "resend_verification_expires_at",
+      result || "",
+      getCookieConfig({ httpOnly: false, maxAge: 15 * 60 }),
+    ),
+  ]);
+
+  return res.status(200).json({
+    message:
+      "New verification email sent successfully! Please check your inbox.",
+  });
+};
+
+export const verifyEmail = async (
+  req: Request,
+  res: Response,
+): Promise<void> => {
+  const token = req.query.token as string;
+
+  const isVerified = await authService.verifyEmail(token);
+
+  res.setHeader("Set-Cookie", [
+    serialize(
+      "is_verified",
+      isVerified.toString(),
+      getCookieConfig({ httpOnly: false, maxAge: 4 }),
+    ),
+    serialize("is_logged_in", "", clearCookieConfig({})),
+    serialize("refreshToken", "", clearCookieConfig({})),
+    serialize("resend_verification_expires_at", "", clearCookieConfig({})),
+  ]);
+
+  return res.redirect(`${process.env.ORIGIN}/login`);
+};
+
+// --- User Login ---
+export const login = async (req: Request, res: Response) => {
+  const { ipAddress, userAgent } = req;
+  const { user, accessToken, refreshToken } = await authService.login({
     ...req.body,
     ipAddress,
     userAgent,
@@ -43,8 +85,8 @@ export const userLogin = async (req: Request, res: Response) => {
   });
 };
 
-export const userOAuthLogin = async (req: Request, res: Response) => {
-  const result = await authService.userOAuthLogin({
+export const oauthLogin = async (req: Request, res: Response) => {
+  const result = await authService.oauthLogin({
     ...req.body,
   });
 
@@ -65,52 +107,59 @@ export const userOAuthLogin = async (req: Request, res: Response) => {
   });
 };
 
-export const userUpdate = async (
+export const updateEmail = async (
   req: Request,
   res: Response,
 ): Promise<Response> => {
   const { id } = req.params;
-  const { firstName, lastName, email } = req.body;
+  const { email } = req.body;
 
-  const updatedUser = await authService.userUpdate(id, {
-    firstName,
-    lastName,
+  const result = await authService.updateEmail(id as string, {
     email,
+    ipAddress: req.ipAddress,
+    userAgent: req.userAgent,
   });
-
-  return res.status(200).json({
-    message: "User information updated successfully",
-    user: updatedUser,
-  });
-};
-
-export const userVerifyEmail = async (
-  req: Request,
-  res: Response,
-): Promise<void> => {
-  const token = req.query.token as string;
-
-  const isVerified = await authService.userVerifyEmail(token);
 
   res.setHeader("Set-Cookie", [
     serialize(
-      "is_verified",
-      isVerified.toString(),
-      getCookieConfig({ httpOnly: false, maxAge: 2 }),
+      "resend_verification_expires_at",
+      result.expiresAt || "",
+      getCookieConfig({ httpOnly: false, maxAge: 15 * 60 }),
     ),
   ]);
 
-  return res.redirect(`${process.env.ORIGIN}/login`);
+  return res.status(200).json({
+    message: "Email change requested. Please verify your new email address.",
+    newEmail: result.emailChangeRequest,
+  });
 };
 
-export const userLocalDeleteAccount = async (
+export const removeNewEmail = async (
+  req: Request,
+  res: Response,
+): Promise<Response> => {
+  const { id: userId } = req.params;
+  const { email } = req.body;
+
+  await authService.removeNewEmail(userId as string, email);
+
+  res.setHeader("Set-Cookie", [
+    serialize("resend_verification_expires_at", "", clearCookieConfig({})),
+  ]);
+
+  return res
+    .status(200)
+    .json({ message: "Removed unverified email successfully!" });
+};
+
+export const localDeleteAccount = async (
   req: Request,
   res: Response,
 ): Promise<Response> => {
   const { id } = req.params;
   const { password } = req.body;
 
-  await authService.userDeleteAccount({
+  await authService.deleteAccount({
     userId: id as string,
     password,
   });
@@ -123,14 +172,14 @@ export const userLocalDeleteAccount = async (
   return res.status(200).json({ message: "Account deleted successfully!" });
 };
 
-export const userOAuthDeleteAccount = async (
+export const oauthDeleteAccount = async (
   req: Request,
   res: Response,
 ): Promise<Response> => {
   const { id } = req.params;
   const { idToken } = req.body;
 
-  await authService.userDeleteAccount({
+  await authService.deleteAccount({
     userId: id as string,
     idToken,
   });

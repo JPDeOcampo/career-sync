@@ -6,16 +6,18 @@ import type {
   UpdatePasswordDTO,
   VerifyResetPasswordDTO,
   ResetPasswordDTO,
-  RefreshResetPasswordDTO,
   ResendResetPasswordDTO,
 } from "@/@types/password.types.js";
 import { resetPasswordTemplate } from "@/utils/mailer/templates/resetPassword.js";
 import { sendEmail } from "@/utils/mailer/sendEmail.js";
 import { generate6DigitCode } from "@/utils/globalUtils.js";
-import { generateSignToken } from "@/utils/generateSignToken.js";
-import { verifyJwt } from "@/lib/verifyJwt.js";
+import {
+  checkSignToken,
+  generateSignToken,
+  generateSecureToken,
+} from "@/utils/token.js";
 import { getRemainingTime } from "@/utils/session.js";
-import crypto, { randomUUID } from "crypto";
+import { randomUUID } from "crypto";
 
 // --- Send Reset Password OTP Logic ---
 const sendResetPasswordOTP = async ({
@@ -39,12 +41,12 @@ const sendResetPasswordOTP = async ({
   const otpExpiresAt = new Date(Date.now() + expiresIn * 1000);
 
   // Hash OTP before saving
-  const tokenHash = crypto.createHash("sha256").update(otp).digest("hex");
+  const { hashedToken } = generateSecureToken({ token: otp });
 
   // Store in AuthToken
   await prisma.authToken.create({
     data: {
-      tokenHash,
+      tokenHash: hashedToken,
       type: "PASSWORD_RESET",
       expiresAt: otpExpiresAt,
       userId: user.id,
@@ -80,22 +82,6 @@ const sendResetPasswordOTP = async ({
     expiresAt,
     expiresIn,
   };
-};
-
-const checkSignToken = (token?: string) => {
-  if (!token) {
-    throw new AppError("Invalid or expired session.", 400);
-  }
-  let payload: RefreshResetPasswordDTO;
-  try {
-    payload = verifyJwt<RefreshResetPasswordDTO>(
-      token,
-      process.env.JWT_ACCESS_SECRET!,
-    );
-  } catch {
-    throw new AppError("Session expired.", 400);
-  }
-  return payload;
 };
 
 // --- Update Password Logic ---
@@ -232,14 +218,14 @@ export const verifyResetPassword = async (data: VerifyResetPasswordDTO) => {
   }
 
   // Hash incoming OTP
-  const hashedCode = crypto.createHash("sha256").update(otp).digest("hex");
+  const { hashedToken } = generateSecureToken({ token: otp });
 
   // Find valid auth token
   const token = await prisma.authToken.findFirst({
     where: {
       userId: userId as unknown as string,
       type: "PASSWORD_RESET",
-      tokenHash: hashedCode,
+      tokenHash: hashedToken,
 
       usedAt: null,
       revokedAt: null,

@@ -1,5 +1,5 @@
 import { prisma } from "@/lib/prisma.js";
-import crypto from "crypto";
+import { generateSecureToken } from "@/utils/token.js";
 import { sendEmail } from "@/utils/mailer/sendEmail.js";
 import { verifyEmailTemplate } from "@/utils/mailer/templates/verifyEmail.js";
 
@@ -8,15 +8,12 @@ export const sendNewVerificationEmail = async (
     id: string;
     email: string;
     firstName: string;
+    loginCount?: number;
   },
   ipAddress?: string,
   userAgent?: string,
 ) => {
-  const rawToken = crypto.randomBytes(32).toString("hex");
-
-  const tokenHash = crypto.createHash("sha256").update(rawToken).digest("hex");
-
-  const expiresAt = new Date(Date.now() + 15 * 60 * 1000);
+  const { token, hashedToken, expiresAt } = generateSecureToken();
 
   const existingToken = await prisma.authToken.findFirst({
     where: {
@@ -33,7 +30,7 @@ export const sendNewVerificationEmail = async (
         id: existingToken.id,
       },
       data: {
-        tokenHash,
+        tokenHash: hashedToken,
         expiresAt,
         ipAddress,
         userAgent,
@@ -44,7 +41,7 @@ export const sendNewVerificationEmail = async (
       data: {
         userId: user.id,
         type: "EMAIL_VERIFICATION",
-        tokenHash,
+        tokenHash: hashedToken,
         expiresAt,
         ipAddress,
         userAgent,
@@ -52,7 +49,7 @@ export const sendNewVerificationEmail = async (
     });
   }
 
-  const verificationLink = `${process.env.BACKEND_URL}/api/v1/auth/verify-email?token=${rawToken}`;
+  const verificationLink = `${process.env.BACKEND_URL}/api/v1/auth/verify-email?token=${token}`;
 
   await sendEmail({
     to: user.email,
@@ -60,6 +57,9 @@ export const sendNewVerificationEmail = async (
     html: verifyEmailTemplate({
       firstName: user.firstName,
       verificationLink,
+      loginCount: user.loginCount,
     }),
   });
+
+  return expiresAt;
 };

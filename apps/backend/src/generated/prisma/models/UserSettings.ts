@@ -344,6 +344,10 @@ export type UserSettingsUncheckedUpdateOneWithoutUserNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.UserSettingsUpdateToOneWithWhereWithoutUserInput, Prisma.UserSettingsUpdateWithoutUserInput>, Prisma.UserSettingsUncheckedUpdateWithoutUserInput>
 }
 
+export type BoolFieldUpdateOperationsInput = {
+  set?: boolean
+}
+
 export type UserSettingsCreateWithoutUserInput = {
   id?: string
   darkMode?: boolean

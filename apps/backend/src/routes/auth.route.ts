@@ -1,11 +1,13 @@
 import express, { type Router } from "express";
-import { authLimiter } from "@/middleware/rate-limiters.middleware.js";
+import {
+  authLimiter,
+  resendVerificationLimiter,
+} from "@/middleware/rate-limiters.middleware.js";
 import { protect } from "@/middleware/authenticate.middleware.js";
 import { validate } from "@/middleware/validate.middleware.js";
 import {
   registerSchema,
   emailSchema,
-  userUpdateSchema,
   updatePasswordSchema,
   resetPasswordSchema,
   passwordSchema,
@@ -14,13 +16,15 @@ import { asyncHandler } from "@/utils/asyncHandler.js";
 
 // -- Auth Controllers --
 import {
-  userRegister,
-  userLogin,
-  userOAuthLogin,
-  userUpdate,
-  userVerifyEmail,
-  userLocalDeleteAccount,
-  userOAuthDeleteAccount,
+  register,
+  login,
+  oauthLogin,
+  updateEmail,
+  removeNewEmail,
+  resendVerificationEmail,
+  verifyEmail,
+  localDeleteAccount,
+  oauthDeleteAccount,
 } from "@/controllers/auth/auth.controller.js";
 
 // -- Password Controllers --
@@ -44,41 +48,41 @@ router.post(
   "/register",
   authLimiter,
   validate(registerSchema),
-  asyncHandler(userRegister),
-);
-
-router.get("/verify-email", authLimiter, asyncHandler(userVerifyEmail));
-
-router.post("/login", authLimiter, asyncHandler(userLogin));
-
-router.post("/oauth-login", authLimiter, asyncHandler(userOAuthLogin));
-
-router.put(
-  "/update-user/:id",
-  authLimiter,
-  protect,
-  validate(userUpdateSchema),
-  asyncHandler(userUpdate),
+  asyncHandler(register),
 );
 
 router.post(
-  "/delete-user/:id",
-  authLimiter,
-  protect,
-  validate(passwordSchema),
-  asyncHandler(userLocalDeleteAccount),
+  "/resend-verification-email/:id",
+  resendVerificationLimiter,
+  asyncHandler(resendVerificationEmail),
 );
 
-router.post(
-  "/delete-user-oauth/:id",
-  authLimiter,
-  protect,
-  asyncHandler(userOAuthDeleteAccount),
-);
+router.get("/verify-email", authLimiter, asyncHandler(verifyEmail));
+
+router.post("/login", authLimiter, asyncHandler(login));
+
+router.post("/oauth-login", authLimiter, asyncHandler(oauthLogin));
 
 router.post("/refresh-token", authLimiter, asyncHandler(refreshToken));
 
-// -- Password Routes --
+/* -- UPDATE EMAIL -- */
+router.post(
+  "/update-email/:id",
+  authLimiter,
+  protect,
+  validate(emailSchema),
+  asyncHandler(updateEmail),
+);
+
+router.post(
+  "/remove-new-email/:id",
+  authLimiter,
+  protect,
+  validate(emailSchema),
+  asyncHandler(removeNewEmail),
+);
+
+/* -- UPDATE PASSWORD -- */
 router.put(
   "/update-password/:id",
   authLimiter,
@@ -87,7 +91,7 @@ router.put(
   asyncHandler(updatePassword),
 );
 
-// -- Password reset flow --
+/* -- FORGOT & RESET PASSWORD -- */
 router.post(
   "/forgot-password",
   authLimiter,
@@ -111,7 +115,23 @@ router.post(
   asyncHandler(resetPassword),
 );
 
-// -- Logout --
+/* -- DELETE ACCOUNT -- */
+router.post(
+  "/delete-user/:id",
+  authLimiter,
+  protect,
+  validate(passwordSchema),
+  asyncHandler(localDeleteAccount),
+);
+
+router.post(
+  "/delete-user-oauth/:id",
+  authLimiter,
+  protect,
+  asyncHandler(oauthDeleteAccount),
+);
+
+/* -- SINGLE LOGOUT -- */
 router.post("/single-logout", asyncHandler(userSingleLogout));
 
 export default router;

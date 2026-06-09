@@ -19,6 +19,8 @@ export const refreshToken = async (req: Request, res: Response) => {
       lastName: user.lastName,
       email: user.email,
       loginCount: user.loginCount,
+      emailStatus: user.emailStatus,
+      emailChangeRequests: user.emailChangeRequests,
       profile: {
         profileType: user.profile?.profileType,
         profileValue: user.profile?.profileValue,

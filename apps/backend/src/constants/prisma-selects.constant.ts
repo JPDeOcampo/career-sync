@@ -5,7 +5,16 @@ export const USER_SELECT = {
   lastName: true,
   loginCount: true,
   lastLoginAt: true,
-
+  emailStatus: true,
+  emailChangeRequests: {
+    select: {
+      id: true,
+      userId: true,
+      newEmail: true,
+      ipAddress: true,
+      userAgent: true,
+    },
+  },
   profile: {
     select: {
       profileType: true,

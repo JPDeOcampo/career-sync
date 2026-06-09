@@ -42,7 +42,7 @@ export type UserMinAggregateOutputType = {
   lastName: string | null
   email: string | null
   status: $Enums.UserStatus | null
-  emailVerified: boolean | null
+  emailStatus: $Enums.EmailStatus | null
   loginCount: number | null
   loginAttempts: number | null
   lockoutUntil: Date | null
@@ -57,7 +57,7 @@ export type UserMaxAggregateOutputType = {
   lastName: string | null
   email: string | null
   status: $Enums.UserStatus | null
-  emailVerified: boolean | null
+  emailStatus: $Enums.EmailStatus | null
   loginCount: number | null
   loginAttempts: number | null
   lockoutUntil: Date | null
@@ -72,7 +72,7 @@ export type UserCountAggregateOutputType = {
   lastName: number
   email: number
   status: number
-  emailVerified: number
+  emailStatus: number
   loginCount: number
   loginAttempts: number
   lockoutUntil: number
@@ -99,7 +99,7 @@ export type UserMinAggregateInputType = {
   lastName?: true
   email?: true
   status?: true
-  emailVerified?: true
+  emailStatus?: true
   loginCount?: true
   loginAttempts?: true
   lockoutUntil?: true
@@ -114,7 +114,7 @@ export type UserMaxAggregateInputType = {
   lastName?: true
   email?: true
   status?: true
-  emailVerified?: true
+  emailStatus?: true
   loginCount?: true
   loginAttempts?: true
   lockoutUntil?: true
@@ -129,7 +129,7 @@ export type UserCountAggregateInputType = {
   lastName?: true
   email?: true
   status?: true
-  emailVerified?: true
+  emailStatus?: true
   loginCount?: true
   loginAttempts?: true
   lockoutUntil?: true
@@ -231,7 +231,7 @@ export type UserGroupByOutputType = {
   lastName: string
   email: string
   status: $Enums.UserStatus
-  emailVerified: boolean
+  emailStatus: $Enums.EmailStatus
   loginCount: number
   loginAttempts: number
   lockoutUntil: Date | null
@@ -269,7 +269,7 @@ export type UserWhereInput = {
   lastName?: Prisma.StringFilter<"User"> | string
   email?: Prisma.StringFilter<"User"> | string
   status?: Prisma.EnumUserStatusFilter<"User"> | $Enums.UserStatus
-  emailVerified?: Prisma.BoolFilter<"User"> | boolean
+  emailStatus?: Prisma.EnumEmailStatusFilter<"User"> | $Enums.EmailStatus
   loginCount?: Prisma.IntFilter<"User"> | number
   loginAttempts?: Prisma.IntFilter<"User"> | number
   lockoutUntil?: Prisma.DateTimeNullableFilter<"User"> | Date | string | null
@@ -277,6 +277,7 @@ export type UserWhereInput = {
   createdAt?: Prisma.DateTimeFilter<"User"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"User"> | Date | string
   accounts?: Prisma.AccountListRelationFilter
+  emailChangeRequests?: Prisma.EmailChangeRequestListRelationFilter
   refreshTokens?: Prisma.RefreshTokenListRelationFilter
   authTokens?: Prisma.AuthTokenListRelationFilter
   profile?: Prisma.XOR<Prisma.UserProfileNullableScalarRelationFilter, Prisma.UserProfileWhereInput> | null
@@ -291,7 +292,7 @@ export type UserOrderByWithRelationInput = {
   lastName?: Prisma.SortOrder
   email?: Prisma.SortOrder
   status?: Prisma.SortOrder
-  emailVerified?: Prisma.SortOrder
+  emailStatus?: Prisma.SortOrder
   loginCount?: Prisma.SortOrder
   loginAttempts?: Prisma.SortOrder
   lockoutUntil?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -299,6 +300,7 @@ export type UserOrderByWithRelationInput = {
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   accounts?: Prisma.AccountOrderByRelationAggregateInput
+  emailChangeRequests?: Prisma.EmailChangeRequestOrderByRelationAggregateInput
   refreshTokens?: Prisma.RefreshTokenOrderByRelationAggregateInput
   authTokens?: Prisma.AuthTokenOrderByRelationAggregateInput
   profile?: Prisma.UserProfileOrderByWithRelationInput
@@ -316,7 +318,7 @@ export type UserWhereUniqueInput = Prisma.AtLeast<{
   firstName?: Prisma.StringFilter<"User"> | string
   lastName?: Prisma.StringFilter<"User"> | string
   status?: Prisma.EnumUserStatusFilter<"User"> | $Enums.UserStatus
-  emailVerified?: Prisma.BoolFilter<"User"> | boolean
+  emailStatus?: Prisma.EnumEmailStatusFilter<"User"> | $Enums.EmailStatus
   loginCount?: Prisma.IntFilter<"User"> | number
   loginAttempts?: Prisma.IntFilter<"User"> | number
   lockoutUntil?: Prisma.DateTimeNullableFilter<"User"> | Date | string | null
@@ -324,6 +326,7 @@ export type UserWhereUniqueInput = Prisma.AtLeast<{
   createdAt?: Prisma.DateTimeFilter<"User"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"User"> | Date | string
   accounts?: Prisma.AccountListRelationFilter
+  emailChangeRequests?: Prisma.EmailChangeRequestListRelationFilter
   refreshTokens?: Prisma.RefreshTokenListRelationFilter
   authTokens?: Prisma.AuthTokenListRelationFilter
   profile?: Prisma.XOR<Prisma.UserProfileNullableScalarRelationFilter, Prisma.UserProfileWhereInput> | null
@@ -338,7 +341,7 @@ export type UserOrderByWithAggregationInput = {
   lastName?: Prisma.SortOrder
   email?: Prisma.SortOrder
   status?: Prisma.SortOrder
-  emailVerified?: Prisma.SortOrder
+  emailStatus?: Prisma.SortOrder
   loginCount?: Prisma.SortOrder
   loginAttempts?: Prisma.SortOrder
   lockoutUntil?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -361,7 +364,7 @@ export type UserScalarWhereWithAggregatesInput = {
   lastName?: Prisma.StringWithAggregatesFilter<"User"> | string
   email?: Prisma.StringWithAggregatesFilter<"User"> | string
   status?: Prisma.EnumUserStatusWithAggregatesFilter<"User"> | $Enums.UserStatus
-  emailVerified?: Prisma.BoolWithAggregatesFilter<"User"> | boolean
+  emailStatus?: Prisma.EnumEmailStatusWithAggregatesFilter<"User"> | $Enums.EmailStatus
   loginCount?: Prisma.IntWithAggregatesFilter<"User"> | number
   loginAttempts?: Prisma.IntWithAggregatesFilter<"User"> | number
   lockoutUntil?: Prisma.DateTimeNullableWithAggregatesFilter<"User"> | Date | string | null
@@ -376,7 +379,7 @@ export type UserCreateInput = {
   lastName: string
   email: string
   status?: $Enums.UserStatus
-  emailVerified?: boolean
+  emailStatus?: $Enums.EmailStatus
   loginCount?: number
   loginAttempts?: number
   lockoutUntil?: Date | string | null
@@ -384,6 +387,7 @@ export type UserCreateInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   accounts?: Prisma.AccountCreateNestedManyWithoutUserInput
+  emailChangeRequests?: Prisma.EmailChangeRequestCreateNestedManyWithoutUserInput
   refreshTokens?: Prisma.RefreshTokenCreateNestedManyWithoutUserInput
   authTokens?: Prisma.AuthTokenCreateNestedManyWithoutUserInput
   profile?: Prisma.UserProfileCreateNestedOneWithoutUserInput
@@ -398,7 +402,7 @@ export type UserUncheckedCreateInput = {
   lastName: string
   email: string
   status?: $Enums.UserStatus
-  emailVerified?: boolean
+  emailStatus?: $Enums.EmailStatus
   loginCount?: number
   loginAttempts?: number
   lockoutUntil?: Date | string | null
@@ -406,6 +410,7 @@ export type UserUncheckedCreateInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   accounts?: Prisma.AccountUncheckedCreateNestedManyWithoutUserInput
+  emailChangeRequests?: Prisma.EmailChangeRequestUncheckedCreateNestedManyWithoutUserInput
   refreshTokens?: Prisma.RefreshTokenUncheckedCreateNestedManyWithoutUserInput
   authTokens?: Prisma.AuthTokenUncheckedCreateNestedManyWithoutUserInput
   profile?: Prisma.UserProfileUncheckedCreateNestedOneWithoutUserInput
@@ -420,7 +425,7 @@ export type UserUpdateInput = {
   lastName?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
-  emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  emailStatus?: Prisma.EnumEmailStatusFieldUpdateOperationsInput | $Enums.EmailStatus
   loginCount?: Prisma.IntFieldUpdateOperationsInput | number
   loginAttempts?: Prisma.IntFieldUpdateOperationsInput | number
   lockoutUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -428,6 +433,7 @@ export type UserUpdateInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   accounts?: Prisma.AccountUpdateManyWithoutUserNestedInput
+  emailChangeRequests?: Prisma.EmailChangeRequestUpdateManyWithoutUserNestedInput
   refreshTokens?: Prisma.RefreshTokenUpdateManyWithoutUserNestedInput
   authTokens?: Prisma.AuthTokenUpdateManyWithoutUserNestedInput
   profile?: Prisma.UserProfileUpdateOneWithoutUserNestedInput
@@ -442,7 +448,7 @@ export type UserUncheckedUpdateInput = {
   lastName?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
-  emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  emailStatus?: Prisma.EnumEmailStatusFieldUpdateOperationsInput | $Enums.EmailStatus
   loginCount?: Prisma.IntFieldUpdateOperationsInput | number
   loginAttempts?: Prisma.IntFieldUpdateOperationsInput | number
   lockoutUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -450,6 +456,7 @@ export type UserUncheckedUpdateInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   accounts?: Prisma.AccountUncheckedUpdateManyWithoutUserNestedInput
+  emailChangeRequests?: Prisma.EmailChangeRequestUncheckedUpdateManyWithoutUserNestedInput
   refreshTokens?: Prisma.RefreshTokenUncheckedUpdateManyWithoutUserNestedInput
   authTokens?: Prisma.AuthTokenUncheckedUpdateManyWithoutUserNestedInput
   profile?: Prisma.UserProfileUncheckedUpdateOneWithoutUserNestedInput
@@ -464,7 +471,7 @@ export type UserCreateManyInput = {
   lastName: string
   email: string
   status?: $Enums.UserStatus
-  emailVerified?: boolean
+  emailStatus?: $Enums.EmailStatus
   loginCount?: number
   loginAttempts?: number
   lockoutUntil?: Date | string | null
@@ -479,7 +486,7 @@ export type UserUpdateManyMutationInput = {
   lastName?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
-  emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  emailStatus?: Prisma.EnumEmailStatusFieldUpdateOperationsInput | $Enums.EmailStatus
   loginCount?: Prisma.IntFieldUpdateOperationsInput | number
   loginAttempts?: Prisma.IntFieldUpdateOperationsInput | number
   lockoutUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -494,7 +501,7 @@ export type UserUncheckedUpdateManyInput = {
   lastName?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
-  emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  emailStatus?: Prisma.EnumEmailStatusFieldUpdateOperationsInput | $Enums.EmailStatus
   loginCount?: Prisma.IntFieldUpdateOperationsInput | number
   loginAttempts?: Prisma.IntFieldUpdateOperationsInput | number
   lockoutUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -509,7 +516,7 @@ export type UserCountOrderByAggregateInput = {
   lastName?: Prisma.SortOrder
   email?: Prisma.SortOrder
   status?: Prisma.SortOrder
-  emailVerified?: Prisma.SortOrder
+  emailStatus?: Prisma.SortOrder
   loginCount?: Prisma.SortOrder
   loginAttempts?: Prisma.SortOrder
   lockoutUntil?: Prisma.SortOrder
@@ -529,7 +536,7 @@ export type UserMaxOrderByAggregateInput = {
   lastName?: Prisma.SortOrder
   email?: Prisma.SortOrder
   status?: Prisma.SortOrder
-  emailVerified?: Prisma.SortOrder
+  emailStatus?: Prisma.SortOrder
   loginCount?: Prisma.SortOrder
   loginAttempts?: Prisma.SortOrder
   lockoutUntil?: Prisma.SortOrder
@@ -544,7 +551,7 @@ export type UserMinOrderByAggregateInput = {
   lastName?: Prisma.SortOrder
   email?: Prisma.SortOrder
   status?: Prisma.SortOrder
-  emailVerified?: Prisma.SortOrder
+  emailStatus?: Prisma.SortOrder
   loginCount?: Prisma.SortOrder
   loginAttempts?: Prisma.SortOrder
   lockoutUntil?: Prisma.SortOrder
@@ -571,8 +578,8 @@ export type EnumUserStatusFieldUpdateOperationsInput = {
   set?: $Enums.UserStatus
 }
 
-export type BoolFieldUpdateOperationsInput = {
-  set?: boolean
+export type EnumEmailStatusFieldUpdateOperationsInput = {
+  set?: $Enums.EmailStatus
 }
 
 export type IntFieldUpdateOperationsInput = {
@@ -589,6 +596,20 @@ export type NullableDateTimeFieldUpdateOperationsInput = {
 
 export type DateTimeFieldUpdateOperationsInput = {
   set?: Date | string
+}
+
+export type UserCreateNestedOneWithoutEmailChangeRequestsInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutEmailChangeRequestsInput, Prisma.UserUncheckedCreateWithoutEmailChangeRequestsInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutEmailChangeRequestsInput
+  connect?: Prisma.UserWhereUniqueInput
+}
+
+export type UserUpdateOneRequiredWithoutEmailChangeRequestsNestedInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutEmailChangeRequestsInput, Prisma.UserUncheckedCreateWithoutEmailChangeRequestsInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutEmailChangeRequestsInput
+  upsert?: Prisma.UserUpsertWithoutEmailChangeRequestsInput
+  connect?: Prisma.UserWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutEmailChangeRequestsInput, Prisma.UserUpdateWithoutEmailChangeRequestsInput>, Prisma.UserUncheckedUpdateWithoutEmailChangeRequestsInput>
 }
 
 export type UserCreateNestedOneWithoutProfileInput = {
@@ -689,13 +710,13 @@ export type UserUpdateOneRequiredWithoutDocumentsNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutDocumentsInput, Prisma.UserUpdateWithoutDocumentsInput>, Prisma.UserUncheckedUpdateWithoutDocumentsInput>
 }
 
-export type UserCreateWithoutProfileInput = {
+export type UserCreateWithoutEmailChangeRequestsInput = {
   id?: string
   firstName: string
   lastName: string
   email: string
   status?: $Enums.UserStatus
-  emailVerified?: boolean
+  emailStatus?: $Enums.EmailStatus
   loginCount?: number
   loginAttempts?: number
   lockoutUntil?: Date | string | null
@@ -703,6 +724,111 @@ export type UserCreateWithoutProfileInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   accounts?: Prisma.AccountCreateNestedManyWithoutUserInput
+  refreshTokens?: Prisma.RefreshTokenCreateNestedManyWithoutUserInput
+  authTokens?: Prisma.AuthTokenCreateNestedManyWithoutUserInput
+  profile?: Prisma.UserProfileCreateNestedOneWithoutUserInput
+  settings?: Prisma.UserSettingsCreateNestedOneWithoutUserInput
+  jobs?: Prisma.JobCreateNestedManyWithoutUserInput
+  documents?: Prisma.DocumentCreateNestedManyWithoutUserInput
+}
+
+export type UserUncheckedCreateWithoutEmailChangeRequestsInput = {
+  id?: string
+  firstName: string
+  lastName: string
+  email: string
+  status?: $Enums.UserStatus
+  emailStatus?: $Enums.EmailStatus
+  loginCount?: number
+  loginAttempts?: number
+  lockoutUntil?: Date | string | null
+  lastLoginAt?: Date | string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  accounts?: Prisma.AccountUncheckedCreateNestedManyWithoutUserInput
+  refreshTokens?: Prisma.RefreshTokenUncheckedCreateNestedManyWithoutUserInput
+  authTokens?: Prisma.AuthTokenUncheckedCreateNestedManyWithoutUserInput
+  profile?: Prisma.UserProfileUncheckedCreateNestedOneWithoutUserInput
+  settings?: Prisma.UserSettingsUncheckedCreateNestedOneWithoutUserInput
+  jobs?: Prisma.JobUncheckedCreateNestedManyWithoutUserInput
+  documents?: Prisma.DocumentUncheckedCreateNestedManyWithoutUserInput
+}
+
+export type UserCreateOrConnectWithoutEmailChangeRequestsInput = {
+  where: Prisma.UserWhereUniqueInput
+  create: Prisma.XOR<Prisma.UserCreateWithoutEmailChangeRequestsInput, Prisma.UserUncheckedCreateWithoutEmailChangeRequestsInput>
+}
+
+export type UserUpsertWithoutEmailChangeRequestsInput = {
+  update: Prisma.XOR<Prisma.UserUpdateWithoutEmailChangeRequestsInput, Prisma.UserUncheckedUpdateWithoutEmailChangeRequestsInput>
+  create: Prisma.XOR<Prisma.UserCreateWithoutEmailChangeRequestsInput, Prisma.UserUncheckedCreateWithoutEmailChangeRequestsInput>
+  where?: Prisma.UserWhereInput
+}
+
+export type UserUpdateToOneWithWhereWithoutEmailChangeRequestsInput = {
+  where?: Prisma.UserWhereInput
+  data: Prisma.XOR<Prisma.UserUpdateWithoutEmailChangeRequestsInput, Prisma.UserUncheckedUpdateWithoutEmailChangeRequestsInput>
+}
+
+export type UserUpdateWithoutEmailChangeRequestsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  firstName?: Prisma.StringFieldUpdateOperationsInput | string
+  lastName?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  status?: Prisma.EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
+  emailStatus?: Prisma.EnumEmailStatusFieldUpdateOperationsInput | $Enums.EmailStatus
+  loginCount?: Prisma.IntFieldUpdateOperationsInput | number
+  loginAttempts?: Prisma.IntFieldUpdateOperationsInput | number
+  lockoutUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  lastLoginAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  accounts?: Prisma.AccountUpdateManyWithoutUserNestedInput
+  refreshTokens?: Prisma.RefreshTokenUpdateManyWithoutUserNestedInput
+  authTokens?: Prisma.AuthTokenUpdateManyWithoutUserNestedInput
+  profile?: Prisma.UserProfileUpdateOneWithoutUserNestedInput
+  settings?: Prisma.UserSettingsUpdateOneWithoutUserNestedInput
+  jobs?: Prisma.JobUpdateManyWithoutUserNestedInput
+  documents?: Prisma.DocumentUpdateManyWithoutUserNestedInput
+}
+
+export type UserUncheckedUpdateWithoutEmailChangeRequestsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  firstName?: Prisma.StringFieldUpdateOperationsInput | string
+  lastName?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  status?: Prisma.EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
+  emailStatus?: Prisma.EnumEmailStatusFieldUpdateOperationsInput | $Enums.EmailStatus
+  loginCount?: Prisma.IntFieldUpdateOperationsInput | number
+  loginAttempts?: Prisma.IntFieldUpdateOperationsInput | number
+  lockoutUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  lastLoginAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  accounts?: Prisma.AccountUncheckedUpdateManyWithoutUserNestedInput
+  refreshTokens?: Prisma.RefreshTokenUncheckedUpdateManyWithoutUserNestedInput
+  authTokens?: Prisma.AuthTokenUncheckedUpdateManyWithoutUserNestedInput
+  profile?: Prisma.UserProfileUncheckedUpdateOneWithoutUserNestedInput
+  settings?: Prisma.UserSettingsUncheckedUpdateOneWithoutUserNestedInput
+  jobs?: Prisma.JobUncheckedUpdateManyWithoutUserNestedInput
+  documents?: Prisma.DocumentUncheckedUpdateManyWithoutUserNestedInput
+}
+
+export type UserCreateWithoutProfileInput = {
+  id?: string
+  firstName: string
+  lastName: string
+  email: string
+  status?: $Enums.UserStatus
+  emailStatus?: $Enums.EmailStatus
+  loginCount?: number
+  loginAttempts?: number
+  lockoutUntil?: Date | string | null
+  lastLoginAt?: Date | string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  accounts?: Prisma.AccountCreateNestedManyWithoutUserInput
+  emailChangeRequests?: Prisma.EmailChangeRequestCreateNestedManyWithoutUserInput
   refreshTokens?: Prisma.RefreshTokenCreateNestedManyWithoutUserInput
   authTokens?: Prisma.AuthTokenCreateNestedManyWithoutUserInput
   settings?: Prisma.UserSettingsCreateNestedOneWithoutUserInput
@@ -716,7 +842,7 @@ export type UserUncheckedCreateWithoutProfileInput = {
   lastName: string
   email: string
   status?: $Enums.UserStatus
-  emailVerified?: boolean
+  emailStatus?: $Enums.EmailStatus
   loginCount?: number
   loginAttempts?: number
   lockoutUntil?: Date | string | null
@@ -724,6 +850,7 @@ export type UserUncheckedCreateWithoutProfileInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   accounts?: Prisma.AccountUncheckedCreateNestedManyWithoutUserInput
+  emailChangeRequests?: Prisma.EmailChangeRequestUncheckedCreateNestedManyWithoutUserInput
   refreshTokens?: Prisma.RefreshTokenUncheckedCreateNestedManyWithoutUserInput
   authTokens?: Prisma.AuthTokenUncheckedCreateNestedManyWithoutUserInput
   settings?: Prisma.UserSettingsUncheckedCreateNestedOneWithoutUserInput
@@ -753,7 +880,7 @@ export type UserUpdateWithoutProfileInput = {
   lastName?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
-  emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  emailStatus?: Prisma.EnumEmailStatusFieldUpdateOperationsInput | $Enums.EmailStatus
   loginCount?: Prisma.IntFieldUpdateOperationsInput | number
   loginAttempts?: Prisma.IntFieldUpdateOperationsInput | number
   lockoutUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -761,6 +888,7 @@ export type UserUpdateWithoutProfileInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   accounts?: Prisma.AccountUpdateManyWithoutUserNestedInput
+  emailChangeRequests?: Prisma.EmailChangeRequestUpdateManyWithoutUserNestedInput
   refreshTokens?: Prisma.RefreshTokenUpdateManyWithoutUserNestedInput
   authTokens?: Prisma.AuthTokenUpdateManyWithoutUserNestedInput
   settings?: Prisma.UserSettingsUpdateOneWithoutUserNestedInput
@@ -774,7 +902,7 @@ export type UserUncheckedUpdateWithoutProfileInput = {
   lastName?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
-  emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  emailStatus?: Prisma.EnumEmailStatusFieldUpdateOperationsInput | $Enums.EmailStatus
   loginCount?: Prisma.IntFieldUpdateOperationsInput | number
   loginAttempts?: Prisma.IntFieldUpdateOperationsInput | number
   lockoutUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -782,6 +910,7 @@ export type UserUncheckedUpdateWithoutProfileInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   accounts?: Prisma.AccountUncheckedUpdateManyWithoutUserNestedInput
+  emailChangeRequests?: Prisma.EmailChangeRequestUncheckedUpdateManyWithoutUserNestedInput
   refreshTokens?: Prisma.RefreshTokenUncheckedUpdateManyWithoutUserNestedInput
   authTokens?: Prisma.AuthTokenUncheckedUpdateManyWithoutUserNestedInput
   settings?: Prisma.UserSettingsUncheckedUpdateOneWithoutUserNestedInput
@@ -795,7 +924,7 @@ export type UserCreateWithoutSettingsInput = {
   lastName: string
   email: string
   status?: $Enums.UserStatus
-  emailVerified?: boolean
+  emailStatus?: $Enums.EmailStatus
   loginCount?: number
   loginAttempts?: number
   lockoutUntil?: Date | string | null
@@ -803,6 +932,7 @@ export type UserCreateWithoutSettingsInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   accounts?: Prisma.AccountCreateNestedManyWithoutUserInput
+  emailChangeRequests?: Prisma.EmailChangeRequestCreateNestedManyWithoutUserInput
   refreshTokens?: Prisma.RefreshTokenCreateNestedManyWithoutUserInput
   authTokens?: Prisma.AuthTokenCreateNestedManyWithoutUserInput
   profile?: Prisma.UserProfileCreateNestedOneWithoutUserInput
@@ -816,7 +946,7 @@ export type UserUncheckedCreateWithoutSettingsInput = {
   lastName: string
   email: string
   status?: $Enums.UserStatus
-  emailVerified?: boolean
+  emailStatus?: $Enums.EmailStatus
   loginCount?: number
   loginAttempts?: number
   lockoutUntil?: Date | string | null
@@ -824,6 +954,7 @@ export type UserUncheckedCreateWithoutSettingsInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   accounts?: Prisma.AccountUncheckedCreateNestedManyWithoutUserInput
+  emailChangeRequests?: Prisma.EmailChangeRequestUncheckedCreateNestedManyWithoutUserInput
   refreshTokens?: Prisma.RefreshTokenUncheckedCreateNestedManyWithoutUserInput
   authTokens?: Prisma.AuthTokenUncheckedCreateNestedManyWithoutUserInput
   profile?: Prisma.UserProfileUncheckedCreateNestedOneWithoutUserInput
@@ -853,7 +984,7 @@ export type UserUpdateWithoutSettingsInput = {
   lastName?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
-  emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  emailStatus?: Prisma.EnumEmailStatusFieldUpdateOperationsInput | $Enums.EmailStatus
   loginCount?: Prisma.IntFieldUpdateOperationsInput | number
   loginAttempts?: Prisma.IntFieldUpdateOperationsInput | number
   lockoutUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -861,6 +992,7 @@ export type UserUpdateWithoutSettingsInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   accounts?: Prisma.AccountUpdateManyWithoutUserNestedInput
+  emailChangeRequests?: Prisma.EmailChangeRequestUpdateManyWithoutUserNestedInput
   refreshTokens?: Prisma.RefreshTokenUpdateManyWithoutUserNestedInput
   authTokens?: Prisma.AuthTokenUpdateManyWithoutUserNestedInput
   profile?: Prisma.UserProfileUpdateOneWithoutUserNestedInput
@@ -874,7 +1006,7 @@ export type UserUncheckedUpdateWithoutSettingsInput = {
   lastName?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
-  emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  emailStatus?: Prisma.EnumEmailStatusFieldUpdateOperationsInput | $Enums.EmailStatus
   loginCount?: Prisma.IntFieldUpdateOperationsInput | number
   loginAttempts?: Prisma.IntFieldUpdateOperationsInput | number
   lockoutUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -882,6 +1014,7 @@ export type UserUncheckedUpdateWithoutSettingsInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   accounts?: Prisma.AccountUncheckedUpdateManyWithoutUserNestedInput
+  emailChangeRequests?: Prisma.EmailChangeRequestUncheckedUpdateManyWithoutUserNestedInput
   refreshTokens?: Prisma.RefreshTokenUncheckedUpdateManyWithoutUserNestedInput
   authTokens?: Prisma.AuthTokenUncheckedUpdateManyWithoutUserNestedInput
   profile?: Prisma.UserProfileUncheckedUpdateOneWithoutUserNestedInput
@@ -895,13 +1028,14 @@ export type UserCreateWithoutAccountsInput = {
   lastName: string
   email: string
   status?: $Enums.UserStatus
-  emailVerified?: boolean
+  emailStatus?: $Enums.EmailStatus
   loginCount?: number
   loginAttempts?: number
   lockoutUntil?: Date | string | null
   lastLoginAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  emailChangeRequests?: Prisma.EmailChangeRequestCreateNestedManyWithoutUserInput
   refreshTokens?: Prisma.RefreshTokenCreateNestedManyWithoutUserInput
   authTokens?: Prisma.AuthTokenCreateNestedManyWithoutUserInput
   profile?: Prisma.UserProfileCreateNestedOneWithoutUserInput
@@ -916,13 +1050,14 @@ export type UserUncheckedCreateWithoutAccountsInput = {
   lastName: string
   email: string
   status?: $Enums.UserStatus
-  emailVerified?: boolean
+  emailStatus?: $Enums.EmailStatus
   loginCount?: number
   loginAttempts?: number
   lockoutUntil?: Date | string | null
   lastLoginAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  emailChangeRequests?: Prisma.EmailChangeRequestUncheckedCreateNestedManyWithoutUserInput
   refreshTokens?: Prisma.RefreshTokenUncheckedCreateNestedManyWithoutUserInput
   authTokens?: Prisma.AuthTokenUncheckedCreateNestedManyWithoutUserInput
   profile?: Prisma.UserProfileUncheckedCreateNestedOneWithoutUserInput
@@ -953,13 +1088,14 @@ export type UserUpdateWithoutAccountsInput = {
   lastName?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
-  emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  emailStatus?: Prisma.EnumEmailStatusFieldUpdateOperationsInput | $Enums.EmailStatus
   loginCount?: Prisma.IntFieldUpdateOperationsInput | number
   loginAttempts?: Prisma.IntFieldUpdateOperationsInput | number
   lockoutUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   lastLoginAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  emailChangeRequests?: Prisma.EmailChangeRequestUpdateManyWithoutUserNestedInput
   refreshTokens?: Prisma.RefreshTokenUpdateManyWithoutUserNestedInput
   authTokens?: Prisma.AuthTokenUpdateManyWithoutUserNestedInput
   profile?: Prisma.UserProfileUpdateOneWithoutUserNestedInput
@@ -974,13 +1110,14 @@ export type UserUncheckedUpdateWithoutAccountsInput = {
   lastName?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
-  emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  emailStatus?: Prisma.EnumEmailStatusFieldUpdateOperationsInput | $Enums.EmailStatus
   loginCount?: Prisma.IntFieldUpdateOperationsInput | number
   loginAttempts?: Prisma.IntFieldUpdateOperationsInput | number
   lockoutUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   lastLoginAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  emailChangeRequests?: Prisma.EmailChangeRequestUncheckedUpdateManyWithoutUserNestedInput
   refreshTokens?: Prisma.RefreshTokenUncheckedUpdateManyWithoutUserNestedInput
   authTokens?: Prisma.AuthTokenUncheckedUpdateManyWithoutUserNestedInput
   profile?: Prisma.UserProfileUncheckedUpdateOneWithoutUserNestedInput
@@ -995,7 +1132,7 @@ export type UserCreateWithoutAuthTokensInput = {
   lastName: string
   email: string
   status?: $Enums.UserStatus
-  emailVerified?: boolean
+  emailStatus?: $Enums.EmailStatus
   loginCount?: number
   loginAttempts?: number
   lockoutUntil?: Date | string | null
@@ -1003,6 +1140,7 @@ export type UserCreateWithoutAuthTokensInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   accounts?: Prisma.AccountCreateNestedManyWithoutUserInput
+  emailChangeRequests?: Prisma.EmailChangeRequestCreateNestedManyWithoutUserInput
   refreshTokens?: Prisma.RefreshTokenCreateNestedManyWithoutUserInput
   profile?: Prisma.UserProfileCreateNestedOneWithoutUserInput
   settings?: Prisma.UserSettingsCreateNestedOneWithoutUserInput
@@ -1016,7 +1154,7 @@ export type UserUncheckedCreateWithoutAuthTokensInput = {
   lastName: string
   email: string
   status?: $Enums.UserStatus
-  emailVerified?: boolean
+  emailStatus?: $Enums.EmailStatus
   loginCount?: number
   loginAttempts?: number
   lockoutUntil?: Date | string | null
@@ -1024,6 +1162,7 @@ export type UserUncheckedCreateWithoutAuthTokensInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   accounts?: Prisma.AccountUncheckedCreateNestedManyWithoutUserInput
+  emailChangeRequests?: Prisma.EmailChangeRequestUncheckedCreateNestedManyWithoutUserInput
   refreshTokens?: Prisma.RefreshTokenUncheckedCreateNestedManyWithoutUserInput
   profile?: Prisma.UserProfileUncheckedCreateNestedOneWithoutUserInput
   settings?: Prisma.UserSettingsUncheckedCreateNestedOneWithoutUserInput
@@ -1053,7 +1192,7 @@ export type UserUpdateWithoutAuthTokensInput = {
   lastName?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
-  emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  emailStatus?: Prisma.EnumEmailStatusFieldUpdateOperationsInput | $Enums.EmailStatus
   loginCount?: Prisma.IntFieldUpdateOperationsInput | number
   loginAttempts?: Prisma.IntFieldUpdateOperationsInput | number
   lockoutUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -1061,6 +1200,7 @@ export type UserUpdateWithoutAuthTokensInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   accounts?: Prisma.AccountUpdateManyWithoutUserNestedInput
+  emailChangeRequests?: Prisma.EmailChangeRequestUpdateManyWithoutUserNestedInput
   refreshTokens?: Prisma.RefreshTokenUpdateManyWithoutUserNestedInput
   profile?: Prisma.UserProfileUpdateOneWithoutUserNestedInput
   settings?: Prisma.UserSettingsUpdateOneWithoutUserNestedInput
@@ -1074,7 +1214,7 @@ export type UserUncheckedUpdateWithoutAuthTokensInput = {
   lastName?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
-  emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  emailStatus?: Prisma.EnumEmailStatusFieldUpdateOperationsInput | $Enums.EmailStatus
   loginCount?: Prisma.IntFieldUpdateOperationsInput | number
   loginAttempts?: Prisma.IntFieldUpdateOperationsInput | number
   lockoutUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -1082,6 +1222,7 @@ export type UserUncheckedUpdateWithoutAuthTokensInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   accounts?: Prisma.AccountUncheckedUpdateManyWithoutUserNestedInput
+  emailChangeRequests?: Prisma.EmailChangeRequestUncheckedUpdateManyWithoutUserNestedInput
   refreshTokens?: Prisma.RefreshTokenUncheckedUpdateManyWithoutUserNestedInput
   profile?: Prisma.UserProfileUncheckedUpdateOneWithoutUserNestedInput
   settings?: Prisma.UserSettingsUncheckedUpdateOneWithoutUserNestedInput
@@ -1095,7 +1236,7 @@ export type UserCreateWithoutRefreshTokensInput = {
   lastName: string
   email: string
   status?: $Enums.UserStatus
-  emailVerified?: boolean
+  emailStatus?: $Enums.EmailStatus
   loginCount?: number
   loginAttempts?: number
   lockoutUntil?: Date | string | null
@@ -1103,6 +1244,7 @@ export type UserCreateWithoutRefreshTokensInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   accounts?: Prisma.AccountCreateNestedManyWithoutUserInput
+  emailChangeRequests?: Prisma.EmailChangeRequestCreateNestedManyWithoutUserInput
   authTokens?: Prisma.AuthTokenCreateNestedManyWithoutUserInput
   profile?: Prisma.UserProfileCreateNestedOneWithoutUserInput
   settings?: Prisma.UserSettingsCreateNestedOneWithoutUserInput
@@ -1116,7 +1258,7 @@ export type UserUncheckedCreateWithoutRefreshTokensInput = {
   lastName: string
   email: string
   status?: $Enums.UserStatus
-  emailVerified?: boolean
+  emailStatus?: $Enums.EmailStatus
   loginCount?: number
   loginAttempts?: number
   lockoutUntil?: Date | string | null
@@ -1124,6 +1266,7 @@ export type UserUncheckedCreateWithoutRefreshTokensInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   accounts?: Prisma.AccountUncheckedCreateNestedManyWithoutUserInput
+  emailChangeRequests?: Prisma.EmailChangeRequestUncheckedCreateNestedManyWithoutUserInput
   authTokens?: Prisma.AuthTokenUncheckedCreateNestedManyWithoutUserInput
   profile?: Prisma.UserProfileUncheckedCreateNestedOneWithoutUserInput
   settings?: Prisma.UserSettingsUncheckedCreateNestedOneWithoutUserInput
@@ -1153,7 +1296,7 @@ export type UserUpdateWithoutRefreshTokensInput = {
   lastName?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
-  emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  emailStatus?: Prisma.EnumEmailStatusFieldUpdateOperationsInput | $Enums.EmailStatus
   loginCount?: Prisma.IntFieldUpdateOperationsInput | number
   loginAttempts?: Prisma.IntFieldUpdateOperationsInput | number
   lockoutUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -1161,6 +1304,7 @@ export type UserUpdateWithoutRefreshTokensInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   accounts?: Prisma.AccountUpdateManyWithoutUserNestedInput
+  emailChangeRequests?: Prisma.EmailChangeRequestUpdateManyWithoutUserNestedInput
   authTokens?: Prisma.AuthTokenUpdateManyWithoutUserNestedInput
   profile?: Prisma.UserProfileUpdateOneWithoutUserNestedInput
   settings?: Prisma.UserSettingsUpdateOneWithoutUserNestedInput
@@ -1174,7 +1318,7 @@ export type UserUncheckedUpdateWithoutRefreshTokensInput = {
   lastName?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
-  emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  emailStatus?: Prisma.EnumEmailStatusFieldUpdateOperationsInput | $Enums.EmailStatus
   loginCount?: Prisma.IntFieldUpdateOperationsInput | number
   loginAttempts?: Prisma.IntFieldUpdateOperationsInput | number
   lockoutUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -1182,6 +1326,7 @@ export type UserUncheckedUpdateWithoutRefreshTokensInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   accounts?: Prisma.AccountUncheckedUpdateManyWithoutUserNestedInput
+  emailChangeRequests?: Prisma.EmailChangeRequestUncheckedUpdateManyWithoutUserNestedInput
   authTokens?: Prisma.AuthTokenUncheckedUpdateManyWithoutUserNestedInput
   profile?: Prisma.UserProfileUncheckedUpdateOneWithoutUserNestedInput
   settings?: Prisma.UserSettingsUncheckedUpdateOneWithoutUserNestedInput
@@ -1195,7 +1340,7 @@ export type UserCreateWithoutJobsInput = {
   lastName: string
   email: string
   status?: $Enums.UserStatus
-  emailVerified?: boolean
+  emailStatus?: $Enums.EmailStatus
   loginCount?: number
   loginAttempts?: number
   lockoutUntil?: Date | string | null
@@ -1203,6 +1348,7 @@ export type UserCreateWithoutJobsInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   accounts?: Prisma.AccountCreateNestedManyWithoutUserInput
+  emailChangeRequests?: Prisma.EmailChangeRequestCreateNestedManyWithoutUserInput
   refreshTokens?: Prisma.RefreshTokenCreateNestedManyWithoutUserInput
   authTokens?: Prisma.AuthTokenCreateNestedManyWithoutUserInput
   profile?: Prisma.UserProfileCreateNestedOneWithoutUserInput
@@ -1216,7 +1362,7 @@ export type UserUncheckedCreateWithoutJobsInput = {
   lastName: string
   email: string
   status?: $Enums.UserStatus
-  emailVerified?: boolean
+  emailStatus?: $Enums.EmailStatus
   loginCount?: number
   loginAttempts?: number
   lockoutUntil?: Date | string | null
@@ -1224,6 +1370,7 @@ export type UserUncheckedCreateWithoutJobsInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   accounts?: Prisma.AccountUncheckedCreateNestedManyWithoutUserInput
+  emailChangeRequests?: Prisma.EmailChangeRequestUncheckedCreateNestedManyWithoutUserInput
   refreshTokens?: Prisma.RefreshTokenUncheckedCreateNestedManyWithoutUserInput
   authTokens?: Prisma.AuthTokenUncheckedCreateNestedManyWithoutUserInput
   profile?: Prisma.UserProfileUncheckedCreateNestedOneWithoutUserInput
@@ -1253,7 +1400,7 @@ export type UserUpdateWithoutJobsInput = {
   lastName?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
-  emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  emailStatus?: Prisma.EnumEmailStatusFieldUpdateOperationsInput | $Enums.EmailStatus
   loginCount?: Prisma.IntFieldUpdateOperationsInput | number
   loginAttempts?: Prisma.IntFieldUpdateOperationsInput | number
   lockoutUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -1261,6 +1408,7 @@ export type UserUpdateWithoutJobsInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   accounts?: Prisma.AccountUpdateManyWithoutUserNestedInput
+  emailChangeRequests?: Prisma.EmailChangeRequestUpdateManyWithoutUserNestedInput
   refreshTokens?: Prisma.RefreshTokenUpdateManyWithoutUserNestedInput
   authTokens?: Prisma.AuthTokenUpdateManyWithoutUserNestedInput
   profile?: Prisma.UserProfileUpdateOneWithoutUserNestedInput
@@ -1274,7 +1422,7 @@ export type UserUncheckedUpdateWithoutJobsInput = {
   lastName?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
-  emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  emailStatus?: Prisma.EnumEmailStatusFieldUpdateOperationsInput | $Enums.EmailStatus
   loginCount?: Prisma.IntFieldUpdateOperationsInput | number
   loginAttempts?: Prisma.IntFieldUpdateOperationsInput | number
   lockoutUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -1282,6 +1430,7 @@ export type UserUncheckedUpdateWithoutJobsInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   accounts?: Prisma.AccountUncheckedUpdateManyWithoutUserNestedInput
+  emailChangeRequests?: Prisma.EmailChangeRequestUncheckedUpdateManyWithoutUserNestedInput
   refreshTokens?: Prisma.RefreshTokenUncheckedUpdateManyWithoutUserNestedInput
   authTokens?: Prisma.AuthTokenUncheckedUpdateManyWithoutUserNestedInput
   profile?: Prisma.UserProfileUncheckedUpdateOneWithoutUserNestedInput
@@ -1295,7 +1444,7 @@ export type UserCreateWithoutDocumentsInput = {
   lastName: string
   email: string
   status?: $Enums.UserStatus
-  emailVerified?: boolean
+  emailStatus?: $Enums.EmailStatus
   loginCount?: number
   loginAttempts?: number
   lockoutUntil?: Date | string | null
@@ -1303,6 +1452,7 @@ export type UserCreateWithoutDocumentsInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   accounts?: Prisma.AccountCreateNestedManyWithoutUserInput
+  emailChangeRequests?: Prisma.EmailChangeRequestCreateNestedManyWithoutUserInput
   refreshTokens?: Prisma.RefreshTokenCreateNestedManyWithoutUserInput
   authTokens?: Prisma.AuthTokenCreateNestedManyWithoutUserInput
   profile?: Prisma.UserProfileCreateNestedOneWithoutUserInput
@@ -1316,7 +1466,7 @@ export type UserUncheckedCreateWithoutDocumentsInput = {
   lastName: string
   email: string
   status?: $Enums.UserStatus
-  emailVerified?: boolean
+  emailStatus?: $Enums.EmailStatus
   loginCount?: number
   loginAttempts?: number
   lockoutUntil?: Date | string | null
@@ -1324,6 +1474,7 @@ export type UserUncheckedCreateWithoutDocumentsInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   accounts?: Prisma.AccountUncheckedCreateNestedManyWithoutUserInput
+  emailChangeRequests?: Prisma.EmailChangeRequestUncheckedCreateNestedManyWithoutUserInput
   refreshTokens?: Prisma.RefreshTokenUncheckedCreateNestedManyWithoutUserInput
   authTokens?: Prisma.AuthTokenUncheckedCreateNestedManyWithoutUserInput
   profile?: Prisma.UserProfileUncheckedCreateNestedOneWithoutUserInput
@@ -1353,7 +1504,7 @@ export type UserUpdateWithoutDocumentsInput = {
   lastName?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
-  emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  emailStatus?: Prisma.EnumEmailStatusFieldUpdateOperationsInput | $Enums.EmailStatus
   loginCount?: Prisma.IntFieldUpdateOperationsInput | number
   loginAttempts?: Prisma.IntFieldUpdateOperationsInput | number
   lockoutUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -1361,6 +1512,7 @@ export type UserUpdateWithoutDocumentsInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   accounts?: Prisma.AccountUpdateManyWithoutUserNestedInput
+  emailChangeRequests?: Prisma.EmailChangeRequestUpdateManyWithoutUserNestedInput
   refreshTokens?: Prisma.RefreshTokenUpdateManyWithoutUserNestedInput
   authTokens?: Prisma.AuthTokenUpdateManyWithoutUserNestedInput
   profile?: Prisma.UserProfileUpdateOneWithoutUserNestedInput
@@ -1374,7 +1526,7 @@ export type UserUncheckedUpdateWithoutDocumentsInput = {
   lastName?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
-  emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  emailStatus?: Prisma.EnumEmailStatusFieldUpdateOperationsInput | $Enums.EmailStatus
   loginCount?: Prisma.IntFieldUpdateOperationsInput | number
   loginAttempts?: Prisma.IntFieldUpdateOperationsInput | number
   lockoutUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -1382,6 +1534,7 @@ export type UserUncheckedUpdateWithoutDocumentsInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   accounts?: Prisma.AccountUncheckedUpdateManyWithoutUserNestedInput
+  emailChangeRequests?: Prisma.EmailChangeRequestUncheckedUpdateManyWithoutUserNestedInput
   refreshTokens?: Prisma.RefreshTokenUncheckedUpdateManyWithoutUserNestedInput
   authTokens?: Prisma.AuthTokenUncheckedUpdateManyWithoutUserNestedInput
   profile?: Prisma.UserProfileUncheckedUpdateOneWithoutUserNestedInput
@@ -1396,6 +1549,7 @@ export type UserUncheckedUpdateWithoutDocumentsInput = {
 
 export type UserCountOutputType = {
   accounts: number
+  emailChangeRequests: number
   refreshTokens: number
   authTokens: number
   jobs: number
@@ -1404,6 +1558,7 @@ export type UserCountOutputType = {
 
 export type UserCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   accounts?: boolean | UserCountOutputTypeCountAccountsArgs
+  emailChangeRequests?: boolean | UserCountOutputTypeCountEmailChangeRequestsArgs
   refreshTokens?: boolean | UserCountOutputTypeCountRefreshTokensArgs
   authTokens?: boolean | UserCountOutputTypeCountAuthTokensArgs
   jobs?: boolean | UserCountOutputTypeCountJobsArgs
@@ -1425,6 +1580,13 @@ export type UserCountOutputTypeDefaultArgs<ExtArgs extends runtime.Types.Extensi
  */
 export type UserCountOutputTypeCountAccountsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   where?: Prisma.AccountWhereInput
+}
+
+/**
+ * UserCountOutputType without action
+ */
+export type UserCountOutputTypeCountEmailChangeRequestsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.EmailChangeRequestWhereInput
 }
 
 /**
@@ -1462,7 +1624,7 @@ export type UserSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = r
   lastName?: boolean
   email?: boolean
   status?: boolean
-  emailVerified?: boolean
+  emailStatus?: boolean
   loginCount?: boolean
   loginAttempts?: boolean
   lockoutUntil?: boolean
@@ -1470,6 +1632,7 @@ export type UserSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = r
   createdAt?: boolean
   updatedAt?: boolean
   accounts?: boolean | Prisma.User$accountsArgs<ExtArgs>
+  emailChangeRequests?: boolean | Prisma.User$emailChangeRequestsArgs<ExtArgs>
   refreshTokens?: boolean | Prisma.User$refreshTokensArgs<ExtArgs>
   authTokens?: boolean | Prisma.User$authTokensArgs<ExtArgs>
   profile?: boolean | Prisma.User$profileArgs<ExtArgs>
@@ -1485,7 +1648,7 @@ export type UserSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensio
   lastName?: boolean
   email?: boolean
   status?: boolean
-  emailVerified?: boolean
+  emailStatus?: boolean
   loginCount?: boolean
   loginAttempts?: boolean
   lockoutUntil?: boolean
@@ -1500,7 +1663,7 @@ export type UserSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensio
   lastName?: boolean
   email?: boolean
   status?: boolean
-  emailVerified?: boolean
+  emailStatus?: boolean
   loginCount?: boolean
   loginAttempts?: boolean
   lockoutUntil?: boolean
@@ -1515,7 +1678,7 @@ export type UserSelectScalar = {
   lastName?: boolean
   email?: boolean
   status?: boolean
-  emailVerified?: boolean
+  emailStatus?: boolean
   loginCount?: boolean
   loginAttempts?: boolean
   lockoutUntil?: boolean
@@ -1524,9 +1687,10 @@ export type UserSelectScalar = {
   updatedAt?: boolean
 }
 
-export type UserOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "firstName" | "lastName" | "email" | "status" | "emailVerified" | "loginCount" | "loginAttempts" | "lockoutUntil" | "lastLoginAt" | "createdAt" | "updatedAt", ExtArgs["result"]["user"]>
+export type UserOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "firstName" | "lastName" | "email" | "status" | "emailStatus" | "loginCount" | "loginAttempts" | "lockoutUntil" | "lastLoginAt" | "createdAt" | "updatedAt", ExtArgs["result"]["user"]>
 export type UserInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   accounts?: boolean | Prisma.User$accountsArgs<ExtArgs>
+  emailChangeRequests?: boolean | Prisma.User$emailChangeRequestsArgs<ExtArgs>
   refreshTokens?: boolean | Prisma.User$refreshTokensArgs<ExtArgs>
   authTokens?: boolean | Prisma.User$authTokensArgs<ExtArgs>
   profile?: boolean | Prisma.User$profileArgs<ExtArgs>
@@ -1542,6 +1706,7 @@ export type $UserPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs =
   name: "User"
   objects: {
     accounts: Prisma.$AccountPayload<ExtArgs>[]
+    emailChangeRequests: Prisma.$EmailChangeRequestPayload<ExtArgs>[]
     refreshTokens: Prisma.$RefreshTokenPayload<ExtArgs>[]
     authTokens: Prisma.$AuthTokenPayload<ExtArgs>[]
     profile: Prisma.$UserProfilePayload<ExtArgs> | null
@@ -1555,7 +1720,7 @@ export type $UserPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs =
     lastName: string
     email: string
     status: $Enums.UserStatus
-    emailVerified: boolean
+    emailStatus: $Enums.EmailStatus
     loginCount: number
     loginAttempts: number
     lockoutUntil: Date | null
@@ -1957,6 +2122,7 @@ readonly fields: UserFieldRefs;
 export interface Prisma__UserClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
   accounts<T extends Prisma.User$accountsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$accountsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$AccountPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  emailChangeRequests<T extends Prisma.User$emailChangeRequestsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$emailChangeRequestsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$EmailChangeRequestPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   refreshTokens<T extends Prisma.User$refreshTokensArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$refreshTokensArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$RefreshTokenPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   authTokens<T extends Prisma.User$authTokensArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$authTokensArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$AuthTokenPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   profile<T extends Prisma.User$profileArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$profileArgs<ExtArgs>>): Prisma.Prisma__UserProfileClient<runtime.Types.Result.GetResult<Prisma.$UserProfilePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
@@ -1997,7 +2163,7 @@ export interface UserFieldRefs {
   readonly lastName: Prisma.FieldRef<"User", 'String'>
   readonly email: Prisma.FieldRef<"User", 'String'>
   readonly status: Prisma.FieldRef<"User", 'UserStatus'>
-  readonly emailVerified: Prisma.FieldRef<"User", 'Boolean'>
+  readonly emailStatus: Prisma.FieldRef<"User", 'EmailStatus'>
   readonly loginCount: Prisma.FieldRef<"User", 'Int'>
   readonly loginAttempts: Prisma.FieldRef<"User", 'Int'>
   readonly lockoutUntil: Prisma.FieldRef<"User", 'DateTime'>
@@ -2413,6 +2579,30 @@ export type User$accountsArgs<ExtArgs extends runtime.Types.Extensions.InternalA
   take?: number
   skip?: number
   distinct?: Prisma.AccountScalarFieldEnum | Prisma.AccountScalarFieldEnum[]
+}
+
+/**
+ * User.emailChangeRequests
+ */
+export type User$emailChangeRequestsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the EmailChangeRequest
+   */
+  select?: Prisma.EmailChangeRequestSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the EmailChangeRequest
+   */
+  omit?: Prisma.EmailChangeRequestOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.EmailChangeRequestInclude<ExtArgs> | null
+  where?: Prisma.EmailChangeRequestWhereInput
+  orderBy?: Prisma.EmailChangeRequestOrderByWithRelationInput | Prisma.EmailChangeRequestOrderByWithRelationInput[]
+  cursor?: Prisma.EmailChangeRequestWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.EmailChangeRequestScalarFieldEnum | Prisma.EmailChangeRequestScalarFieldEnum[]
 }
 
 /**

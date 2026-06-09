@@ -17,3 +17,19 @@ export const getVerifiedStatus = () => {
   // Split by "=" and return the value side
   return verifiedCookie.split("=")[1];
 };
+
+export const getEmailVerificationExpiresAtDate = (): Date | null => {
+  const cookie = document.cookie
+    .split("; ")
+    .find((c) => c.startsWith("resend_verification_expires_at="));
+
+  if (!cookie) return null;
+
+  const value = cookie.split("=")[1];
+
+  const decoded = decodeURIComponent(value);
+
+  const date = new Date(decoded);
+
+  return isNaN(date.getTime()) ? null : date;
+};

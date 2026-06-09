@@ -1,25 +1,42 @@
-/* eslint-disable react-hooks/set-state-in-effect */
+/* eslint-disable react-hooks/exhaustive-deps */
 "use client";
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { Moon, Sun } from "lucide-react";
+import { useAppSelector, useAppDispatch } from "@/hooks/useRedux";
+import { selectAuth, selectTheme } from "@/store/selectors";
+import { toggleDarkMode, setDarkMode } from "@/store/slices/themeSlice";
+import { useUpdateSettingsMutation } from "@/store/api/userApi";
 
 const DarkModeButton = () => {
-  const [isDarkMode, setIsDarkMode] = useState(false);
+  const dispatch = useAppDispatch();
+  const { isDarkMode } = useAppSelector(selectTheme);
+  const { user } = useAppSelector(selectAuth);
+  const isUserPreferredMode = user?.settings?.darkMode;
+
+  const [updateSettings, { isLoading }] = useUpdateSettingsMutation();
+
+  const handleToggleDarkMode = async () => {
+    dispatch(toggleDarkMode());
+
+    if (isLoading) return;
+    try {
+      if (user) {
+        await updateSettings({ id: user.id as string, darkMode: !isDarkMode });
+      }
+    } catch (error) {
+      console.error("Error toggling dark mode:", error);
+    }
+  };
 
   useEffect(() => {
-    const prefersDark = window.matchMedia(
-      "(prefers-color-scheme: dark)",
-    ).matches;
-    setIsDarkMode(prefersDark);
-  }, []);
-
-  useEffect(() => {
-    document.body.classList.toggle("dark", isDarkMode);
-  }, [isDarkMode]);
+    if (isUserPreferredMode !== undefined) {
+      dispatch(setDarkMode(isUserPreferredMode));
+    }
+  }, [user]);
 
   return (
     <button
-      onClick={() => setIsDarkMode((prev) => !prev)}
+      onClick={handleToggleDarkMode}
       className="p-2 rounded-lg bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors"
       aria-label="Toggle dark mode"
     >

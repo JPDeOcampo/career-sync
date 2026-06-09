@@ -28,6 +28,15 @@ export const UserStatus = {
 export type UserStatus = (typeof UserStatus)[keyof typeof UserStatus]
 
 
+export const EmailStatus = {
+  UNVERIFIED: 'UNVERIFIED',
+  VERIFIED: 'VERIFIED',
+  BLOCKED: 'BLOCKED'
+} as const
+
+export type EmailStatus = (typeof EmailStatus)[keyof typeof EmailStatus]
+
+
 export const AppearanceType = {
   COLOR: 'COLOR',
   IMAGE: 'IMAGE'

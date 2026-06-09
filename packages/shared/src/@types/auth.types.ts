@@ -1,3 +1,4 @@
+export type EmailStatus = "VERIFIED" | "UNVERIFIED" | "BLOCKED";
 export type OAuthProviderDTO = "LOCAL" | "GOOGLE" | "GITHUB";
 
 export interface RegisterUserDTO {
@@ -9,12 +10,22 @@ export interface RegisterUserDTO {
   userAgent?: string;
 }
 
+export interface EmailChangeRequestDTO {
+  id: string;
+  userId: string;
+  newEmail: string;
+  ipAddress?: string;
+  userAgent?: string;
+}
+
 export interface UserDTO {
   id?: string;
   firstName?: string;
   lastName?: string;
   email?: string;
   loginCount?: number;
+  emailStatus?: "VERIFIED" | "UNVERIFIED" | "BLOCKED";
+  emailChangeRequests?: EmailChangeRequestDTO[];
   accounts?: {
     provider: string;
     providerAccountId: string;
@@ -32,6 +43,9 @@ export interface UserUpdateDTO {
   firstName?: string;
   lastName?: string;
   email?: string;
+  emailStatus?: EmailStatus;
+  ipAddress?: string;
+  userAgent?: string;
 }
 
 export interface UserUpdateSettingsDTO {

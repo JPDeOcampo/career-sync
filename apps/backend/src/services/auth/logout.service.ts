@@ -1,11 +1,11 @@
 import { AppError } from "@/utils/errors/appError.js";
-import crypto from "crypto";
+import { generateSecureToken } from "@/utils/token.js";
 import { prisma } from "@/lib/prisma.js";
 
 export const userSingleLogout = async (token: string) => {
   if (token) {
     // Hash the token to find the match in DB
-    const hashedToken = crypto.createHash("sha256").update(token).digest("hex");
+    const { hashedToken } = generateSecureToken({ token });
 
     return await prisma.refreshToken.delete({
       where: {

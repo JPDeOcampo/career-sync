@@ -1,15 +1,13 @@
 import type { Request, Response } from "express";
 import { serialize } from "cookie";
 import * as logoutService from "@/services/auth/logout.service.js";
-import { clearCookieConfig } from "@/config/cookie.config.js";
+import { clearAuthCookies } from "@/utils/cookies.js";
 
 // --- Single Logout Controller ---
 export const userSingleLogout = async (req: Request, res: Response) => {
   await logoutService.userSingleLogout(req.cookies.refreshToken);
-  res.setHeader("Set-Cookie", [
-    serialize("refreshToken", "", clearCookieConfig({})),
-    serialize("is_logged_in", "", clearCookieConfig({ httpOnly: false })),
-  ]);
+
+  clearAuthCookies(res);
 
   return res.status(200).json({ message: "Logged out successfully" });
 };
@@ -18,10 +16,7 @@ export const userSingleLogout = async (req: Request, res: Response) => {
 export const logoutAllDevices = async (req: Request, res: Response) => {
   await logoutService.logoutAllDevices(req.user?.id);
 
-  res.setHeader("Set-Cookie", [
-    serialize("refreshToken", "", clearCookieConfig({})),
-    serialize("is_logged_in", "", clearCookieConfig({ httpOnly: false })),
-  ]);
+  clearAuthCookies(res);
 
   return res
     .status(200)

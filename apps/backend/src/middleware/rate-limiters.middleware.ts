@@ -13,7 +13,15 @@ export const generalLimiter = rateLimit({
 export const authLimiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
   max: 100,
-  message: { message: "Too many login attempts. Try again in 15 minutes." },
+  message: { message: "Too many attempts. Try again in 15 minutes." },
+  standardHeaders: true,
+  legacyHeaders: false,
+});
+
+export const resendVerificationLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 5,
+  message: { message: "Too many attempts. Try again in 15 minutes." },
   standardHeaders: true,
   legacyHeaders: false,
 });
