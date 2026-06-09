@@ -52,6 +52,7 @@ export const AnyNull = runtime.AnyNull
 
 export const ModelName = {
   User: 'User',
+  EmailChangeRequest: 'EmailChangeRequest',
   UserProfile: 'UserProfile',
   UserSettings: 'UserSettings',
   Account: 'Account',
@@ -84,7 +85,7 @@ export const UserScalarFieldEnum = {
   lastName: 'lastName',
   email: 'email',
   status: 'status',
-  emailVerified: 'emailVerified',
+  emailStatus: 'emailStatus',
   loginCount: 'loginCount',
   loginAttempts: 'loginAttempts',
   lockoutUntil: 'lockoutUntil',
@@ -94,6 +95,19 @@ export const UserScalarFieldEnum = {
 } as const
 
 export type UserScalarFieldEnum = (typeof UserScalarFieldEnum)[keyof typeof UserScalarFieldEnum]
+
+
+export const EmailChangeRequestScalarFieldEnum = {
+  id: 'id',
+  newEmail: 'newEmail',
+  userId: 'userId',
+  ipAddress: 'ipAddress',
+  userAgent: 'userAgent',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type EmailChangeRequestScalarFieldEnum = (typeof EmailChangeRequestScalarFieldEnum)[keyof typeof EmailChangeRequestScalarFieldEnum]
 
 
 export const UserProfileScalarFieldEnum = {
@@ -146,7 +160,8 @@ export const AuthTokenScalarFieldEnum = {
   ipAddress: 'ipAddress',
   userAgent: 'userAgent',
   userId: 'userId',
-  createdAt: 'createdAt'
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
 } as const
 
 export type AuthTokenScalarFieldEnum = (typeof AuthTokenScalarFieldEnum)[keyof typeof AuthTokenScalarFieldEnum]

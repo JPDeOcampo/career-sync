@@ -1,5 +1,5 @@
 "use client";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useAppDispatch } from "@/hooks/useRedux";
 import { login } from "@/store/slices/authSlice";
 import Logo from "@/components/shared/Logo";
@@ -14,7 +14,6 @@ import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { loginSchema } from "@career-sync/shared";
 import { LoadingSpinner } from "@/components/shared/Loading";
-import { getVerifiedStatus } from "@/utils/cookies";
 import useAuthHooks from "@/hooks/useAuth";
 import OAuthButton from "@/components/shared/OAuthButton";
 
@@ -54,28 +53,6 @@ const Login = () => {
       toast.error(errorData.message);
     }
   };
-
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      const status = getVerifiedStatus();
-
-      if (!status) return;
-
-      switch (status) {
-        case "true":
-          toast.success("Email verified successfully! You can now log in.");
-          break;
-        case "false":
-          toast.error(
-            "Invalid or expired verification link, please try again later.",
-          );
-          break;
-      }
-      document.cookie = "is_verified=; max-age=0; path=/;";
-    }, 100);
-
-    return () => clearTimeout(timer);
-  }, []);
 
   return (
     <div className="auth-card">

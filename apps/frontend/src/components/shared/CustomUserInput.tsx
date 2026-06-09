@@ -5,6 +5,8 @@ import { useRouter } from "next/router";
 import { BaseFormFieldProps } from "@/@types/fieldTypes";
 import { useFormContext } from "react-hook-form";
 import { UserDTO } from "@career-sync/shared";
+import { Check } from "lucide-react";
+import CustomTooltip from "@/components/shared/CustomTooltip";
 
 const InputName = ({
   label = "Name",
@@ -51,6 +53,10 @@ const InputEmail = ({
   autofocus = false,
   subtext,
   isViewOnly = false,
+  showIcon = {
+    isVisible: false,
+    status: "UNVERIFIED",
+  },
   ...registerProps
 }: BaseFormFieldProps) => {
   const { watch } = useFormContext<UserDTO>();
@@ -61,9 +67,18 @@ const InputEmail = ({
     <div className="space-y-2">
       <Label htmlFor={registerProps.name}>{label}</Label>
       {isViewOnly && (
-        <p className="text-job-value">
-          {typeof value === "string" && value !== "" ? value : "-"}
-        </p>
+        <div className="flex items-center gap-2">
+          <p className="text-job-value">
+            {typeof value === "string" && value !== "" ? value : "-"}
+          </p>
+          {showIcon.isVisible && showIcon.status === "VERIFIED" && (
+            <CustomTooltip label="Verified" position="bottom">
+              <span>
+                <Check className="h-5 w-5 text-job-value text-green-700" />
+              </span>
+            </CustomTooltip>
+          )}
+        </div>
       )}
 
       {!isViewOnly && (

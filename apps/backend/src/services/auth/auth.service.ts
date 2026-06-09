@@ -6,20 +6,57 @@ import type {
   UserUpdateDTO,
   OAuthProviderDTO,
 } from "@career-sync/shared";
-import crypto from "crypto";
 import { prisma } from "@/lib/prisma.js";
-import { sendEmail } from "@/utils/mailer/sendEmail.js";
-import { verifyEmailTemplate } from "@/utils/mailer/templates/verifyEmail.js";
 import { randomColorHex } from "@/utils/colors";
 import { firebaseAdmin } from "@/config/firebase.config.js";
-
 import { USER_SELECT } from "@/constants/prisma-selects.constant";
 import { createSession } from "./session.service";
 import { generateAuthTokens } from "./token.service";
+import { generateSecureToken } from "@/utils/token.js";
 import { sendNewVerificationEmail } from "./email-verification.service";
 
+const handleEmailVerificationCheck = async (
+  user: { id: string; email: string; firstName: string; loginCount?: number },
+  ipAddress?: string,
+  userAgent?: string,
+): Promise<{ sentNewEmail: boolean; expiresAt?: Date }> => {
+  const token = await prisma.authToken.findFirst({
+    where: {
+      userId: user.id,
+      type: "EMAIL_VERIFICATION",
+      usedAt: null,
+      revokedAt: null,
+    },
+  });
+
+  const verificationExpired = !token || token.expiresAt < new Date();
+
+  if (verificationExpired) {
+    if (token) {
+      await prisma.authToken.update({
+        where: { id: token.id },
+        data: { revokedAt: new Date() },
+      });
+    }
+
+    const expiresAt = await sendNewVerificationEmail(
+      user,
+      ipAddress,
+      userAgent,
+    );
+    return {
+      sentNewEmail: true,
+      expiresAt,
+    };
+  }
+
+  return {
+    sentNewEmail: false,
+  };
+};
+
 // --- Registration Logic ---
-export const registerUser = async (userData: RegisterUserDTO) => {
+export const register = async (userData: RegisterUserDTO) => {
   const { firstName, lastName, email, password, ipAddress, userAgent } =
     userData;
 
@@ -35,17 +72,14 @@ export const registerUser = async (userData: RegisterUserDTO) => {
 
   const hashedPassword = await hashPassword(password);
 
-  const token = crypto.randomBytes(32).toString("hex");
-
-  const hashedToken = crypto.createHash("sha256").update(token).digest("hex");
-
-  const expiresAt = new Date(Date.now() + 15 * 60 * 1000);
+  const { hashedToken, expiresAt } = generateSecureToken();
 
   const newUser = await prisma.user.create({
     data: {
       firstName,
       lastName,
       email: normalizedEmail,
+      loginCount: 0,
 
       accounts: {
         create: {
@@ -82,23 +116,12 @@ export const registerUser = async (userData: RegisterUserDTO) => {
     },
   });
 
-  const verificationLink = `${process.env.BACKEND_URL}/api/v1/auth/verify-email?token=${token}`;
-
-  await sendEmail({
-    to: newUser.email,
-    subject: "Verify Your Email",
-    html: verifyEmailTemplate({
-      firstName: newUser.firstName,
-      verificationLink,
-    }),
-  });
-
-  return newUser;
+  return await sendNewVerificationEmail(newUser, ipAddress, userAgent);
 };
 
 // --- Email Verification Logic ---
-export const userVerifyEmail = async (token: string) => {
-  const hashedToken = crypto.createHash("sha256").update(token).digest("hex");
+export const verifyEmail = async (token: string) => {
+  const { hashedToken } = generateSecureToken({ token });
 
   const authToken = await prisma.authToken.findFirst({
     where: {
@@ -123,31 +146,117 @@ export const userVerifyEmail = async (token: string) => {
     return false;
   }
 
-  await prisma.$transaction([
-    prisma.user.update({
-      where: {
-        id: authToken.user.id,
-      },
-      data: {
-        emailVerified: true,
-      },
-    }),
+  const emailChangeRequest = await prisma.emailChangeRequest.findFirst({
+    where: {
+      userId: authToken.user.id,
+    },
+  });
 
-    prisma.authToken.delete({
-      where: {
-        id: authToken.id,
-      },
-      // data: {
-      //   usedAt: new Date(),
-      // },
-    }),
-  ]);
+  if (emailChangeRequest) {
+    await prisma.$transaction([
+      // Update the email
+      prisma.user.update({
+        where: {
+          id: authToken.user.id,
+        },
+        data: {
+          email: emailChangeRequest.newEmail,
+        },
+      }),
+
+      // Update the providerAccountId
+      prisma.account.update({
+        where: {
+          userId_provider: {
+            userId: authToken.user.id,
+            provider: "LOCAL",
+          },
+        },
+        data: {
+          providerAccountId: emailChangeRequest.newEmail,
+        },
+      }),
+
+      // Delete the verification token
+      prisma.authToken.delete({
+        where: {
+          id: authToken.id,
+        },
+      }),
+
+      // Delete the email change request
+      prisma.emailChangeRequest.delete({
+        where: {
+          userId: authToken.user.id,
+          newEmail: emailChangeRequest.newEmail,
+        },
+      }),
+    ]);
+  } else {
+    await prisma.$transaction([
+      prisma.user.update({
+        where: {
+          id: authToken.user.id,
+        },
+        data: {
+          emailStatus: "VERIFIED",
+        },
+      }),
+
+      prisma.authToken.delete({
+        where: {
+          id: authToken.id,
+        },
+        // data: {
+        //   usedAt: new Date(),
+        // },
+      }),
+    ]);
+  }
 
   return true;
 };
 
+export const resendVerificationEmail = async (
+  userId: string,
+  email: string,
+  ipAddress?: string,
+  userAgent?: string,
+) => {
+  const normalizedEmail = email.toLowerCase().trim();
+
+  const account = await prisma.user.findFirst({
+    where: {
+      id: userId,
+    },
+  });
+
+  if (!account) {
+    throw new AppError("Account not found. Please try logging in again.", 401);
+  }
+
+  const user = {
+    id: account.id,
+    email: normalizedEmail,
+    firstName: account.firstName,
+    lastName: account.lastName,
+    loginCount: account.loginCount,
+  };
+
+  const result = await handleEmailVerificationCheck(user, ipAddress, userAgent);
+
+  if (!result.sentNewEmail) {
+    throw new AppError(
+      "A valid verification link was already sent recently. Please check your spam folder or try again later.",
+      429,
+    );
+  }
+
+  return result.expiresAt && new Date(result.expiresAt).toISOString();
+};
+
 // --- Login Logic ---
-export const loginUser = async (credentials: LoginUserDTO) => {
+export const login = async (credentials: LoginUserDTO) => {
   const { email, password, ipAddress, userAgent } = credentials;
 
   const normalizedEmail = email.toLowerCase().trim();
@@ -200,28 +309,15 @@ export const loginUser = async (credentials: LoginUserDTO) => {
   }
 
   // Email verification
-  if (!user.emailVerified) {
-    const token = await prisma.authToken.findFirst({
-      where: {
-        userId: user.id,
-        type: "EMAIL_VERIFICATION",
-        usedAt: null,
-        revokedAt: null,
-      },
-    });
+  if (user.emailStatus === "UNVERIFIED" && user.loginCount === 0) {
+    const result = await handleEmailVerificationCheck(
+      user,
+      ipAddress,
+      userAgent,
+    );
 
-    const verificationExpired = !token || token.expiresAt < new Date();
-
-    if (verificationExpired) {
-      await sendNewVerificationEmail(
-        {
-          id: user.id,
-          email: user.email,
-          firstName: user.firstName,
-        },
-        ipAddress,
-        userAgent,
-      );
+    if (result.sentNewEmail) {
+      await sendNewVerificationEmail(user, ipAddress, userAgent);
 
       throw new AppError(
         "A new verification email has been sent. Please check your inbox and verify your email before logging in.",
@@ -230,7 +326,7 @@ export const loginUser = async (credentials: LoginUserDTO) => {
     }
 
     throw new AppError(
-      "Please check your inbox and verify your email before logging in.",
+      "A valid verification link was already sent recently. Please check your spam folder or try again later.",
       403,
     );
   }
@@ -301,7 +397,7 @@ export const loginUser = async (credentials: LoginUserDTO) => {
   };
 };
 
-export const userOAuthLogin = async ({
+export const oauthLogin = async ({
   idToken,
   provider,
 }: {
@@ -341,7 +437,7 @@ export const userOAuthLogin = async ({
         lastName,
         email: normalizedEmail,
 
-        emailVerified: email_verified ?? true,
+        emailStatus: email_verified ? "VERIFIED" : "UNVERIFIED",
 
         loginCount: 0,
 
@@ -408,7 +504,7 @@ export const userOAuthLogin = async ({
         id: user.id,
       },
       data: {
-        emailVerified: true,
+        emailStatus: "VERIFIED",
       },
     });
   }
@@ -437,47 +533,117 @@ export const userOAuthLogin = async ({
   };
 };
 
-export const userUpdate = async (
-  userId: string | string[],
+export const updateEmail = async (
+  userId: string,
   userData: Partial<UserUpdateDTO>,
+  ipAddress?: string,
+  userAgent?: string,
 ) => {
-  const { firstName, lastName, email } = userData;
+  const { email } = userData;
 
-  const dataToUpdate: UserUpdateDTO = {};
-
-  if (firstName !== undefined) dataToUpdate.firstName = firstName;
-  if (lastName !== undefined) dataToUpdate.lastName = lastName;
-
-  if (email !== undefined) {
-    const normalizedEmail = email.toLowerCase().trim();
-
-    const existingUser = await prisma.user.findUnique({
-      where: { email: normalizedEmail },
-    });
-
-    if (existingUser && existingUser.id !== userId) {
-      throw new AppError("The email is already taken.", 400, "email");
-    }
-
-    dataToUpdate.email = normalizedEmail;
-  }
-
-  const updatedUser = await prisma.user.update({
-    where: { id: userId as unknown as string },
-    data: dataToUpdate,
+  const currentUser = await prisma.user.findUnique({
+    where: { id: userId },
+    select: USER_SELECT,
   });
 
+  if (!currentUser) {
+    throw new AppError("User not found.", 404);
+  }
+
+  if (!email) {
+    throw new AppError("Email is required.", 400);
+  }
+
+  const normalizedEmail = email.toLowerCase().trim();
+
+  // Check if the email is already taken by another user
+  const existingUserWithEmail = await prisma.user.findUnique({
+    where: { email: normalizedEmail },
+  });
+
+  if (currentUser.email === normalizedEmail) {
+    throw new AppError(
+      "The email is already in use. Please use a different email.",
+      400,
+    );
+  }
+
+  if (existingUserWithEmail && existingUserWithEmail.id !== userId) {
+    throw new AppError("The email is already taken.", 400);
+  }
+
+  const emailChangeRequest = await prisma.emailChangeRequest.create({
+    data: {
+      newEmail: normalizedEmail,
+      ipAddress: ipAddress ?? null,
+      userAgent: userAgent ?? null,
+
+      user: {
+        connect: {
+          id: userId,
+        },
+      },
+    },
+
+    select: {
+      id: true,
+      userId: true,
+      newEmail: true,
+      ipAddress: true,
+      userAgent: true,
+    },
+  });
+
+  // Send verification email using fallback to database values if not being updated
+  const emailPayload = {
+    id: userId,
+    email: normalizedEmail,
+    firstName: currentUser.firstName,
+    lastName: currentUser.lastName,
+    loginCount: currentUser.loginCount,
+  };
+
+  const expiresAt = await sendNewVerificationEmail(
+    emailPayload,
+    ipAddress,
+    userAgent,
+  );
+
   return {
-    userId: updatedUser.id,
-    firstName: updatedUser.firstName,
-    lastName: updatedUser.lastName,
-    email: updatedUser.email,
-    updatedAt: updatedUser.updatedAt,
-    createdAt: updatedUser.createdAt,
+    emailChangeRequest,
+    expiresAt: new Date(expiresAt).toISOString(),
   };
 };
 
-export const userDeleteAccount = async ({
+export const removeNewEmail = async (userId: string, email: string) => {
+  const normalizedEmail = email.trim().toLowerCase();
+
+  const authToken = await prisma.authToken.findFirst({
+    where: {
+      userId,
+      type: "EMAIL_VERIFICATION",
+      usedAt: null,
+      revokedAt: null,
+    },
+  });
+
+  if (!authToken) {
+    throw new AppError("No email verification token found.", 404);
+  }
+
+  await prisma.authToken.delete({
+    where: { id: authToken.id },
+  });
+
+  return prisma.emailChangeRequest.delete({
+    where: {
+      userId,
+      newEmail: normalizedEmail,
+    },
+  });
+};
+
+export const deleteAccount = async ({
   userId,
   password,
   idToken,

@@ -16,16 +16,57 @@ import DarkModeButton from "./shared/DarkModeButton";
 import { useLogoutMutation } from "@/store/api/authApi";
 import useJobHooks from "@/hooks/useJob";
 import SettingsModal from "./SettingsModal";
-import { Skeleton } from "@/components/shared/Loading";
+import { Skeleton, LoadingSpinner } from "@/components/shared/Loading";
 import { selectAuth } from "@/store/selectors";
+import { cn } from "@/utils/cn";
+import Image from "next/image";
+
+const ProfileAvatar = ({
+  profile,
+  className,
+  isLoading = false,
+}: {
+  profile: { profileType: string; profileValue: string } | undefined;
+  className?: string;
+  isLoading?: boolean;
+}) => {
+  const isColorProfile = profile?.profileType === "COLOR";
+
+  return (
+    <div
+      className={cn(
+        "w-7 h-7 sm:w-8 sm:h-8 rounded-full flex items-center justify-center text-white shadow-sm overflow-hidden",
+        !isColorProfile && "bg-gray-100",
+        className,
+      )}
+      style={
+        isColorProfile ? { backgroundColor: profile?.profileValue } : undefined
+      }
+    >
+      {isLoading && <LoadingSpinner />}
+
+      {!isLoading &&
+        (isColorProfile ? (
+          <User className="w-4 h-4" />
+        ) : (
+          <Image
+            src={profile?.profileValue || ""}
+            alt="Profile"
+            className="w-full h-full object-cover"
+            width={28}
+            height={28}
+          />
+        ))}
+    </div>
+  );
+};
 
 const Navbar = () => {
   const router = useRouter();
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const { user, isAuthLoading } = useAppSelector(selectAuth);
-  console.log(user);
 
-  const [singleLogout] = useLogoutMutation();
+  const [singleLogout, { isLoading: isLoadingLogout }] = useLogoutMutation();
 
   const { handleAddJob } = useJobHooks();
 
@@ -37,30 +78,6 @@ const Navbar = () => {
       console.error(err);
     }
   };
-
-  // const getAvatarColor = (name?: string) => {
-  //   const colors = [
-  //     "bg-red-400",
-  //     "bg-pink-400",
-  //     "bg-purple-400",
-  //     "bg-indigo-400",
-  //     "bg-blue-400",
-  //     "bg-cyan-400",
-  //     "bg-teal-400",
-  //     "bg-emerald-400",
-  //     "bg-orange-400",
-  //     "bg-amber-400",
-  //   ];
-
-  //   if (!name) return "bg-gray-400";
-
-  //   let hash = 0;
-  //   for (let i = 0; i < name.length; i++) {
-  //     hash = name.charCodeAt(i) + ((hash << 5) - hash);
-  //   }
-  //   const index = Math.abs(hash) % colors.length;
-  //   return colors[index];
-  // };
 
   return (
     <>
@@ -106,9 +123,11 @@ const Navbar = () => {
                             hover:bg-gray-200 dark:hover:bg-gray-600
                             transition-colors"
                   >
-                    <div className="w-7 h-7 sm:w-8 sm:h-8 bg-red-400 rounded-full flex items-center justify-center text-white font-semibold shadow-sm">
-                      <User className="w-4 h-4" />
-                    </div>
+                    <ProfileAvatar
+                      profile={user?.profile}
+                      isLoading={isAuthLoading}
+                      className="w-12 h-12"
+                    />
                   </div>
                 </DropdownMenuTrigger>
 
@@ -153,10 +172,10 @@ const Navbar = () => {
                   <DropdownMenuItem
                     onClick={handleLogout}
                     className="cursor-pointer"
-                    disabled={isAuthLoading}
                   >
-                    <LogOut className="w-4 h-4 mr-2" />
-                    Logout
+                    {isLoadingLogout && <LoadingSpinner className="w-4 h-4" />}
+                    {!isLoadingLogout && <LogOut className="w-4 h-4 mr-2" />}
+                    Logout{" "}
                   </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>

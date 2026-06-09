@@ -24,12 +24,16 @@ export const emailSchema = z.object({
   email: email,
 });
 
+export const passwordSchema = z.object({
+  password: password,
+});
+
 export const loginSchema = z.object({
   email: email,
   password: password,
 });
 
-export const userUpdateSchema = z.object({
+export const updateProfileSchema = z.object({
   firstName: z
     .string()
     .nonempty("First name is required")
@@ -38,11 +42,6 @@ export const userUpdateSchema = z.object({
     .string()
     .nonempty("Last name is required")
     .min(2, "Last name is too short"),
-  email: z.string().email("Invalid email format"),
-});
-
-export const passwordSchema = z.object({
-  password: password,
 });
 
 export const registerSchema = z
