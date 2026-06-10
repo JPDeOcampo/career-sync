@@ -4,18 +4,21 @@ export const hasLoginHint = () => {
     .some((item) => item.trim().startsWith("is_logged_in="));
 };
 
-export const getVerifiedStatus = () => {
+export const getCookieValue = (name: string): string | null => {
+  if (typeof document === "undefined") {
+    return null;
+  }
   // Check the cookie that starts with "is_verified="
-  const verifiedCookie = document.cookie
+  const cookieValue = document.cookie
     .split(";")
     .map((item) => item.trim())
-    .find((item) => item.startsWith("is_verified="));
+    .find((item) => item.startsWith(name));
 
   // If the cookie doesn't exist, return null
-  if (!verifiedCookie) return null;
+  if (!cookieValue) return null;
 
   // Split by "=" and return the value side
-  return verifiedCookie.split("=")[1];
+  return cookieValue.split("=")[1] || null;
 };
 
 export const getEmailVerificationExpiresAtDate = (): Date | null => {

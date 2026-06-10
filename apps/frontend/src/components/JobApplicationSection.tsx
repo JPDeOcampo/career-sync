@@ -88,17 +88,19 @@ const JobApplicationSection = ({ isViewOnly }: { isViewOnly?: boolean }) => {
           onFileSelect={async (file) => {
             if (type === "CV") {
               if (getDocumentType(file.name) !== "CV") {
-                toast.error("File name must contain CV or Resume");
+                return toast.error("File name must contain CV or Resume");
               }
             } else if (type === "COVER_LETTER") {
               if (getDocumentType(file.name) !== "COVER_LETTER") {
-                toast.error("File name must contain Cover Letter");
+                return toast.error("File name must contain Cover Letter");
               }
             }
 
             const result = await handleFileUpload(file, type);
             if (result) {
-              setValue(result.valueType, result.id);
+              setValue(result.valueType, result.id, {
+                shouldDirty: true,
+              });
             }
           }}
         />

@@ -18,7 +18,7 @@ import DocumentModal from "@/components/shared/DocumentModal";
 import { useAppSelector, useAppDispatch } from "@/hooks/useRedux";
 import { setSelectedViewDocument } from "@/store/slices/documentSlice";
 import { selectDocuments } from "@/store/selectors";
-import { getVerifiedStatus } from "@/utils/cookies";
+import { getCookieValue } from "@/utils/cookies";
 import {
   VERIFICATION_EMAIL_REGISTER,
   VERIFICATION_EMAIL_CHANGE,
@@ -51,7 +51,7 @@ const AppContent = ({ Component, pageProps }: AppProps) => {
   }, [router.pathname]);
 
   useEffect(() => {
-    const hasVerified = getVerifiedStatus();
+    const hasVerified = getCookieValue("is_verified=");
     const isLoginPage = router.pathname === "login";
     const verificationMessage = isLoginPage
       ? VERIFICATION_EMAIL_REGISTER

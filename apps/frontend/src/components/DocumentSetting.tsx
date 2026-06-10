@@ -281,7 +281,7 @@ const DocumentsTable = ({
         {documents.map((document) => (
           <div
             key={document.id}
-            className="bg-white dark:bg-gray-800 p-4 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 active:scale-[0.98] transition"
+            className="bg-white dark:bg-gray-800 p-4 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 active:scale-[0.98] transition overflow-hidden"
             onClick={() =>
               viewDocument({ id: document.id, url: document.fileUrl })
             }
@@ -377,7 +377,7 @@ const DocumentSetting = () => {
     if (getDocumentsQuery.search) {
       return `No document matches your search for "${getDocumentsQuery.search}".`;
     }
-    return "No documents found. <br/> Start by adding your first document!";
+    return "No documents found. <br/> Start by uploading your first document!";
   };
 
   useEffect(() => {

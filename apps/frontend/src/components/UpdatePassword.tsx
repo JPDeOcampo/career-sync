@@ -69,7 +69,11 @@ const UpdatePassword = ({
         isViewOnly={isViewOnly}
         onClick={onViewOnly}
       />
-
+      <p className="text-sm text-foreground mb-4">
+        Change your password anytime to help keep your account safe. Choose a
+        strong password that&#39;s easy for you to remember but hard for others
+        to guess.
+      </p>
       <FormProvider {...methods}>
         <form
           onSubmit={handleSubmit(onSubmit)}

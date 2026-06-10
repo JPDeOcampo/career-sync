@@ -215,17 +215,28 @@ const useDocumentsHooks = () => {
             Are you sure you want to delete these <b>{idList.length}</b>{" "}
             documents?
           </p>
+          <div className="px-4 bg-white dark:bg-gray-700 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700">
+            <ul className="space-y-2 pt-4 pb-2 w-full max-h-64 overflow-y-auto pr-2">
+              {idList.map((id) => {
+                const document = documents.find(
+                  (document) => document.id === id,
+                );
+                if (!document) {
+                  return null;
+                }
+                const doc = document;
 
-          <ul className="pl-8 pr-4 py-4 bg-white dark:bg-gray-700 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 list-disc">
-            {idList.map((id) => {
-              const document = documents.find((document) => document.id === id);
-              return (
-                <li key={id}>
-                  <span className="font-bold">{document?.name}</span>
-                </li>
-              );
-            })}
-          </ul>
+                return (
+                  <li key={id} className="flex items-start gap-2 min-w-max">
+                    <span className="mt-2 w-1.5 h-1.5 rounded-full bg-gray-400 shrink-0" />
+                    <span className="font-bold whitespace-nowrap">
+                      {doc.name}
+                    </span>
+                  </li>
+                );
+              })}
+            </ul>
+          </div>
 
           <p>
             This action cannot be undone. Any jobs currently linked to these

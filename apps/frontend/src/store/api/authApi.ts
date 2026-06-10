@@ -276,13 +276,8 @@ export const authApi = createApi({
         url: `${path}/single-logout`,
         method: "POST",
       }),
-      async onQueryStarted(_, { dispatch, queryFulfilled }) {
-        try {
-          await queryFulfilled;
-          dispatch(logout());
-        } catch (err) {
-          console.error("Logout failed", err);
-        }
+      extraOptions: {
+        skipReauth: true,
       },
     }),
   }),

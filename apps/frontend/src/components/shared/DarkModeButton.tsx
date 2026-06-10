@@ -6,12 +6,12 @@ import { useAppSelector, useAppDispatch } from "@/hooks/useRedux";
 import { selectAuth, selectTheme } from "@/store/selectors";
 import { toggleDarkMode, setDarkMode } from "@/store/slices/themeSlice";
 import { useUpdateSettingsMutation } from "@/store/api/userApi";
+import { getCookieValue } from "@/utils/cookies";
 
 const DarkModeButton = () => {
   const dispatch = useAppDispatch();
   const { isDarkMode } = useAppSelector(selectTheme);
   const { user } = useAppSelector(selectAuth);
-  const isUserPreferredMode = user?.settings?.darkMode;
 
   const [updateSettings, { isLoading }] = useUpdateSettingsMutation();
 
@@ -29,10 +29,14 @@ const DarkModeButton = () => {
   };
 
   useEffect(() => {
+    const isUserPreferredMode = user?.settings?.darkMode;
+
     if (isUserPreferredMode !== undefined) {
-      dispatch(setDarkMode(isUserPreferredMode));
+      dispatch(setDarkMode(isUserPreferredMode as boolean));
+    } else {
+      dispatch(setDarkMode(getCookieValue("is_dark_mode") === "true"));
     }
-  }, [user]);
+  }, [user, dispatch]);
 
   return (
     <button

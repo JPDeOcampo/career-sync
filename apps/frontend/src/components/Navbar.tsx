@@ -20,6 +20,8 @@ import { Skeleton, LoadingSpinner } from "@/components/shared/Loading";
 import { selectAuth } from "@/store/selectors";
 import { cn } from "@/utils/cn";
 import Image from "next/image";
+import { useAppDispatch } from "@/hooks/useRedux";
+import { logout } from "@/store/slices/authSlice";
 
 const ProfileAvatar = ({
   profile,
@@ -36,7 +38,8 @@ const ProfileAvatar = ({
     <div
       className={cn(
         "w-7 h-7 sm:w-8 sm:h-8 rounded-full flex items-center justify-center text-white shadow-sm overflow-hidden",
-        !isColorProfile && "bg-gray-100",
+        isLoading && "bg-background",
+        !isColorProfile && !profile && !isLoading && "bg-red-400",
         className,
       )}
       style={
@@ -46,6 +49,7 @@ const ProfileAvatar = ({
       {isLoading && <LoadingSpinner />}
 
       {!isLoading &&
+        profile &&
         (isColorProfile ? (
           <User className="w-4 h-4" />
         ) : (
@@ -57,11 +61,14 @@ const ProfileAvatar = ({
             height={28}
           />
         ))}
+
+      {!isLoading && !profile && <User className="w-4 h-4" />}
     </div>
   );
 };
 
 const Navbar = () => {
+  const dispatch = useAppDispatch();
   const router = useRouter();
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const { user, isAuthLoading } = useAppSelector(selectAuth);
@@ -72,8 +79,11 @@ const Navbar = () => {
 
   const handleLogout = async () => {
     try {
-      await singleLogout().unwrap();
+      await singleLogout();
       router.push("/login");
+      setTimeout(() => {
+        dispatch(logout());
+      }, 500);
     } catch (err) {
       console.error(err);
     }

@@ -113,6 +113,7 @@ const DeleteAccount = () => {
   const handleCloseModal = () => {
     currentPassword.toggle();
     setIsShowForm(false);
+    setIsShowConfirm(false);
   };
 
   return (
@@ -154,7 +155,7 @@ const DeleteAccount = () => {
           headerClassName="text-md font-semibold text-default"
           containerClassName={cn(
             "w-full flex flex-col h-auto",
-            isShowForm ? "max-w-md max-h-[35vh]" : "max-w-2xl max-h-[40vh]",
+            isShowForm ? "max-w-md max-h-[55vh]" : "max-w-2xl max-h-[40vh]",
           )}
           onClose={handleCloseModal}
         >
