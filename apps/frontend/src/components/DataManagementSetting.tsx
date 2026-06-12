@@ -155,7 +155,7 @@ const DataManagementSettings = ({ onClose }: { onClose?: () => void }) => {
           description="Upload a CSV or Excel file."
           icon={<Upload className="h-5 w-5 text-muted-foreground" />}
           onClick={handleClick}
-          disabled={isAdding}
+          disabled={isAdding || isFetchingJobs || isDeleting}
           loading={isAdding}
         >
           <input
@@ -173,7 +173,7 @@ const DataManagementSettings = ({ onClose }: { onClose?: () => void }) => {
           description="Download all applications as Excel."
           icon={<Download className="h-5 w-5 text-muted-foreground" />}
           onClick={handleExport}
-          disabled={isFetchingJobs}
+          disabled={isFetchingJobs || isAdding || isDeleting}
           loading={isFetchingJobs}
         />
 
@@ -185,6 +185,7 @@ const DataManagementSettings = ({ onClose }: { onClose?: () => void }) => {
             icon={<Trash2 className="h-5 w-5 text-red-400" />}
             variant="danger"
             onClick={() => setIsShowDeleteConfirm(true)}
+            disabled={isFetchingJobs || isAdding}
           />
           {isShowConfirm && (
             <Modal

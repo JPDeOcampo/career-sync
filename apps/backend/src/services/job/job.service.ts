@@ -159,16 +159,11 @@ const createJobs = async (jobs: JobApplication[], userId: string) => {
       );
     }
   }
-  console.log(jobs, "createJobs");
+
   return prisma.$transaction(
     jobs.map((job) =>
       prisma.job.create({
         data: buildJobCreateData(job, userId),
-        include: {
-          interviewStages: true,
-          cv: true,
-          coverLetter: true,
-        },
       }),
     ),
   );
