@@ -66,12 +66,21 @@ export const updateJobController = async (req: Request, res: Response) => {
 // --- Delete Job ---
 export const deleteJobController = async (req: Request, res: Response) => {
   const { ids } = req.body;
-  const userID = req.user?.id as string;
+  const userId = req.user?.id as string;
 
   const referenceId = ids;
 
-  const result = await jobService.deleteJob(referenceId, userID);
+  const result = await jobService.deleteJob(referenceId, userId);
 
+  res.status(200).json({
+    success: true,
+    message: result.message,
+  });
+};
+
+export const deleteAllJobs = async (req: Request, res: Response) => {
+  const userId = req.user?.id as string;
+  const result = await jobService.deleteAllJobs(userId);
   res.status(200).json({
     success: true,
     message: result.message,

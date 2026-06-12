@@ -3,119 +3,186 @@ import { prisma } from "@/lib/prisma.js";
 import { JobApplication } from "@career-sync/shared";
 import { getRecentDate } from "@career-sync/shared";
 
-// --- Add Job Logic ---
-export const addJob = async (
-  data: JobApplication,
-  userID: string | string[],
-) => {
-  // Destructure data with defaults where appropriate
-  const {
-    id,
-    company,
-    roleTitle,
-    jobDescription,
-    jobType,
-    salary,
-    workSetup,
-    workSchedule,
-    location,
-    jobLink,
-    applicationMethod,
-    applicationDate,
-    status,
-    priority,
-    cvId,
-    coverLetterId,
-    interviewStages = [],
-    contact,
-    offer,
-    notes,
-  } = data;
+// --- Add Job Logic ---p
+const buildJobCreateData = (job: JobApplication, userId: string) => ({
+  id: job.id,
+  company: job.company,
+  roleTitle: job.roleTitle,
+  jobDescription: job.jobDescription,
+  jobType: job.jobType,
+  salary: job.salary,
+  workSetup: job.workSetup,
+  workSchedule: job.workSchedule,
+  location: job.location,
+  jobLink: job.jobLink,
+  applicationMethod: job.applicationMethod,
+  applicationDate: job.applicationDate
+    ? new Date(job.applicationDate)
+    : undefined,
+  status: job.status,
+  priority: job.priority,
+  contact: job.contact,
+  offer: job.offer,
+  notes: job.notes,
 
-  // Convert dates in interviewStages
-  const interviewData = interviewStages.map((stage) => ({
-    id: stage.id,
-    interviewType: stage.interviewType,
-    interviewDate: stage.interviewDate
-      ? new Date(stage.interviewDate)
-      : undefined,
-    interviewerName: stage.interviewerName,
-    interviewComment: stage.interviewComment,
-  }));
-
-  // Validate job ID uniqueness
-  const [existingJob, existingUser] = await Promise.all([
-    prisma.job.findUnique({ where: { id: id as string } }),
-    prisma.user.findUnique({ where: { id: userID as string } }),
-  ]);
-
-  if (existingJob) {
-    throw new AppError("Job ID already exists.", 400);
-  }
-
-  if (!existingUser) {
-    throw new AppError("User not found.", 404);
-  }
-
-  const [cv, coverLetter] = await Promise.all([
-    cvId ? prisma.document.findUnique({ where: { id: cvId } }) : null,
-    coverLetterId
-      ? prisma.document.findUnique({ where: { id: coverLetterId } })
-      : null,
-  ]);
-
-  // Throw error if CV or cover letter is not found
-  if (cvId && !cv) {
-    throw new Error("CV document not found");
-  }
-
-  if (coverLetterId && !coverLetter) {
-    throw new Error("Cover letter document not found");
-  }
-
-  // Create job in one go
-  const job = await prisma.job.create({
-    data: {
-      id,
-      company,
-      roleTitle,
-      jobDescription,
-      jobType,
-      salary,
-      workSetup,
-      workSchedule,
-      location,
-      jobLink,
-      applicationMethod,
-      applicationDate: applicationDate ? new Date(applicationDate) : undefined,
-      status,
-      priority,
-      contact,
-      interviewStages:
-        interviewData.length > 0 ? { create: interviewData } : undefined,
-      offer,
-      notes,
-      user: { connect: { id: userID as string } },
-      ...(cvId && {
-        cv: {
-          connect: { id: cvId },
-        },
-      }),
-
-      ...(coverLetterId && {
-        coverLetter: {
-          connect: { id: coverLetterId },
-        },
-      }),
+  user: {
+    connect: {
+      id: userId,
     },
-    include: {
-      interviewStages: true,
-      cv: true,
-      coverLetter: true,
+  },
+
+  ...(job.cvId && {
+    cv: {
+      connect: {
+        id: job.cvId,
+      },
+    },
+  }),
+
+  ...(job.coverLetterId && {
+    coverLetter: {
+      connect: {
+        id: job.coverLetterId,
+      },
+    },
+  }),
+
+  ...(job.interviewStages?.length
+    ? {
+        interviewStages: {
+          create: job.interviewStages.map((stage) => ({
+            id: stage.id,
+            interviewType: stage.interviewType,
+            interviewDate: stage.interviewDate
+              ? new Date(stage.interviewDate)
+              : undefined,
+            interviewTime: stage.interviewTime,
+            interviewerName: stage.interviewerName,
+            interviewComment: stage.interviewComment,
+          })),
+        },
+      }
+    : {}),
+});
+
+const createJobs = async (jobs: JobApplication[], userId: string) => {
+  // Verify user once
+  const user = await prisma.user.findUnique({
+    where: {
+      id: userId,
     },
   });
 
-  return job;
+  if (!user) {
+    throw new AppError("User not found.", 404);
+  }
+
+  // Validate duplicate job IDs
+  const jobIds = jobs.map((job) => job.id).filter(Boolean) as string[];
+
+  if (jobIds.length > 0) {
+    const existingJobs = await prisma.job.findMany({
+      where: {
+        id: {
+          in: jobIds,
+        },
+      },
+      select: {
+        id: true,
+      },
+    });
+
+    if (existingJobs.length > 0) {
+      throw new AppError(
+        `Job ID already exists: ${existingJobs
+          .map((job) => job.id)
+          .join(", ")}`,
+        400,
+      );
+    }
+  }
+
+  // Validate CVs
+  const cvIds = jobs.map((job) => job.cvId).filter(Boolean) as string[];
+
+  if (cvIds.length > 0) {
+    const cvs = await prisma.document.findMany({
+      where: {
+        id: {
+          in: cvIds,
+        },
+      },
+      select: {
+        id: true,
+      },
+    });
+
+    const foundCvIds = new Set(cvs.map((cv) => cv.id));
+
+    const missingCvIds = cvIds.filter((id) => !foundCvIds.has(id));
+
+    if (missingCvIds.length > 0) {
+      throw new AppError(
+        `CV documents not found: ${missingCvIds.join(", ")}`,
+        400,
+      );
+    }
+  }
+
+  // Validate Cover Letters
+  const coverLetterIds = jobs
+    .map((job) => job.coverLetterId)
+    .filter(Boolean) as string[];
+
+  if (coverLetterIds.length > 0) {
+    const coverLetters = await prisma.document.findMany({
+      where: {
+        id: {
+          in: coverLetterIds,
+        },
+      },
+      select: {
+        id: true,
+      },
+    });
+
+    const foundCoverLetterIds = new Set(coverLetters.map((doc) => doc.id));
+
+    const missingCoverLetterIds = coverLetterIds.filter(
+      (id) => !foundCoverLetterIds.has(id),
+    );
+
+    if (missingCoverLetterIds.length > 0) {
+      throw new AppError(
+        `Cover letter documents not found: ${missingCoverLetterIds.join(", ")}`,
+        400,
+      );
+    }
+  }
+  console.log(jobs, "createJobs");
+  return prisma.$transaction(
+    jobs.map((job) =>
+      prisma.job.create({
+        data: buildJobCreateData(job, userId),
+        include: {
+          interviewStages: true,
+          cv: true,
+          coverLetter: true,
+        },
+      }),
+    ),
+  );
+};
+
+export const addJob = async (
+  data: JobApplication | JobApplication[],
+  userId: string,
+) => {
+  const jobs = Array.isArray(data) ? data : [data];
+
+  const createdJobs = await createJobs(jobs, userId);
+
+  return Array.isArray(data) ? createdJobs : createdJobs[0];
 };
 
 export const getJobs = async (
@@ -367,7 +434,7 @@ export const updateJob = async (
 
 export const deleteJob = async (
   referenceId: string | string[],
-  userID: string,
+  userId: string,
 ) => {
   const ids = Array.isArray(referenceId) ? referenceId : [referenceId];
 
@@ -375,7 +442,7 @@ export const deleteJob = async (
   const existingJobs = await prisma.job.findMany({
     where: {
       id: { in: ids },
-      userId: userID,
+      userId: userId,
     },
   });
 
@@ -391,9 +458,26 @@ export const deleteJob = async (
   await prisma.job.deleteMany({
     where: {
       id: { in: ids },
-      userId: userID,
+      userId: userId,
     },
   });
 
   return { message: "Job(s) deleted successfully" };
+};
+
+export const deleteAllJobs = async (userId: string) => {
+  const result = await prisma.job.deleteMany({
+    where: {
+      userId,
+    },
+  });
+
+  if (result.count === 0) {
+    throw new AppError(
+      "No jobs to delete. Please add some jobs first before deleting.",
+      404,
+    );
+  }
+
+  return { message: "All jobs deleted successfully" };
 };

@@ -2,12 +2,14 @@ import { useState } from "react";
 import Modal from "@/components/shared/Modal";
 import AccountSetting from "./AccountSetting";
 import DocumentSetting from "./DocumentSetting";
+import DataManagementSetting from "./DataManagementSetting";
 import { cn } from "@/utils/cn";
 import { Dropdown, DropdownItem } from "@/components/shared/CustomDropdown";
 
 const settingsOptions = [
-  { label: "Account Setting", value: "account" },
-  { label: "Documents Setting", value: "documents" },
+  { label: "Account", value: "account" },
+  { label: "Documents", value: "documents" },
+  { label: "Data Management", value: "data" },
 ];
 
 const DesktopSettings = ({
@@ -95,6 +97,7 @@ const SettingsModal = ({ onClose }: { onClose: () => void }) => {
       <>
         {activeTab === "account" && <AccountSetting />}
         {activeTab === "documents" && <DocumentSetting />}
+        {activeTab === "data" && <DataManagementSetting onClose={onClose} />}
       </>
     );
   };
