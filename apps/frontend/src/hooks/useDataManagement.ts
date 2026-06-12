@@ -12,6 +12,7 @@ import { capitalizeSmart } from "@/utils/stringHelper";
 import { v4 as uuidv4 } from "uuid";
 import { useAppSelector } from "@/hooks/useRedux";
 import { selectAuth } from "@/store/selectors";
+import { handleApiError } from "@/utils/handleApi";
 
 const useDataManagementHooks = () => {
   const [isExport, setIsExport] = useState(true);
@@ -70,8 +71,7 @@ const useDataManagementHooks = () => {
       onSuccess?.();
       toast.success("Job applications imported successfully!");
     } catch (error) {
-      console.error((error as Error).message);
-      toast.error((error as Error).message);
+      toast.error(handleApiError(error));
     }
   };
 
