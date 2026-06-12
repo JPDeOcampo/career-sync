@@ -223,6 +223,19 @@ export const jobsApi = createApi({
       },
     }),
 
+    addJobs: builder.mutation<
+      { data: JobApplication[] },
+      { data: JobApplication[] }
+    >({
+      query: ({ data }) => ({
+        url: `${path}/bulk-add`,
+        method: "POST",
+        body: data,
+      }),
+
+      invalidatesTags: ["Jobs"],
+    }),
+
     // --- UPDATE JOB ---
     updateJob: builder.mutation<
       { data: JobApplication },
@@ -489,12 +502,23 @@ export const jobsApi = createApi({
       }),
       invalidatesTags: [{ type: "Jobs", id: "LIST" }],
     }),
+
+    deleteAllJob: builder.mutation<{ message: string }, void>({
+      query: () => ({
+        url: `${path}/delete-all`,
+        method: "DELETE",
+      }),
+      invalidatesTags: [{ type: "Jobs", id: "LIST" }],
+    }),
   }),
 });
 
 export const {
   useGetJobsQuery,
+  useLazyGetJobsQuery,
   useAddJobMutation,
+  useAddJobsMutation,
   useUpdateJobMutation,
   useDeleteJobMutation,
+  useDeleteAllJobMutation,
 } = jobsApi;

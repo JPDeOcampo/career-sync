@@ -5,8 +5,9 @@ import {
   createJobController,
   updateJobController,
   deleteJobController,
+  deleteAllJobs,
 } from "@/controllers/job/job.controller";
-import { jobSchema } from "@career-sync/shared";
+import { jobSchema, jobsSchema } from "@career-sync/shared";
 import { protect } from "@/middleware/authenticate.middleware";
 import { authLimiter } from "@/middleware/rate-limiters.middleware";
 import { validate } from "@/middleware/validate.middleware";
@@ -22,11 +23,21 @@ router.get("/", protect, authLimiter, asyncHandler(getJobsController));
 
 router.get("/:jobId", protect, authLimiter, asyncHandler(getJobByIdController));
 
+// Create job
 router.post(
   "/",
   protect,
   authLimiter,
   validate(jobSchema),
+  asyncHandler(createJobController),
+);
+
+// Bulk Create jobs
+router.post(
+  "/bulk-add",
+  protect,
+  authLimiter,
+  validate(jobsSchema),
   asyncHandler(createJobController),
 );
 
@@ -39,5 +50,7 @@ router.patch(
 );
 
 router.delete("/", protect, authLimiter, asyncHandler(deleteJobController));
+
+router.delete("/delete-all", protect, authLimiter, asyncHandler(deleteAllJobs));
 
 export default router;

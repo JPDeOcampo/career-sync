@@ -57,3 +57,5 @@ export const jobSchema = z.object({
   interviewStages: z.array(interviewStagesSchema).optional(),
   notes: z.string(),
 });
+
+export const jobsSchema = z.array(jobSchema);
