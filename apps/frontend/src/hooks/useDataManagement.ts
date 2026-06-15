@@ -66,6 +66,12 @@ const useDataManagementHooks = () => {
       const data = await importJobsFromExcel(file);
       const jobData = normalizeJobData(data);
 
+      if (jobData.length === 0) {
+        return toast.error(
+          "No valid job applications found. Please check that the required fields are filled in.",
+        );
+      }
+
       await addJobs({ data: jobData }).unwrap();
 
       onSuccess?.();

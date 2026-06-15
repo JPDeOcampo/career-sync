@@ -13,6 +13,11 @@ export const handleApiResponse = <T extends { message?: string }>(
 };
 
 export const handleApiError = (error: unknown): string => {
+  // Normal JS / thrown errors (like import)
+  if (error instanceof Error) {
+    return error.message;
+  }
+
   // RTK Query error
   if (typeof error === "object" && error !== null && "status" in error) {
     const err = error as FetchBaseQueryError;
@@ -29,24 +34,24 @@ export const handleApiError = (error: unknown): string => {
     // Fallback by status
     switch (err.status) {
       case 400:
-        return "Invalid request";
+        return "Invalid request.";
 
       case 401:
-        return "Unauthorized";
+        return "Unauthorized.";
 
       case 403:
-        return "Access denied";
+        return "Access denied.";
 
       case 404:
-        return "Not found";
+        return "Not found.";
 
       case 500:
-        return "Server error";
+        return "Server error. Please try again later.";
 
       default:
-        return "Something went wrong";
+        return "Something went wrong. Please try again later.";
     }
   }
 
-  return "Unexpected error";
+  return "Unexpected error. Please try again later.";
 };

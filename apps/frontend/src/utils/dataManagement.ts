@@ -34,10 +34,7 @@ export const importJobsFromExcel = async (
     );
   }
 
-  const jobs: JobApplication[] = [];
-
   const headerRow = worksheet.getRow(4);
-
   const headers = headerRow.values as string[];
 
   const missingHeaders = REQUIRED_HEADERS.filter(
@@ -48,6 +45,27 @@ export const importJobsFromExcel = async (
     throw new Error(`Missing required columns: ${missingHeaders.join(", ")}`);
   }
 
+  const jobs: JobApplication[] = [];
+  const errors: string[] = [];
+
+  const validateString = (
+    value: string | undefined,
+    fieldName: string,
+    minLength: number,
+  ): string | null => {
+    const trimmed = value?.trim() ?? "";
+
+    if (!trimmed) {
+      return `${fieldName} is required`;
+    }
+
+    if (trimmed.length < minLength) {
+      return `${fieldName} must be at least ${minLength} characters`;
+    }
+
+    return null;
+  };
+
   worksheet.eachRow((row, rowNumber) => {
     if (rowNumber <= 4) return;
 
@@ -56,6 +74,7 @@ export const importJobsFromExcel = async (
     const job: Partial<JobApplication> = {
       company: "",
       roleTitle: "",
+      jobDescription: "",
       interviewStages: [],
     };
 
@@ -80,7 +99,7 @@ export const importJobsFromExcel = async (
           break;
 
         case "Job Type":
-          job.jobType = String(value ?? "") as JobType;
+          job.jobType = String(value ?? "Full-time") as JobType;
           break;
 
         case "Salary":
@@ -96,11 +115,13 @@ export const importJobsFromExcel = async (
           break;
 
         case "Work Setup":
-          job.workSetup = String(value ?? null) as WorkSetup;
+          job.workSetup = String(value ?? "On-site") as WorkSetup;
           break;
 
         case "Application Method":
-          job.applicationMethod = String(value ?? "") as ApplicationMethod;
+          job.applicationMethod = String(
+            value ?? "LinkedIn",
+          ) as ApplicationMethod;
           break;
 
         case "Applied Date":
@@ -110,11 +131,11 @@ export const importJobsFromExcel = async (
           break;
 
         case "Status":
-          job.status = String(value ?? "") as ApplicationStatus;
+          job.status = String(value ?? "Applied") as ApplicationStatus;
           break;
 
         case "Priority":
-          job.priority = String(value ?? "") as PriorityType;
+          job.priority = String(value ?? "Low") as PriorityType;
           break;
 
         case "Notes":
@@ -150,8 +171,22 @@ export const importJobsFromExcel = async (
       }
     });
 
+    const rowErrors = [
+      validateString(job.company, "Company", 2),
+      validateString(job.roleTitle, "Role", 2),
+      validateString(job.jobDescription, "Job Description", 10),
+    ].filter(Boolean);
+
+    if (rowErrors.length > 0) {
+      errors.push(`Row ${rowNumber}: ${rowErrors.join(", ")}`);
+    }
+
     jobs.push(job as JobApplication);
   });
+
+  if (errors.length > 0) {
+    throw new Error(errors.join("\n"));
+  }
 
   return jobs;
 };
