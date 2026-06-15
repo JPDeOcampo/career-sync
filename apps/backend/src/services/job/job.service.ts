@@ -160,17 +160,30 @@ const createJobs = async (jobs: JobApplication[], userId: string) => {
     }
   }
 
+  if (!jobs || jobs.length === 0) {
+    return [];
+  }
+
+  // If there is only 1 job, run it directly without a transaction
+  if (jobs.length === 1) {
+    const singleCreated = await prisma.job.create({
+      data: buildJobCreateData(jobs[0], userId),
+      include: {
+        interviewStages: true,
+        cv: true,
+        coverLetter: true,
+      },
+    });
+    return [singleCreated];
+  }
+
+  // Only include the transaction if jobs.length > 1
   return prisma.$transaction(
     async (tx) => {
       const created = await Promise.all(
         jobs.map((job) =>
           tx.job.create({
             data: buildJobCreateData(job, userId),
-            include: {
-              interviewStages: true,
-              cv: true,
-              coverLetter: true,
-            },
           }),
         ),
       );

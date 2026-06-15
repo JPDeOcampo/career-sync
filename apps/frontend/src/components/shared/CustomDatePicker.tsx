@@ -22,6 +22,7 @@ type Props = {
   label?: string;
   value?: Date | string | null;
   isViewOnly?: boolean;
+  showAfterLabel?: boolean;
   isRequired?: boolean;
   onChange: (date: string) => void;
 };
@@ -36,6 +37,7 @@ const CustomDatePicker = ({
   label = "Date",
   value,
   isViewOnly,
+  showAfterLabel = true,
   isRequired = false,
   onChange,
 }: Props) => {
@@ -75,6 +77,7 @@ const CustomDatePicker = ({
         <FieldLabel
           label={label}
           isViewOnly={isViewOnly}
+          showAfterLabel={showAfterLabel}
           isRequired={isRequired}
         />
       )}

@@ -390,7 +390,14 @@ const DocumentSetting = () => {
   return (
     <div className="h-full overflow-y-auto md:pt-6 px-4" ref={scrollRef}>
       <div className="flex flex-col gap-4">
-        <h3>Documents</h3>
+        <div>
+          <h3 className="text-lg font-semibold text-foreground">Documents</h3>
+
+          <p className="mt-1 text-sm text-muted-foreground">
+            Upload and manage your documents.
+          </p>
+        </div>
+
         <div className="flex flex-col gap-6">
           <Dropbox
             title="Upload Documents"

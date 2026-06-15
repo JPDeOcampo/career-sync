@@ -195,6 +195,7 @@ const JobInterviewSection = ({
                   isViewOnly={isViewOnly}
                   align="left"
                   isRequired={true}
+                  showAfterLabel={false}
                 >
                   {interviewTypes.map((s) => (
                     <DropdownItem
@@ -223,6 +224,7 @@ const JobInterviewSection = ({
                   isViewOnly={isViewOnly}
                   onChange={field.onChange}
                   isRequired={true}
+                  showAfterLabel={false}
                 />
               )}
             />
@@ -236,6 +238,7 @@ const JobInterviewSection = ({
                   isViewOnly={isViewOnly}
                   onChange={field.onChange}
                   isRequired={true}
+                  showAfterLabel={false}
                 />
               )}
             />

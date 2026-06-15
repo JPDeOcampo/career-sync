@@ -11,6 +11,7 @@ interface DropdownProps {
   value: string;
   children: ReactNode;
   isViewOnly?: boolean;
+  showAfterLabel?: boolean;
   isRequired?: boolean;
   align?: "left" | "right";
   url?: string;
@@ -37,6 +38,7 @@ export const Dropdown = ({
   value,
   isViewOnly = false,
   isRequired = false,
+  showAfterLabel = true,
   children,
   align = "left",
   url,
@@ -66,6 +68,7 @@ export const Dropdown = ({
           <FieldLabel
             label={label}
             isViewOnly={isViewOnly}
+            showAfterLabel={showAfterLabel}
             isRequired={isRequired}
           />
         )}

@@ -119,9 +119,10 @@ const JobApplicationSection = ({ isViewOnly }: { isViewOnly?: boolean }) => {
           defaultValue={applicationMethods[0]}
           render={({ field }) => (
             <Dropdown
-              label="Select Method"
+              label="Application Method"
               value={field.value}
               isViewOnly={isViewOnly}
+              showAfterLabel={false}
               align="left"
             >
               {applicationMethods.map((m) => (
@@ -145,6 +146,7 @@ const JobApplicationSection = ({ isViewOnly }: { isViewOnly?: boolean }) => {
             <CustomDatePicker
               value={field.value}
               isViewOnly={isViewOnly}
+              showAfterLabel={false}
               onChange={field.onChange}
             />
           )}
@@ -160,6 +162,7 @@ const JobApplicationSection = ({ isViewOnly }: { isViewOnly?: boolean }) => {
               label="Status"
               value={field.value}
               isViewOnly={isViewOnly}
+              showAfterLabel={false}
               align="left"
             >
               {statuses.map((s) => (
@@ -184,6 +187,7 @@ const JobApplicationSection = ({ isViewOnly }: { isViewOnly?: boolean }) => {
               label="Priority"
               value={field.value}
               isViewOnly={isViewOnly}
+              showAfterLabel={false}
               align="left"
             >
               {priorities.map((p) => (

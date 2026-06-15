@@ -27,12 +27,14 @@ export const FieldLabel = ({
   error,
   isRequired = false,
   isViewOnly = false,
+  showAfterLabel = true,
 }: {
   name?: string;
   label: string;
   error?: string;
   isRequired?: boolean;
   isViewOnly?: boolean;
+  showAfterLabel?: boolean;
 }) => {
   return (
     <Label
@@ -42,6 +44,7 @@ export const FieldLabel = ({
       {label}
 
       {!isViewOnly &&
+        showAfterLabel &&
         (isRequired ? (
           <span>*</span>
         ) : (

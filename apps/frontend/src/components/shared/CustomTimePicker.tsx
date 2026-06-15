@@ -9,6 +9,7 @@ type Props = {
   label?: string;
   value?: string | null;
   isViewOnly?: boolean;
+  showAfterLabel?: boolean;
   isRequired?: boolean;
   onChange: (time: string) => void;
 };
@@ -33,6 +34,7 @@ const CustomTimePicker = ({
   label = "Time",
   value,
   isViewOnly,
+  showAfterLabel = true,
   isRequired,
   onChange,
 }: Props) => {
@@ -76,6 +78,7 @@ const CustomTimePicker = ({
         <FieldLabel
           label={label}
           isViewOnly={isViewOnly}
+          showAfterLabel={showAfterLabel}
           isRequired={isRequired}
         />
       )}

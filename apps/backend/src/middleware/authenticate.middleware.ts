@@ -35,6 +35,9 @@ export const protect = (req: Request, res: Response, next: NextFunction) => {
 
     next();
   } catch {
-    throw new AppError("Token invalid or expired", 401);
+    throw new AppError(
+      "Token invalid or expired. Please try again later.",
+      401,
+    );
   }
 };

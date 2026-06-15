@@ -46,6 +46,7 @@ const JobInfoSection = ({ isViewOnly }: { isViewOnly?: boolean }) => {
               label="Job Type"
               value={field.value}
               isViewOnly={isViewOnly}
+              showAfterLabel={false}
               align="left"
             >
               {jobTypes.map((t) => (
@@ -69,6 +70,7 @@ const JobInfoSection = ({ isViewOnly }: { isViewOnly?: boolean }) => {
               label="Work Setup"
               value={field.value}
               isViewOnly={isViewOnly}
+              showAfterLabel={false}
               align="left"
             >
               {workSetups.map((s) => (
