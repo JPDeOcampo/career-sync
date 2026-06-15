@@ -196,7 +196,7 @@ const createJobs = async (jobs: JobApplication[], userId: string) => {
   );
 };
 
-export const addJob = async (
+export const addJobs = async (
   data: JobApplication | JobApplication[],
   userId: string,
 ) => {

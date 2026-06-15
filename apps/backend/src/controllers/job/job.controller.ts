@@ -2,11 +2,11 @@ import type { Request, Response } from "express";
 import * as jobService from "@/services/job/job.service.js";
 
 // --- Add Job ---
-export const createJobController = async (req: Request, res: Response) => {
+export const createJobs = async (req: Request, res: Response) => {
   const userID = req.user?.id as string;
   const data = req.body;
 
-  const job = await jobService.addJob(data, userID);
+  const job = await jobService.addJobs(data, userID);
   return res.status(201).json({
     message: "New Job added successfully!",
     data: job,
@@ -14,7 +14,7 @@ export const createJobController = async (req: Request, res: Response) => {
 };
 
 // --- Get Jobs ---
-export const getJobsController = async (req: Request, res: Response) => {
+export const getJobs = async (req: Request, res: Response) => {
   const userID = req.user?.id as string;
 
   const { sort, status, search, priority, page, limit } = req.query;
@@ -37,7 +37,7 @@ export const getJobsController = async (req: Request, res: Response) => {
 };
 
 // --- Get Job By Id ---
-export const getJobByIdController = async (req: Request, res: Response) => {
+export const getJobById = async (req: Request, res: Response) => {
   const { referenceId } = req.params;
   const userID = req.user?.id as string;
 
@@ -50,7 +50,7 @@ export const getJobByIdController = async (req: Request, res: Response) => {
 };
 
 // --- Update Job ---
-export const updateJobController = async (req: Request, res: Response) => {
+export const updateJob = async (req: Request, res: Response) => {
   const { id } = req.params;
   const userID = req.user?.id as string;
   const data = req.body;
@@ -64,7 +64,7 @@ export const updateJobController = async (req: Request, res: Response) => {
 };
 
 // --- Delete Job ---
-export const deleteJobController = async (req: Request, res: Response) => {
+export const deleteJob = async (req: Request, res: Response) => {
   const { ids } = req.body;
   const userId = req.user?.id as string;
 

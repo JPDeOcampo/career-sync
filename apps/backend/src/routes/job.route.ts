@@ -1,10 +1,10 @@
 import express, { type Router } from "express";
 import {
-  getJobsController,
-  getJobByIdController,
-  createJobController,
-  updateJobController,
-  deleteJobController,
+  getJobs,
+  getJobById,
+  createJobs,
+  updateJob,
+  deleteJob,
   deleteAllJobs,
 } from "@/controllers/job/job.controller";
 import { jobSchema, jobsSchema } from "@career-sync/shared";
@@ -19,9 +19,9 @@ const router: Router = express.Router();
 // GET /jobs?page=1&limit=10
 // GET /jobs?page=2&limit=10
 // GET /jobs?sort=recent&page=1&limit=5
-router.get("/", protect, authLimiter, asyncHandler(getJobsController));
+router.get("/", protect, authLimiter, asyncHandler(getJobs));
 
-router.get("/:jobId", protect, authLimiter, asyncHandler(getJobByIdController));
+router.get("/:jobId", protect, authLimiter, asyncHandler(getJobById));
 
 // Create job
 router.post(
@@ -29,7 +29,7 @@ router.post(
   protect,
   authLimiter,
   validate(jobSchema),
-  asyncHandler(createJobController),
+  asyncHandler(createJobs),
 );
 
 // Bulk Create jobs
@@ -38,7 +38,7 @@ router.post(
   protect,
   authLimiter,
   validate(jobsSchema),
-  asyncHandler(createJobController),
+  asyncHandler(createJobs),
 );
 
 router.patch(
@@ -46,10 +46,10 @@ router.patch(
   protect,
   authLimiter,
   validate(jobSchema),
-  asyncHandler(updateJobController),
+  asyncHandler(updateJob),
 );
 
-router.delete("/", protect, authLimiter, asyncHandler(deleteJobController));
+router.delete("/", protect, authLimiter, asyncHandler(deleteJob));
 
 router.delete("/delete-all", protect, authLimiter, asyncHandler(deleteAllJobs));
 
