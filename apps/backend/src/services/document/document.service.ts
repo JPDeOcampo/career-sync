@@ -40,6 +40,8 @@ export const uploadDocument = async (data: UploadDocumentDTO) => {
 
   const { url, path } = await uploadFileToStorage(file, "documents", userId);
 
+  const filename = path.split("/").pop();
+
   const record = await prisma.document.create({
     data: {
       userId,
@@ -50,7 +52,10 @@ export const uploadDocument = async (data: UploadDocumentDTO) => {
     },
   });
 
-  return record;
+  return {
+    ...record,
+    fileUrl: `${process.env.BACKEND_URL}/api/v1/document/${userId}/${filename}`,
+  };
 };
 
 export const getDocument = async ({
