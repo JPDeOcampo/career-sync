@@ -15,7 +15,7 @@ interface JobCardProps {
   mobileMoveJob?: (job: JobApplication, direction: "left" | "right") => void;
 }
 
-const KabanCard = ({
+const KanbanCard = ({
   job,
   onClick,
   isLoading,
@@ -161,6 +161,7 @@ const KabanCard = ({
       </div>
       {job.interviewStages &&
         job.interviewStages?.length > 0 &&
+        job.status === "Interview" &&
         (() => {
           const latestStage =
             job.interviewStages[job.interviewStages.length - 1];
@@ -190,4 +191,4 @@ const KabanCard = ({
   );
 };
 
-export default KabanCard;
+export default KanbanCard;

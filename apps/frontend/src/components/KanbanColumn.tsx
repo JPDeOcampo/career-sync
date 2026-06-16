@@ -3,7 +3,7 @@ import {
   ApplicationStatus,
   JobQueryTypes,
 } from "@career-sync/shared";
-import KabanCard from "@/components/KabanCard";
+import KanbanCard from "@/components/KanbanCard";
 import useJobHooks from "@/hooks/useJob";
 import { useDroppable } from "@dnd-kit/core";
 import { LoadingSpinner } from "@/components/shared/Loading";
@@ -77,11 +77,11 @@ const KanbanColumn = ({
           {" "}
           {isLoading
             ? Array.from({ length: 3 }).map((_, i) => (
-                <KabanCard key={i} isLoading />
+                <KanbanCard key={i} isLoading />
               ))
             : jobs.map((job) => {
                 return (
-                  <KabanCard
+                  <KanbanCard
                     key={job.id}
                     job={job}
                     onClick={() => handleViewOnly(job, getJobsQuery)}

@@ -25,7 +25,8 @@ import {
   getTodayString,
 } from "@career-sync/shared";
 import { selectAuth } from "@/store/selectors";
-import { useForm, FormProvider } from "react-hook-form";
+import { useForm } from "react-hook-form";
+import FormWrapper from "@/components/shared/FormWrapper";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { v4 as uuidv4 } from "uuid";
 import { useOutsideClick } from "@/hooks/useOutsideClick";
@@ -58,12 +59,33 @@ const stepFields: Record<number, JobFormKeys[]> = {
   4: ["notes"],
 };
 
-const JobModalStepper = ({ currentStep }: { currentStep: number }) => {
+const JobModalStepper = ({
+  currentStep,
+  status,
+}: {
+  currentStep: number;
+  status: string;
+}) => {
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useOutsideClick(() => setIsOpen(false));
 
-  const currentStepData = STEPS.find((s) => s.id === currentStep);
-  const progressPercent = ((currentStep - 1) / (STEPS.length - 1)) * 100;
+  const isInterviewStatus = status === "Interview";
+
+  // Dynamically filter steps based on status
+  const visibleSteps = STEPS.filter((step) => {
+    if (step.id === 3 && !isInterviewStatus) return false;
+    return true;
+  });
+
+  // Check where the user is within the currently visible steps array
+  const currentStepIndex = visibleSteps.findIndex((s) => s.id === currentStep);
+  const currentStepData = visibleSteps[currentStepIndex];
+
+  // Dynamic progress math safety check (prevent division by 0 if steps < 2)
+  const progressPercent =
+    visibleSteps.length > 1
+      ? (currentStepIndex / (visibleSteps.length - 1)) * 100
+      : 0;
 
   return (
     <div className="relative bg-gray-50/50 dark:bg-gray-900/20 border-b border-gray-100 dark:border-gray-700">
@@ -79,7 +101,7 @@ const JobModalStepper = ({ currentStep }: { currentStep: number }) => {
             </div>
             <div className="text-left">
               <p className="text-[10px] text-blue-600 font-bold uppercase">
-                Step {currentStep} of {STEPS.length}
+                Step {currentStepIndex + 1} of {visibleSteps.length}
               </p>
               <h3 className="text-sm font-bold dark:text-white uppercase">
                 {currentStepData?.title}
@@ -105,7 +127,7 @@ const JobModalStepper = ({ currentStep }: { currentStep: number }) => {
               />
 
               <ul className="space-y-6">
-                {STEPS.map((step) => {
+                {visibleSteps.map((step) => {
                   const isCompleted = currentStep > step.id;
                   const isCurrent = currentStep === step.id;
                   return (
@@ -124,7 +146,8 @@ const JobModalStepper = ({ currentStep }: { currentStep: number }) => {
                           <Check className="w-3 h-3" />
                         ) : (
                           <span className="text-[10px] font-bold">
-                            {step.id}
+                            {/* Display real relative index order to UI */}
+                            {visibleSteps.indexOf(step) + 1}
                           </span>
                         )}
                       </div>
@@ -158,7 +181,7 @@ const JobModalStepper = ({ currentStep }: { currentStep: number }) => {
         />
 
         <ul className="flex items-center justify-between relative z-10">
-          {STEPS.map((step) => {
+          {visibleSteps.map((step) => {
             const Icon = step.icon;
             const isCompleted = currentStep > step.id;
             const isCurrent = currentStep === step.id;
@@ -273,7 +296,10 @@ const JobModal = () => {
     },
   });
 
-  const { reset, handleSubmit, trigger, formState } = methods;
+  const { reset, trigger, formState, watch } = methods;
+
+  const jobStatus = watch("status");
+  const isInterviewStatus = jobStatus === "Interview";
 
   const { isDirty } = formState;
 
@@ -313,12 +339,16 @@ const JobModal = () => {
     }
 
     const isValid = await trigger(fieldsToValidate);
-
     if (!isValid) return;
 
-    setCurrentStep((prev) => Math.min(prev + 1, STEPS.length));
+    // IF skipping Step 3 (Interview Stages) from Step 2
+    if (currentStep === 2 && !isInterviewStatus) {
+      setCurrentStep(4); // Skip directly to Notes
+    } else {
+      setCurrentStep((prev) => Math.min(prev + 1, STEPS.length));
+    }
 
-    if (currentStep === 3) {
+    if (currentStep === 3 || (currentStep === 2 && !isInterviewStatus)) {
       dispatch(
         setReviewJobApplication({
           isToReview: true,
@@ -404,7 +434,13 @@ const JobModal = () => {
     }
 
     dispatch(setReviewJobApplication({ isToReview: false, isOnReview: false }));
-    setCurrentStep((prev) => Math.max(prev - 1, 1));
+
+    // IF moving backward from Step 4 and status is not Interview, skip step 3
+    if (currentStep === 4 && !isInterviewStatus) {
+      setCurrentStep(2);
+    } else {
+      setCurrentStep((prev) => Math.max(prev - 1, 1));
+    }
   };
 
   const onSubmit = async (data: JobFormData) => {
@@ -487,52 +523,47 @@ const JobModal = () => {
   return (
     <Modal headerText={headerText()} onClose={onClose}>
       {/* Stepper Progress Indicator (Hidden in View Only) */}
-      {!isViewOnly && <JobModalStepper currentStep={currentStep} />}
+      {!isViewOnly && (
+        <JobModalStepper currentStep={currentStep} status={jobStatus} />
+      )}
 
       {/* Form Content */}
-      <FormProvider {...methods}>
-        <form
-          onSubmit={handleSubmit(onSubmit)}
-          // onSubmit={handleSubmit(
-          //   (data) => {
-          //     console.log("VALID SUBMIT", data);
-          //   },
-          //   (errors) => {
-          //     console.log("FORM ERRORS", errors);
-          //   },
-          // )}
-          className="flex flex-col flex-1 min-h-0"
-        >
-          <div className="flex-1 overflow-y-auto px-6 pt-6 pb-8">
-            {isViewOnly ? (
-              <div className="space-y-8">
-                {fieldsToRender.includes("info") && (
-                  <>
-                    <JobModalSectionHeader
-                      title={STEPS[0].title}
-                      editableFields={editableFields}
-                      onClick={() => dispatch(setViewOnly({ info: false }))}
-                    />
-                    <JobInfoSection isViewOnly={viewOnly.info} />
-                  </>
-                )}
+      <FormWrapper
+        methods={methods}
+        onSubmit={onSubmit}
+        className="flex flex-col flex-1 min-h-0"
+      >
+        <div className="flex-1 overflow-y-auto px-6 pt-6 pb-8">
+          {isViewOnly ? (
+            <div className="space-y-8">
+              {fieldsToRender.includes("info") && (
+                <>
+                  <JobModalSectionHeader
+                    title={STEPS[0].title}
+                    editableFields={editableFields}
+                    onClick={() => dispatch(setViewOnly({ info: false }))}
+                  />
+                  <JobInfoSection isViewOnly={viewOnly.info} />
+                </>
+              )}
 
-                {fieldsToRender.includes("applicationMethod") && (
-                  <>
-                    <JobModalSectionHeader
-                      title={STEPS[1].title}
-                      editableFields={editableFields}
-                      onClick={() =>
-                        dispatch(setViewOnly({ applicationMethod: false }))
-                      }
-                    />
-                    <JobApplicationSection
-                      isViewOnly={viewOnly.applicationMethod}
-                    />
-                  </>
-                )}
+              {fieldsToRender.includes("applicationMethod") && (
+                <>
+                  <JobModalSectionHeader
+                    title={STEPS[1].title}
+                    editableFields={editableFields}
+                    onClick={() =>
+                      dispatch(setViewOnly({ applicationMethod: false }))
+                    }
+                  />
+                  <JobApplicationSection
+                    isViewOnly={viewOnly.applicationMethod}
+                  />
+                </>
+              )}
 
-                {fieldsToRender.includes("interviewStages") && (
+              {fieldsToRender.includes("interviewStages") &&
+                isInterviewStatus && (
                   <>
                     <JobModalSectionHeader
                       title={`${STEPS[2].title} Stages`}
@@ -547,47 +578,48 @@ const JobModal = () => {
                   </>
                 )}
 
-                {fieldsToRender.includes("notes") && (
-                  <>
-                    <JobModalSectionHeader
-                      title="Notes"
-                      editableFields={editableFields}
-                      onClick={() => dispatch(setViewOnly({ notes: false }))}
-                    />
-                    <JobNotesSection isViewOnly={viewOnly.notes} />
-                  </>
-                )}
-              </div>
-            ) : (
-              <motion.div
-                key={currentStep}
-                initial={{ opacity: 0, x: 10 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ duration: 0.2 }}
-              >
-                {currentStep === 1 && <JobInfoSection />}
-                {currentStep === 2 && <JobApplicationSection />}
-                {currentStep === 3 && <JobInterviewSection />}
-                {currentStep === 4 && <JobNotesSection />}
-              </motion.div>
-            )}
-          </div>
+              {fieldsToRender.includes("notes") && (
+                <>
+                  <JobModalSectionHeader
+                    title="Notes"
+                    editableFields={editableFields}
+                    onClick={() => dispatch(setViewOnly({ notes: false }))}
+                  />
+                  <JobNotesSection isViewOnly={viewOnly.notes} />
+                </>
+              )}
+            </div>
+          ) : (
+            <motion.div
+              key={currentStep}
+              initial={{ opacity: 0, x: 10 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.2 }}
+            >
+              {currentStep === 1 && <JobInfoSection />}
+              {currentStep === 2 && <JobApplicationSection />}
+              {currentStep === 3 && isInterviewStatus && (
+                <JobInterviewSection />
+              )}
+              {currentStep === 4 && <JobNotesSection />}
+            </motion.div>
+          )}
+        </div>
 
-          {/* Footer */}
-          <JobModalFooter
-            editableFields={editableFields}
-            selectedJob={selectedJob}
-            currentStep={currentStep}
-            isJobViewOnly={isViewOnly}
-            isLoading={isAdding || isUpdating}
-            isDirty={checkIsDirty}
-            reviewJob={reviewJobApplication}
-            onClose={handleCancel}
-            handleBack={handleBack}
-            handleNext={handleNext}
-          />
-        </form>
-      </FormProvider>
+        {/* Footer */}
+        <JobModalFooter
+          editableFields={editableFields}
+          selectedJob={selectedJob}
+          currentStep={currentStep}
+          isJobViewOnly={isViewOnly}
+          isLoading={isAdding || isUpdating}
+          isDirty={checkIsDirty}
+          reviewJob={reviewJobApplication}
+          onClose={handleCancel}
+          handleBack={handleBack}
+          handleNext={handleNext}
+        />
+      </FormWrapper>
     </Modal>
   );
 };

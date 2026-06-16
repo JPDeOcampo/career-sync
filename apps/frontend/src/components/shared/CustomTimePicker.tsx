@@ -61,7 +61,6 @@ const CustomTimePicker = ({
 
     const formatted = `${String(hour12).padStart(2, "0")}:${String(m).padStart(2, "0")} ${p}`;
 
-    onChange(formatted);
     return formatted;
   };
 
@@ -70,6 +69,11 @@ const CustomTimePicker = ({
     setHour(parsed.hour);
     setMinute(parsed.minute);
     setPeriod(parsed.period);
+
+    if (!value) {
+      const nowTime = getNowTime();
+      onChange(nowTime);
+    }
   }, [value]);
 
   return (

@@ -15,7 +15,7 @@ import {
   DragOverlay,
 } from "@dnd-kit/core";
 import { restrictToWindowEdges } from "@dnd-kit/modifiers";
-import KabanCard from "@/components/KabanCard";
+import KanbanCard from "@/components/KanbanCard";
 import { toast } from "sonner";
 
 const Kanban = () => {
@@ -170,7 +170,7 @@ const Kanban = () => {
           <DragOverlay>
             {activeJob && (
               <div className="w-80">
-                <KabanCard job={activeJob} />
+                <KanbanCard job={activeJob} />
               </div>
             )}
           </DragOverlay>

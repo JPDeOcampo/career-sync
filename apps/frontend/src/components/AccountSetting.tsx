@@ -53,7 +53,11 @@ const AccountSetting = () => {
         );
       })}
 
-      {!activeSection && <DeleteAccount />}
+      {!activeSection && (
+        <div className="mt-10 pt-6 border-t border-gray-200 dark:border-gray-700">
+          <DeleteAccount />
+        </div>
+      )}
     </div>
   );
 };

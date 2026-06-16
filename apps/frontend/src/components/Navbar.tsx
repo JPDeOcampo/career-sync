@@ -37,7 +37,7 @@ const ProfileAvatar = ({
   return (
     <div
       className={cn(
-        "w-7 h-7 sm:w-8 sm:h-8 rounded-full flex items-center justify-center text-white shadow-sm overflow-hidden",
+        "w-10 h-10 rounded-full flex items-center justify-center text-white shadow-sm overflow-hidden",
         isLoading && "bg-background",
         !isColorProfile && !profile && !isLoading && "bg-red-400",
         className,
@@ -127,7 +127,7 @@ const Navbar = () => {
 
               {/* Profile Dropdown */}
               <DropdownMenu>
-                <DropdownMenuTrigger>
+                <DropdownMenuTrigger aria-label="Profile">
                   <div
                     className="flex items-center gap-2 p-1 rounded-full 
                             hover:bg-gray-200 dark:hover:bg-gray-600
@@ -136,7 +136,6 @@ const Navbar = () => {
                     <ProfileAvatar
                       profile={user?.profile}
                       isLoading={isAuthLoading}
-                      className="w-12 h-12"
                     />
                   </div>
                 </DropdownMenuTrigger>
