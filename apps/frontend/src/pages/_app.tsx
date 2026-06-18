@@ -10,7 +10,6 @@ import { store } from "@/store/store";
 import { Toaster } from "sonner";
 import Navbar from "@/components/Navbar";
 import SubNavbar from "@/components/SubNavbar";
-import { publicRoutes } from "@/constant/routesPath";
 import JobModal from "@/components/JobModal";
 import useJobHooks from "@/hooks/useJob";
 import { GlobalModalProvider } from "@/context/GlobalModalContext";

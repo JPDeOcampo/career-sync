@@ -6,6 +6,7 @@ import { loginHref, signupHref, NAV_LINKS } from "@/constant/landingPage";
 import useGlobalHooks from "@/hooks/useGlobal";
 import DarkModeButton from "@/components/shared/DarkModeButton";
 import { cn } from "@/utils/cn";
+import Link from "next/link";
 
 const navLinkClass =
   "text-sm font-medium text-slate-600 dark:text-slate-400 hover:text-slate-950 dark:hover:text-slate-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 rounded-md transition-colors";
@@ -55,32 +56,28 @@ const PublicHeader = () => {
       )}
     >
       <div className="max-w-7xl mx-auto px-4 h-16 flex items-center justify-between">
-        <a
-          href="#top"
+        <Link
+          href="/"
           onClick={(e) => {
-            e.preventDefault();
-            window.scrollTo({
-              top: 0,
-              behavior: "smooth",
-            });
+            handleScroll(e, "/");
             setNavOpen(false);
           }}
           className="flex items-center gap-2.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 rounded-lg"
         >
           <Brand descriptionClassName="block" />
-        </a>
+        </Link>
 
         {/* Desktop Navigation */}
         <nav className="hidden md:flex items-center gap-8">
           {NAV_LINKS.map((link) => (
-            <a
+            <Link
               key={link.href}
               href={link.href}
               onClick={(e) => handleScroll(e, link.href)}
               className={navLinkClass}
             >
               {link.label}
-            </a>
+            </Link>
           ))}
         </nav>
 
@@ -88,16 +85,16 @@ const PublicHeader = () => {
         <div className="hidden md:flex items-center gap-4">
           <DarkModeButton />
 
-          <a href={loginHref} className={navLinkClass}>
+          <Link href={loginHref} className={navLinkClass}>
             Sign in
-          </a>
+          </Link>
 
-          <a
+          <Link
             href={signupHref}
             className="inline-flex items-center gap-1.5 rounded-lg bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold px-4 py-2 shadow-sm transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
           >
             Get started <ArrowRight size={18} />
-          </a>
+          </Link>
         </div>
 
         {/* Mobile Actions */}
@@ -162,21 +159,21 @@ const PublicHeader = () => {
             animate={{ opacity: 1 }}
             transition={{ delay: 0.1, duration: 0.2 }}
           >
-            <a
+            <Link
               href={loginHref}
               onClick={() => setNavOpen(false)}
               className="text-md font-medium text-slate-600 dark:text-slate-400"
             >
               Sign in
-            </a>
+            </Link>
 
-            <a
+            <Link
               href={signupHref}
               onClick={() => setNavOpen(false)}
               className="max-w-37.5 inline-flex items-center justify-center gap-1.5 rounded-lg bg-blue-600 text-white text-md font-semibold px-4 py-2 flex-1"
             >
               Get started <ArrowRight size={18} />
-            </a>
+            </Link>
           </motion.div>
         </motion.div>
       )}

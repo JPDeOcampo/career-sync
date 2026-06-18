@@ -1,6 +1,7 @@
 import { NAV_LINKS, loginHref, signupHref } from "@/constant/landingPage";
 import { Brand } from "@/components/shared/Logo";
 import useGlobalHooks from "@/hooks/useGlobal";
+import Link from "next/link";
 
 const linkBase =
   "text-sm font-medium text-slate-600 dark:text-slate-400 hover:text-slate-950 dark:hover:text-slate-100 transition-colors";
@@ -20,9 +21,9 @@ const FooterLink = ({
   onClick?: (e: React.MouseEvent<HTMLAnchorElement>) => void;
   children: React.ReactNode;
 }) => (
-  <a href={href} onClick={onClick} className={linkBase}>
+  <Link href={href} onClick={onClick} className={linkBase}>
     {children}
-  </a>
+  </Link>
 );
 
 const PublicFooter = () => {
@@ -33,13 +34,13 @@ const PublicFooter = () => {
       <div className="px-4 lg:px-6 py-12 max-w-7xl mx-auto grid grid-cols-2 md:grid-cols-4 gap-10">
         {/* Brand */}
         <div className="col-span-2">
-          <a
+          <Link
             href="/"
             onClick={(e) => handleScroll(e, "/")}
             className="flex items-center gap-2 mb-4"
           >
             <Brand descriptionClassName="block" />
-          </a>
+          </Link>
           <p className="text-sm text-slate-500 dark:text-slate-400 max-w-xs leading-relaxed">
             Your job search, organized.
           </p>
