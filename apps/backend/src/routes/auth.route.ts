@@ -45,7 +45,7 @@ const router: Router = express.Router();
 
 // -- Auth Routes --
 router.post(
-  "/register",
+  "/signup",
   authLimiter,
   validate(registerSchema),
   asyncHandler(register),

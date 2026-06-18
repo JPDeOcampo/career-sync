@@ -1,6 +1,6 @@
 "use client";
 import { useState } from "react";
-import Logo from "@/components/shared/Logo";
+import { Logo } from "@/components/shared/Logo";
 import Button from "@/components/shared/Button";
 import {
   InputName,
@@ -20,7 +20,7 @@ import { LoadingSpinner } from "@/components/shared/Loading";
 
 type RegisterFormData = z.infer<typeof registerSchema>;
 
-const Register = () => {
+const Signup = () => {
   const router = useRouter();
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
@@ -129,7 +129,7 @@ const Register = () => {
             className="w-full h-11"
             disabled={isSubmitting || isLoading}
           >
-            {isLoading ? <LoadingSpinner /> : "Create Account"}
+            {isLoading ? <LoadingSpinner /> : "Create account"}
           </Button>
         </form>
       </FormProvider>
@@ -149,4 +149,4 @@ const Register = () => {
   );
 };
 
-export default Register;
+export default Signup;

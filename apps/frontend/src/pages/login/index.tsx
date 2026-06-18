@@ -2,7 +2,7 @@
 import { useState } from "react";
 import { useAppDispatch } from "@/hooks/useRedux";
 import { login } from "@/store/slices/authSlice";
-import Logo from "@/components/shared/Logo";
+import { Logo } from "@/components/shared/Logo";
 import Button from "@/components/shared/Button";
 import { toast } from "sonner";
 import { useLoginMutation } from "@/store/api/authApi";
@@ -85,7 +85,7 @@ const Login = () => {
             className="w-full h-11"
             disabled={isSubmitting || isLoading}
           >
-            {isLoading ? <LoadingSpinner /> : "Sign In"}
+            {isLoading ? <LoadingSpinner /> : "Sign in"}
           </Button>
         </form>
       </FormProvider>
@@ -94,7 +94,7 @@ const Login = () => {
         <p className="text-gray-600 dark:text-gray-400">
           Don&apos;t have an account?{" "}
           <button
-            onClick={() => router.push("/register")}
+            onClick={() => router.push("/signup")}
             className="text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300 font-medium transition-colors"
           >
             Sign up
@@ -120,9 +120,9 @@ const Login = () => {
           />
         </div>
 
-        <p className="mt-6 text-xs text-center text-gray-500 dark:text-gray-500">
+        {/* <p className="mt-6 text-xs text-center text-gray-500 dark:text-gray-500">
           &copy; {new Date().getFullYear()} CareerSync. All rights reserved.
-        </p>
+        </p> */}
       </div>
     </div>
   );
