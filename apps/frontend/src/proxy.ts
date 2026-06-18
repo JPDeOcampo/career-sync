@@ -3,30 +3,45 @@ import type { NextRequest } from "next/server";
 import { publicRoutes, protectedRoutes } from "@/constant/routesPath";
 
 export const proxy = (request: NextRequest) => {
-  const pathname = request.nextUrl.pathname.replace(/\/$/, "") || "/";
+  const { pathname } = request.nextUrl;
 
-  const isPublic = publicRoutes.some((path) => pathname.startsWith(path));
+  // Normalize the pathname (remove trailing slash except for root)
+  const normalizedPath = pathname === "/" ? "/" : pathname.replace(/\/$/, "");
+
+  // Strict or accurate matching depending on array structures
+  // Using exact match or making sure that it don't accidentally match '/' to everything
+  const isPublic = publicRoutes.some((path) =>
+    path === "/" ? normalizedPath === "/" : normalizedPath.startsWith(path),
+  );
+
+  const isProtected = protectedRoutes.some((path) =>
+    path === "/" ? normalizedPath === "/" : normalizedPath.startsWith(path),
+  );
 
   const loggedIn = request.cookies.get("refreshToken")?.value;
 
+  // --- USER IS LOGGED IN ---
   if (loggedIn) {
-    if (isPublic) {
+    // If user are on a public page (like /login or /landing), kick them to dashboard
+    if (isPublic && normalizedPath !== "/dashboard") {
       return NextResponse.redirect(new URL("/dashboard", request.url));
     }
 
-    const isDefinedRoute = protectedRoutes.some((path) =>
-      pathname.startsWith(path),
-    );
-
-    if (!isDefinedRoute) {
+    // If user are going to an invalid/undefined route, send them to dashboard
+    if (!isProtected && normalizedPath !== "/dashboard") {
       return NextResponse.redirect(new URL("/dashboard", request.url));
     }
 
     return NextResponse.next();
   }
 
+  // --- USER IS NOT LOGGED IN ---
   if (!loggedIn) {
     if (isPublic) {
+      return NextResponse.next();
+    }
+
+    if (normalizedPath === "/login") {
       return NextResponse.next();
     }
 

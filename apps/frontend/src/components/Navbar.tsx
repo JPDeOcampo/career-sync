@@ -1,7 +1,7 @@
 "use client";
 import { useState } from "react";
 import { useRouter } from "next/router";
-import Logo from "./shared/Logo";
+import { Brand } from "@/components/shared/Logo";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -12,7 +12,7 @@ import {
 } from "./shared/DropdownMenu";
 import { Plus, User, LogOut, Settings } from "lucide-react";
 import { useAppSelector } from "@/hooks/useRedux";
-import DarkModeButton from "./shared/DarkModeButton";
+import DarkModeButton from "@/components/shared/DarkModeButton";
 import { useLogoutMutation } from "@/store/api/authApi";
 import useJobHooks from "@/hooks/useJob";
 import SettingsModal from "./SettingsModal";
@@ -95,21 +95,7 @@ const Navbar = () => {
         <div className="max-w-7xl mx-auto">
           <div className="flex items-center justify-between h-16">
             {/* LEFT SIDE */}
-            <div className="flex items-center gap-2 sm:gap-3 min-w-0">
-              <Logo
-                className="h-10 w-10 sm:h-11 sm:w-11 shrink-0"
-                iconClassName="w-6 h-6 sm:w-7 sm:h-7"
-              />
-
-              <div className="truncate">
-                <h1 className="text-base sm:text-xl font-bold text-default truncate">
-                  CareerSync
-                </h1>
-                <p className="hidden sm:block text-xs text-gray-500 dark:text-gray-400 truncate">
-                  Manage your job applications
-                </p>
-              </div>
-            </div>
+            <Brand />
 
             {/* RIGHT SIDE */}
             <div className="flex items-center gap-2 sm:gap-3">

@@ -1,6 +1,6 @@
 "use client";
 import { useRouter } from "next/router";
-import Logo from "@/components/shared/Logo";
+import { Logo } from "@/components/shared/Logo";
 import Button from "@/components/shared/Button";
 import { ArrowLeft } from "lucide-react";
 import { toast } from "sonner";
@@ -60,7 +60,7 @@ const ForgotPassword = () => {
       <div className="text-center mb-8">
         <Logo />
         <h1 className="text-3xl font-bold text-default mb-2">
-          Forgot Password?
+          Forgot password?
         </h1>
         <p className="text-gray-600 dark:text-gray-400">
           No worries, we&apos;ll send you reset verification code

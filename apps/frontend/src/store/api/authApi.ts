@@ -25,7 +25,7 @@ export const authApi = createApi({
       }
     >({
       query: (credentials) => ({
-        url: `${path}/register`,
+        url: `${path}/signup`,
         method: "POST",
         body: credentials,
       }),

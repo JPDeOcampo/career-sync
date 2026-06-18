@@ -117,7 +117,7 @@ const VerifyCode = () => {
 
       <div className="text-center mb-8">
         <LogoShield />
-        <h1 className="text-3xl font-bold text-default mb-2">Verify Code</h1>
+        <h1 className="text-3xl font-bold text-default mb-2">Verify code</h1>
         <span className="text-gray-600 dark:text-gray-400">
           We sent a code to{" "}
           <span className="font-bold">
@@ -163,7 +163,7 @@ const VerifyCode = () => {
             isLoadingRefreshResetPassword
           }
         >
-          {isLoadingVerify ? <LoadingSpinner /> : "Verify Code"}
+          {isLoadingVerify ? <LoadingSpinner /> : "Verify code"}
         </Button>
 
         <div className="flex justify-center items-center gap-2 text-center">

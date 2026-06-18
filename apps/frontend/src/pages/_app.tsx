@@ -10,7 +10,6 @@ import { store } from "@/store/store";
 import { Toaster } from "sonner";
 import Navbar from "@/components/Navbar";
 import SubNavbar from "@/components/SubNavbar";
-import { publicRoutes } from "@/constant/routesPath";
 import JobModal from "@/components/JobModal";
 import useJobHooks from "@/hooks/useJob";
 import { GlobalModalProvider } from "@/context/GlobalModalContext";
@@ -25,6 +24,10 @@ import {
 } from "@/constant/verifyStatus";
 import { handleStatusToast } from "@/utils/toast";
 import { initTheme } from "@/store/initTheme";
+import PublicHeader from "@/components/PublicHeader";
+import PublicFooter from "@/components/PublicFooter";
+import useGlobalHooks from "@/hooks/useGlobal";
+import { cn } from "@/utils/cn";
 
 const poppins = Poppins({
   subsets: ["latin"],
@@ -36,15 +39,17 @@ const poppins = Poppins({
 const AppContent = ({ Component, pageProps }: AppProps) => {
   const router = useRouter();
   const dispatch = useAppDispatch();
+  const { isLandingPage, hasPublicRoute, isPublicNonLandingPage } =
+    useGlobalHooks();
   const isErrorPage = Component.name === "Custom404";
-  const hideHeader = publicRoutes.includes(router.pathname) || isErrorPage;
+  const isPublicPage = hasPublicRoute || isErrorPage;
 
   const { selectedViewDocument } = useAppSelector(selectDocuments);
 
   const { isJobModalShow } = useJobHooks();
 
   useEffect(() => {
-    if (router.pathname !== "/login") return;
+    if (!isPublicPage && !isLandingPage) return;
     if (typeof window !== "undefined") {
       initTheme(store);
     }
@@ -68,9 +73,12 @@ const AppContent = ({ Component, pageProps }: AppProps) => {
 
   return (
     <div
-      className={`${poppins.variable} font-sans flex flex-col min-h-screen min-w-full shrink-0`}
+      className={cn(
+        "font-sans flex flex-col min-h-screen min-w-full shrink-0",
+        poppins.variable,
+      )}
     >
-      {!hideHeader && (
+      {!isPublicPage && !isLandingPage && (
         <header
           className="top-0 z-30 w-full border-b border-gray-200 dark:border-gray-700 
       surface sticky"
@@ -80,16 +88,28 @@ const AppContent = ({ Component, pageProps }: AppProps) => {
         </header>
       )}
 
+      {isLandingPage && <PublicHeader />}
+
       <main
-        className={`flex flex-col items-center bg-background flex-1 w-full 
-    ${!hideHeader ? "p-4 md:p-8" : "justify-center"}`}
+        className={cn(
+          "flex flex-col items-center bg-background flex-1 w-full",
+          !isPublicPage ? "p-4 md:p-8" : "justify-center",
+          isPublicNonLandingPage && "my-35",
+        )}
       >
         <div
-          className={`w-full max-w-7xl ${hideHeader ? "flex justify-center items-center" : ""}`}
+          className={cn(
+            "w-full",
+            !isLandingPage && "max-w-7xl",
+            isPublicNonLandingPage && "flex justify-center items-center",
+          )}
         >
           <Component {...pageProps} />
         </div>
       </main>
+
+      {isPublicPage && <PublicFooter />}
+
       {isJobModalShow && <JobModal />}
       <DocumentModal
         isOpen={!!selectedViewDocument.url}

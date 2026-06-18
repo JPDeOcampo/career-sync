@@ -85,7 +85,7 @@ const ResetPassword = () => {
             className="w-full h-11"
             disabled={isSubmitting || isLoading}
           >
-            {isLoading ? <LoadingSpinner /> : "Reset Password"}
+            {isLoading ? <LoadingSpinner /> : "Reset password"}
           </Button>
         </form>
       </FormProvider>
