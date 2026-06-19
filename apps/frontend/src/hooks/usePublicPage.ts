@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { useRouter } from "next/router";
 import { publicRoutes } from "@/constant/routesPath";
 
-const useGlobalHooks = () => {
+const usePublicPageHooks = () => {
   const router = useRouter();
   const [navOpen, setNavOpen] = useState<boolean>(false);
   const isLandingPage = router.pathname === "/";
@@ -16,7 +16,7 @@ const useGlobalHooks = () => {
     e.preventDefault();
     setNavOpen(false);
 
-    if (targetId === "/" && isLandingPage) {
+    if (targetId === "" && isLandingPage) {
       return window.scrollTo({ top: 0, behavior: "smooth" });
     }
 
@@ -47,4 +47,4 @@ const useGlobalHooks = () => {
   };
 };
 
-export default useGlobalHooks;
+export default usePublicPageHooks;

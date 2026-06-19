@@ -26,7 +26,7 @@ import { handleStatusToast } from "@/utils/toast";
 import { initTheme } from "@/store/initTheme";
 import PublicHeader from "@/components/PublicHeader";
 import PublicFooter from "@/components/PublicFooter";
-import useGlobalHooks from "@/hooks/useGlobal";
+import usePublicPageHooks from "@/hooks/usePublicPage";
 import { cn } from "@/utils/cn";
 
 const poppins = Poppins({
@@ -40,7 +40,7 @@ const AppContent = ({ Component, pageProps }: AppProps) => {
   const router = useRouter();
   const dispatch = useAppDispatch();
   const { isLandingPage, hasPublicRoute, isPublicNonLandingPage } =
-    useGlobalHooks();
+    usePublicPageHooks();
   const isErrorPage = Component.name === "Custom404";
   const isPublicPage = hasPublicRoute || isErrorPage;
 

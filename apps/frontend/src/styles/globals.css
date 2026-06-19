@@ -272,7 +272,7 @@
   }
 
   a {
-    @apply hover:opacity-70;
+    @apply no-underline hover:opacity-70;
   }
 
   /* Background */
