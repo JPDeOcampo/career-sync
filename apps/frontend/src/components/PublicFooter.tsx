@@ -1,6 +1,6 @@
 import { NAV_LINKS, loginHref, signupHref } from "@/constant/landingPage";
 import { Brand } from "@/components/shared/Logo";
-import useGlobalHooks from "@/hooks/useGlobal";
+import usePublicPageHooks from "@/hooks/usePublicPage";
 import Link from "next/link";
 
 const linkBase =
@@ -27,16 +27,16 @@ const FooterLink = ({
 );
 
 const PublicFooter = () => {
-  const { handleScroll } = useGlobalHooks();
+  const { handleScroll } = usePublicPageHooks();
 
   return (
     <footer className="bg-background border-t border-foreground/10 transition-colors">
-      <div className="px-4 lg:px-6 py-12 max-w-7xl mx-auto grid grid-cols-2 md:grid-cols-4 gap-10">
+      <div className="px-4 lg:px-6 py-12 max-w-7xl mx-auto flex flex-col md:grid md:grid-cols-4 gap-10">
         {/* Brand */}
         <div className="col-span-2">
           <Link
             href="/"
-            onClick={(e) => handleScroll(e, "/")}
+            onClick={(e) => handleScroll(e, "")}
             className="flex items-center gap-2 mb-4"
           >
             <Brand descriptionClassName="block" />

@@ -3,7 +3,7 @@ import { Menu, X, ArrowRight } from "lucide-react";
 import { motion } from "motion/react";
 import { Brand } from "@/components/shared/Logo";
 import { loginHref, signupHref, NAV_LINKS } from "@/constant/landingPage";
-import useGlobalHooks from "@/hooks/useGlobal";
+import usePublicPageHooks from "@/hooks/usePublicPage";
 import DarkModeButton from "@/components/shared/DarkModeButton";
 import { cn } from "@/utils/cn";
 import Link from "next/link";
@@ -27,7 +27,7 @@ const itemVariants = {
 };
 
 const PublicHeader = () => {
-  const { navOpen, setNavOpen, handleScroll } = useGlobalHooks();
+  const { navOpen, setNavOpen, handleScroll } = usePublicPageHooks();
 
   const handleMobileNavigation = (
     e: React.MouseEvent<HTMLAnchorElement>,
@@ -59,7 +59,7 @@ const PublicHeader = () => {
         <Link
           href="/"
           onClick={(e) => {
-            handleScroll(e, "/");
+            handleScroll(e, "");
             setNavOpen(false);
           }}
           className="flex items-center gap-2.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 rounded-lg"

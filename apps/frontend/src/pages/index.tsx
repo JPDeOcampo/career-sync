@@ -10,7 +10,7 @@ import {
   signupHref,
 } from "@/constant/landingPage";
 import { PipelineColumn, StageMeta } from "@/@types/landingPageTypes";
-import useGlobalHooks from "@/hooks/useGlobal";
+import usePublicPageHooks from "@/hooks/usePublicPage";
 import { cn } from "@/utils/cn";
 
 interface KanbanPreviewProps {
@@ -22,7 +22,7 @@ const KanbanPreview: React.FC<KanbanPreviewProps> = ({
   pipeline,
   stageMeta,
 }) => (
-  <div className="max-w-95 md:max-w-7xl w-full md:col-span-7 bg-white dark:bg-[#111827] border border-slate-200 dark:border-slate-800 px-4 pt-4 lg:px-6 md:pt-6 rounded-xl shadow-xl dark:shadow-2xl/40">
+  <div className="md:max-w-7xl w-full md:col-span-7 bg-white dark:bg-[#111827] border border-slate-200 dark:border-slate-800 px-4 pt-4 lg:px-6 md:pt-6 rounded-xl shadow-xl dark:shadow-2xl/40">
     <div className="flex items-center justify-between mb-5 border-b border-slate-100 dark:border-slate-800/80 pb-4">
       <div className="flex items-center gap-1.5">
         <span className="w-3 h-3 rounded-full bg-red-500/80" />
@@ -102,13 +102,13 @@ const KanbanPreview: React.FC<KanbanPreviewProps> = ({
 );
 
 const App = () => {
-  const { handleScroll } = useGlobalHooks();
+  const { handleScroll } = usePublicPageHooks();
 
   return (
     <div className="min-h-screen bg-background text-slate-900 dark:text-slate-100 transition-colors duration-200 antialiased selection:bg-blue-600/20 mt-16 lg:pt-0">
       {/* Hero Layout */}
       <section id="top" className="bg-slate-50 dark:bg-slate-900">
-        <div className="grid md:grid-cols-12 gap-12 items-center px-4 lg:px-6 pt-16 pb-20 md:pt-24 md:pb-28 max-w-7xl mx-auto">
+        <div className="flex flex-col md:grid md:grid-cols-12 gap-12 items-center px-4 lg:px-6 pt-16 pb-20 md:pt-24 md:pb-28 max-w-7xl mx-auto">
           <div className="md:col-span-5 text-left">
             <span className="inline-block text-xs font-mono font-bold uppercase tracking-widest text-blue-600 dark:text-blue-400 mb-4 bg-blue-500/10 dark:bg-blue-500/10 px-4 py-2 rounded-full">
               Track your job application progress
@@ -119,7 +119,7 @@ const App = () => {
                 one absolute view.
               </span>
             </h1>
-            <p className="text-base md:text-lg text-slate-600 dark:text-slate-400 mb-8 max-w-md leading-relaxed">
+            <p className="text-base md:text-lg text-slate-600 dark:text-slate-400 mb-8 w-full max-w-md leading-relaxed wrap-break-word">
               CareerSync organizes your entire job search in one intelligent
               workspace, from first application to final offer.
             </p>
