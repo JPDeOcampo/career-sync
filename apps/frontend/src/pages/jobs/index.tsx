@@ -87,7 +87,7 @@ const JobTableHead = ({
               className={TH_BUTTON_CLASSES}
             >
               Company
-              <ArrowUpDown className="w-3 h-3" />
+              {/* <ArrowUpDown className="w-3 h-3" /> */}
             </button>
           </th>
         )}
@@ -104,7 +104,7 @@ const JobTableHead = ({
               className={TH_BUTTON_CLASSES}
             >
               Priority
-              <ArrowUpDown className="w-3 h-3" />
+              {/* <ArrowUpDown className="w-3 h-3" /> */}
             </button>
           </th>
         )}
@@ -117,7 +117,7 @@ const JobTableHead = ({
               className={TH_BUTTON_CLASSES}
             >
               Applied
-              <ArrowUpDown className="w-3 h-3" />
+              {/* <ArrowUpDown className="w-3 h-3" /> */}
             </button>
           </th>
         )}

@@ -55,7 +55,7 @@ const DocumentsTableHead = ({
           <th className={TH_TEXT_CLASSES}>
             <button disabled={disableSort} className={TH_BUTTON_CLASSES}>
               Filename
-              <ArrowUpDown className="w-3 h-3" />
+              {/* <ArrowUpDown className="w-3 h-3" /> */}
             </button>
           </th>
         )}
@@ -70,7 +70,7 @@ const DocumentsTableHead = ({
               className={TH_BUTTON_CLASSES}
             >
               Date Uploaded
-              <ArrowUpDown className="w-3 h-3" />
+              {/* <ArrowUpDown className="w-3 h-3" /> */}
             </button>
           </th>
         )}
