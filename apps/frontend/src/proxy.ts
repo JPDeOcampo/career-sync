@@ -5,6 +5,16 @@ import { publicRoutes, protectedRoutes } from "@/constant/routesPath";
 export const proxy = (request: NextRequest) => {
   const { pathname } = request.nextUrl;
 
+  if (
+    pathname.startsWith("/favicon") ||
+    pathname.startsWith("/icons") ||
+    pathname.endsWith(".webmanifest") ||
+    pathname.endsWith(".json") ||
+    pathname.includes(".")
+  ) {
+    return NextResponse.next();
+  }
+
   // Normalize the pathname (remove trailing slash except for root)
   const normalizedPath = pathname === "/" ? "/" : pathname.replace(/\/$/, "");
 

@@ -10,7 +10,7 @@ import {
   signupHref,
 } from "@/constant/landingPage";
 import { PipelineColumn, StageMeta } from "@/@types/landingPageTypes";
-import usePublicPageHooks from "@/hooks/usePublicPage";
+import Link from "next/link";
 import { cn } from "@/utils/cn";
 
 interface KanbanPreviewProps {
@@ -102,8 +102,6 @@ const KanbanPreview: React.FC<KanbanPreviewProps> = ({
 );
 
 const App = () => {
-  const { handleScroll } = usePublicPageHooks();
-
   return (
     <div className="min-h-screen bg-background text-slate-900 dark:text-slate-100 transition-colors duration-200 antialiased selection:bg-blue-600/20 mt-16 lg:pt-0">
       {/* Hero Layout */}
@@ -130,13 +128,12 @@ const App = () => {
               >
                 Get started <ArrowRight size={18} />
               </a>
-              <a
+              <Link
                 href="#how-it-works"
-                onClick={(e) => handleScroll(e, "#how-it-works")}
                 className="inline-flex items-center gap-2 rounded-lg border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#111827] hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300 text-base font-semibold px-5 py-3.5 transition-colors shadow-xs"
               >
                 See workflow structure
-              </a>
+              </Link>
             </div>
           </div>
 

@@ -9,7 +9,7 @@ interface HelmetMetaProps {
 const HelmetMeta = ({
   title = "CareerSync",
   description = "CareerSync is your one-stop platform to track job applications, manage your career journey, and stay organized.",
-  image = `/images/logo.svg`,
+  image = `/icons/og-preview.png`,
 }: HelmetMetaProps) => {
   return (
     <Head>

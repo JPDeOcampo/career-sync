@@ -27,15 +27,7 @@ const itemVariants = {
 };
 
 const PublicHeader = () => {
-  const { navOpen, setNavOpen, handleScroll } = usePublicPageHooks();
-
-  const handleMobileNavigation = (
-    e: React.MouseEvent<HTMLAnchorElement>,
-    href: string,
-  ) => {
-    handleScroll(e, href);
-    setNavOpen(false);
-  };
+  const { navOpen, setNavOpen } = usePublicPageHooks();
 
   useEffect(() => {
     if (navOpen) document.body.style.overflow = "hidden";
@@ -59,7 +51,6 @@ const PublicHeader = () => {
         <Link
           href="/"
           onClick={(e) => {
-            handleScroll(e, "");
             setNavOpen(false);
           }}
           className="flex items-center gap-2.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 rounded-lg"
@@ -70,12 +61,7 @@ const PublicHeader = () => {
         {/* Desktop Navigation */}
         <nav className="hidden md:flex items-center gap-8">
           {NAV_LINKS.map((link) => (
-            <Link
-              key={link.href}
-              href={link.href}
-              onClick={(e) => handleScroll(e, link.href)}
-              className={navLinkClass}
-            >
+            <Link key={link.href} href={link.href} className={navLinkClass}>
               {link.label}
             </Link>
           ))}
@@ -139,7 +125,7 @@ const PublicHeader = () => {
               <motion.li key={link.href} variants={itemVariants}>
                 <motion.a
                   href={link.href}
-                  onClick={(e) => handleMobileNavigation(e, link.href)}
+                  onClick={() => setNavOpen(false)}
                   className="text-base font-medium text-slate-600 dark:text-slate-400 hover:text-slate-950 dark:hover:text-slate-100"
                   whileTap={{ scale: 0.98 }}
                 >

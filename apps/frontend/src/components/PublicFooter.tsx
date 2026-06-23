@@ -1,6 +1,5 @@
 import { NAV_LINKS, loginHref, signupHref } from "@/constant/landingPage";
 import { Brand } from "@/components/shared/Logo";
-import usePublicPageHooks from "@/hooks/usePublicPage";
 import Link from "next/link";
 
 const linkBase =
@@ -14,31 +13,29 @@ const SectionTitle = ({ children }: { children: React.ReactNode }) => (
 
 const FooterLink = ({
   href,
-  onClick,
   children,
 }: {
   href: string;
-  onClick?: (e: React.MouseEvent<HTMLAnchorElement>) => void;
   children: React.ReactNode;
-}) => (
-  <Link href={href} onClick={onClick} className={linkBase}>
-    {children}
-  </Link>
-);
+}) => {
+  const isHash = href.startsWith("#");
+
+  const fullHref = isHash ? `/${href}` : href;
+
+  return (
+    <Link href={fullHref} className={linkBase}>
+      {children}
+    </Link>
+  );
+};
 
 const PublicFooter = () => {
-  const { handleScroll } = usePublicPageHooks();
-
   return (
     <footer className="bg-background border-t border-foreground/10 transition-colors">
       <div className="px-4 lg:px-6 py-12 max-w-7xl mx-auto flex flex-col md:grid md:grid-cols-4 gap-10">
         {/* Brand */}
         <div className="col-span-2">
-          <Link
-            href="/"
-            onClick={(e) => handleScroll(e, "")}
-            className="flex items-center gap-2 mb-4"
-          >
+          <Link href="/" className="flex items-center gap-2 mb-4">
             <Brand descriptionClassName="block" />
           </Link>
           <p className="text-sm text-slate-500 dark:text-slate-400 max-w-xs leading-relaxed">
@@ -51,11 +48,7 @@ const PublicFooter = () => {
           <SectionTitle>Product</SectionTitle>
           <div className="flex flex-col gap-2.5">
             {NAV_LINKS.map((link) => (
-              <FooterLink
-                key={link.href}
-                href={link.href}
-                onClick={(e) => handleScroll(e, link.href)}
-              >
+              <FooterLink key={link.href} href={link.href}>
                 {link.label}
               </FooterLink>
             ))}

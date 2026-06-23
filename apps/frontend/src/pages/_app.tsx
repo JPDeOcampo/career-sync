@@ -41,7 +41,11 @@ const AppContent = ({ Component, pageProps }: AppProps) => {
   const dispatch = useAppDispatch();
   const { isLandingPage, hasPublicRoute, isPublicNonLandingPage } =
     usePublicPageHooks();
-  const isErrorPage = Component.name === "Custom404";
+  const isErrorPage =
+    router.pathname === "/404" ||
+    Component.name === "Custom404" ||
+    pageProps?.statusCode === 404 ||
+    pageProps?.statusCode === 500;
   const isPublicPage = hasPublicRoute || isErrorPage;
 
   const { selectedViewDocument } = useAppSelector(selectDocuments);
